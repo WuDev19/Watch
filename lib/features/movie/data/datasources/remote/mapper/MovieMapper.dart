@@ -1,4 +1,4 @@
-import 'package:movie_app/features/movie/data/datasources/remote/dto/CategoryInSearchPage.dart';
+import 'package:movie_app/features/movie/data/datasources/remote/dto/search/CategoryInSearchPage.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/dto/home/Item.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/dto/search/SearchMovieDTO.dart';
 import 'package:movie_app/features/movie/domain/models/CategoryModel.dart';

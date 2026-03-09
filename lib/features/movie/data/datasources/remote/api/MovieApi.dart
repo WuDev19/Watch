@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
-import 'package:movie_app/features/movie/data/datasources/remote/dto/CategoryInSearchPage.dart';
+import 'package:movie_app/features/movie/data/datasources/remote/dto/search/CategoryInSearchPage.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/dto/MovieResponse.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/dto/home/Item.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/dto/search/SearchMovieDTO.dart';
@@ -63,4 +63,6 @@ class MovieApi {
       (jsonT) => SearchMovieDto.fromJson(jsonT),
     );
   }
+
+
 }
