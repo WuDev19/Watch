@@ -1,0 +1,265 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lottie/lottie.dart';
+import 'package:movie_app/features/movie/domain/models/CategoryModel.dart';
+import 'package:movie_app/features/movie/presentation/search/state/SearchState.dart';
+import 'package:movie_app/features/movie/presentation/search/state_management/SearchPageManagement.dart';
+import 'package:movie_app/features/movie/presentation/search/widgets/SearchResultItem.dart';
+import '../../../../core/colors/VColors.dart';
+import '../../domain/models/SearchMovieDisplay.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+
+class SearchPage extends StatefulWidget {
+  const SearchPage({super.key});
+
+  @override
+  State<SearchPage> createState() => _SearchPageState();
+}
+
+class _SearchPageState extends State<SearchPage> {
+  late TextEditingController _textEditingController;
+  late ScrollController _searchController;
+  late ValueNotifier<int> _selectedCategory;
+  late SearchPageManagement _searchPageManagement;
+  bool _isSearchKeyWord = false;
+  String _slugCategory = "";
+  bool _isLoadingMore = false;
+  int _currentIndex = -1; //để xử lý click vào category
+
+  @override
+  void initState() {
+    _textEditingController = TextEditingController();
+    _searchController = ScrollController();
+    _selectedCategory = ValueNotifier(-1);
+    _searchPageManagement = context.read<SearchPageManagement>();
+    _searchController.addListener(_onScrollSearchLast);
+    context.read<SearchPageManagement>().getCategories();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _textEditingController.dispose();
+    _searchController.removeListener(_onScrollSearchLast);
+    _searchController.dispose();
+    _selectedCategory.dispose();
+    super.dispose();
+  }
+
+  void _onScrollSearchLast() {
+    if (_searchController.offset >=
+        _searchController.position.maxScrollExtent * 0.9) {
+      if (_isLoadingMore) return;
+      _isLoadingMore = true;
+      _isSearchKeyWord
+          ? _searchPageManagement.searchMovie(
+              _textEditingController.text,
+              false,
+            )
+          : _searchPageManagement.searchMovieAccordingToCategory(
+              _slugCategory,
+              false,
+            );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: VColors.blackBackground,
+      child: Padding(
+        padding: const EdgeInsetsGeometry.all(10),
+        child: Column(
+          children: [
+            //sau bọc vào future builder để call lấy lịch sử search
+            SearchBar(
+              controller: _textEditingController,
+              leading: InkWell(
+                onTap: () {
+                  _isSearchKeyWord = true;
+                  _searchPageManagement.searchMovie(
+                    _textEditingController.text,
+                    true,
+                  );
+                },
+                child: const Icon(Icons.search, color: VColors.colorIcon),
+              ),
+              hintText: "Search movies...",
+              elevation: const WidgetStatePropertyAll(10),
+              hintStyle: const WidgetStatePropertyAll(
+                TextStyle(color: Colors.white),
+              ),
+              backgroundColor: const WidgetStatePropertyAll(VColors.greySearch),
+              textStyle: const WidgetStatePropertyAll(
+                TextStyle(color: Colors.white),
+              ),
+              onSubmitted: (value) {
+                _isSearchKeyWord = true;
+                _searchPageManagement.searchMovie(
+                  _textEditingController.text,
+                  true,
+                );
+              },
+            ),
+            const SizedBox(height: 10),
+            BlocSelector<
+              SearchPageManagement,
+              SearchState,
+              (List<CategoryModel>, bool, String?)
+            >(
+              selector: (SearchState state) => (
+                state.categories,
+                state.isCategoriesLoading,
+                state.errorCategories,
+              ),
+              builder: (context, state) {
+                if (state.$1.isNotEmpty &&
+                    state.$2 == false &&
+                    state.$3 == null) {
+                  return SizedBox(
+                    height: 45,
+                    child: ListView.builder(
+                      itemBuilder: (context, index) {
+                        final category = state.$1[index];
+                        return InkWell(
+                          onTap: () {
+                            if (_currentIndex != index) {
+                              _isSearchKeyWord = false;
+                              _slugCategory = category.categorySlug;
+                              _currentIndex = index;
+                              _selectedCategory.value = index;
+                              _searchPageManagement
+                                  .searchMovieAccordingToCategory(
+                                    category.categorySlug,
+                                    true,
+                                  );
+                            }
+                          },
+                          child: ValueListenableBuilder(
+                            valueListenable: _selectedCategory,
+                            builder:
+                                (BuildContext context, value, Widget? child) {
+                                  return AnimatedContainer(
+                                    duration: const Duration(milliseconds: 300),
+                                    margin: const EdgeInsets.all(5),
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: value == index
+                                          ? VColors.colorIcon
+                                          : VColors.greySearch,
+                                      borderRadius:
+                                          const BorderRadiusGeometry.all(
+                                            Radius.circular(10),
+                                          ),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        category.category,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                          ),
+                        );
+                      },
+                      itemCount: state.$1.length,
+                      scrollDirection: Axis.horizontal,
+                    ),
+                  );
+                }
+                return const SizedBox();
+              },
+            ),
+            const SizedBox(height: 10),
+            Expanded(
+              child:
+                  BlocSelector<
+                    SearchPageManagement,
+                    SearchState,
+                    (
+                      List<SearchMovieDisplay> movies,
+                      bool isMoviesLoading,
+                      String? error,
+                    )
+                  >(
+                    selector: (state) {
+                      return (
+                        state.movies,
+                        state.isMoviesLoading,
+                        state.errorMovies,
+                      );
+                    },
+                    builder: (BuildContext context, state) {
+                      _isLoadingMore = false;
+                      if (state.$2 == true &&
+                          state.$1.isEmpty &&
+                          state.$3 == null) {
+                        return Center(
+                          child: LottieBuilder.asset(
+                            "assets/lottie/loading.json",
+                            fit: BoxFit.contain,
+                            alignment: Alignment.center,
+                          ),
+                        );
+                      }
+                      if (state.$3 != null && state.$2 == false) {
+                        return Center(
+                          child: InkWell(
+                            onTap: () {
+                              _isSearchKeyWord = true;
+                              _searchPageManagement.searchMovie(
+                                _textEditingController.text,
+                                true,
+                              );
+                            },
+                            child: Image.asset(
+                              "assets/images/try.png",
+                              width: 50,
+                              height: 50,
+                              color: VColors.colorIcon,
+                            ),
+                          ),
+                        );
+                      }
+                      if (state.$1.isEmpty &&
+                          state.$2 == false &&
+                          state.$3 == null) {
+                        return Center(
+                          child: Text(
+                            _textEditingController.text.isEmpty
+                                ? "Search your favorite movies"
+                                : "None of the movies match your keywords",
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        );
+                      }
+                      return MasonryGridView.count(
+                        key: PageStorageKey("search_movies_key"),
+                        controller: _searchController,
+                        crossAxisCount: 2,
+                        mainAxisSpacing: 20,
+                        crossAxisSpacing: 10,
+                        padding: const EdgeInsets.only(top: 10),
+                        itemBuilder: (context, index) {
+                          final result = state.$1[index];
+                          return SearchResultItem(
+                            moviePoster: result.moviePoster,
+                            movieName: result.movieName,
+                            movieYear: result.movieYear,
+                          );
+                        },
+                        itemCount: state.$1.length,
+                      );
+                    },
+                  ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

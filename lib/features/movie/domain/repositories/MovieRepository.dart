@@ -1,0 +1,16 @@
+import 'package:movie_app/features/movie/domain/models/CategoryModel.dart';
+import 'package:movie_app/features/movie/domain/models/MovieDisplay.dart';
+import 'package:movie_app/features/movie/domain/models/SearchMovieDisplay.dart';
+
+abstract class MovieRepository {
+  Future<List<MovieDisplay>> getHomePageMovie();
+
+  Future<List<SearchMovieDisplay>> searchMovie(String keyword, int page);
+
+  Future<List<CategoryModel>> categories();
+
+  Future<List<SearchMovieDisplay>> searchMovieAccordingToCategory(
+    String category,
+    int page,
+  );
+}
