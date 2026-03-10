@@ -1,15 +1,15 @@
-class Category {
+class CategoryDTO {
   String id;
   String name;
   String slug;
 
-  Category({
+  CategoryDTO({
     required this.id,
     required this.name,
     required this.slug,
   });
 
-  factory Category.fromJson(Map<String, dynamic> json) => Category(
+  factory CategoryDTO.fromJson(Map<String, dynamic> json) => CategoryDTO(
     id: json["id"],
     name: json["name"],
     slug: json["slug"],

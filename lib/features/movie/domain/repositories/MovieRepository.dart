@@ -1,4 +1,5 @@
 import 'package:movie_app/features/movie/domain/models/CategoryModel.dart';
+import 'package:movie_app/features/movie/domain/models/MovieDetails.dart';
 import 'package:movie_app/features/movie/domain/models/MovieDisplay.dart';
 import 'package:movie_app/features/movie/domain/models/SearchMovieDisplay.dart';
 
@@ -13,4 +14,6 @@ abstract class MovieRepository {
     String category,
     int page,
   );
+
+  Future<MovieDetails> getMovieDetailsInformation(String slug);
 }

@@ -1,10 +1,12 @@
+import 'package:movie_app/features/movie/data/datasources/remote/dto/movie_details/CreatedDTO.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/dto/movie_details/EpisodeDTO.dart';
 
 import '../Tmdb.dart';
-import 'Category.dart';
+import 'CategoryDTO.dart';
 
 class MovieDetailsDTO {
   Tmdb tmdb;
+  CreatedDTO created;
   String name;
   String slug;
   String originName;
@@ -19,17 +21,16 @@ class MovieDetailsDTO {
   String episodeTotal;
   String quality;
   String lang;
-  String notify;
-  String showtimes;
   int year;
   int view;
-  List<Category> category;
-  List<Category> country;
+  List<CategoryDTO> category;
+  List<CategoryDTO> country;
   List<EpisodeDTO> episodes;
   List<String> alternativeNames;
 
   MovieDetailsDTO({
     required this.tmdb,
+    required this.created,
     required this.name,
     required this.slug,
     required this.originName,
@@ -44,8 +45,6 @@ class MovieDetailsDTO {
     required this.episodeTotal,
     required this.quality,
     required this.lang,
-    required this.notify,
-    required this.showtimes,
     required this.year,
     required this.view,
     required this.category,
@@ -57,6 +56,7 @@ class MovieDetailsDTO {
   factory MovieDetailsDTO.fromJson(Map<String, dynamic> json) =>
       MovieDetailsDTO(
         tmdb: Tmdb.fromJson(json["tmdb"]),
+        created: CreatedDTO.fromJson(json["created"]),
         name: json["name"],
         slug: json["slug"],
         originName: json["origin_name"],
@@ -71,15 +71,13 @@ class MovieDetailsDTO {
         episodeTotal: json["episode_total"],
         quality: json["quality"],
         lang: json["lang"],
-        notify: json["notify"],
-        showtimes: json["showtimes"],
         year: json["year"],
         view: json["view"],
-        category: List<Category>.from(
-          json["category"].map((x) => Category.fromJson(x)),
+        category: List<CategoryDTO>.from(
+          json["category"].map((x) => CategoryDTO.fromJson(x)),
         ),
-        country: List<Category>.from(
-          json["country"].map((x) => Category.fromJson(x)),
+        country: List<CategoryDTO>.from(
+          json["country"].map((x) => CategoryDTO.fromJson(x)),
         ),
         episodes: List<EpisodeDTO>.from(
           json["episodes"].map((x) => EpisodeDTO.fromJson(x)),
@@ -91,6 +89,7 @@ class MovieDetailsDTO {
 
   Map<String, dynamic> toJson() => {
     "tmdb": tmdb.toJson(),
+    "created": created.toJson(),
     "name": name,
     "slug": slug,
     "origin_name": originName,
@@ -105,8 +104,6 @@ class MovieDetailsDTO {
     "episode_total": episodeTotal,
     "quality": quality,
     "lang": lang,
-    "notify": notify,
-    "showtimes": showtimes,
     "year": year,
     "view": view,
     "category": List<dynamic>.from(category.map((x) => x.toJson())),

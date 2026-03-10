@@ -2,8 +2,10 @@ import 'package:injectable/injectable.dart';
 import 'package:isar_community/isar.dart';
 import 'package:movie_app/features/movie/data/datasources/local/CategoryLocal.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/api/MovieApi.dart';
+import 'package:movie_app/features/movie/data/datasources/remote/helper/NetworkHelper.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/mapper/MovieMapper.dart';
 import 'package:movie_app/features/movie/domain/models/CategoryModel.dart';
+import 'package:movie_app/features/movie/domain/models/MovieDetails.dart';
 import 'package:movie_app/features/movie/domain/models/MovieDisplay.dart';
 import 'package:movie_app/features/movie/domain/models/SearchMovieDisplay.dart';
 import 'package:movie_app/features/movie/domain/repositories/MovieRepository.dart';
@@ -25,16 +27,16 @@ class MovieRepositoryImpl implements MovieRepository {
 
   @override
   Future<List<SearchMovieDisplay>> searchMovie(String keyword, int page) async {
-    final searchDto = await _movieApi.searchMovie(keyword, page);
-    print(searchDto);
-    return searchDto.data.items
-        .map(
-          (e) => MovieMapper.mapToSearchMovieDisplay(
-            e,
-            searchDto.data.params?.pagination?.totalItems ?? 0,
-          ),
-        )
-        .toList();
+    return NetworkHelper.callApi(_movieApi.searchMovie(keyword, page), (input) {
+      return input.data.items
+          .map(
+            (e) => MovieMapper.mapToSearchMovieDisplay(
+              e,
+              input.data.params?.pagination?.totalItems ?? 0,
+            ),
+          )
+          .toList();
+    });
   }
 
   @override
@@ -59,7 +61,7 @@ class MovieRepositoryImpl implements MovieRepository {
         _isar.categoryLocals.putAll(categoriesLocal);
       });
       return categoriesDto.data.items
-          .map((e) => MovieMapper.mapToCategoryModel(e))
+          .map((e) => MovieMapper.mapFromCategorySearchToCategoryModel(e))
           .toList();
     }
   }
@@ -82,4 +84,12 @@ class MovieRepositoryImpl implements MovieRepository {
         )
         .toList();
   }
+
+  @override
+  Future<MovieDetails> getMovieDetailsInformation(String slug) async {
+    final movieDetails = await _movieApi.movieDetailInfo(slug);
+    print("detail $movieDetails");
+    return MovieMapper.mapToMovieDetails(movieDetails.data.item);
+  }
+
 }
