@@ -1,3 +1,4 @@
+import 'package:movie_app/features/movie/domain/models/MovieActors.dart';
 import 'package:movie_app/features/movie/domain/models/CategoryModel.dart';
 import 'package:movie_app/features/movie/domain/models/MovieDetails.dart';
 import 'package:movie_app/features/movie/domain/models/MovieDisplay.dart';
@@ -16,4 +17,5 @@ abstract class MovieRepository {
   );
 
   Future<MovieDetails> getMovieDetailsInformation(String slug);
+  Future<List<MovieActors>> getMovieActors(String slug);
 }

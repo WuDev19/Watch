@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 class TrendingMovieItem extends StatelessWidget {
@@ -28,11 +29,12 @@ class TrendingMovieItem extends StatelessWidget {
           onTap: () => _onDetail(_movieSlug),
           child: ClipRRect(
             borderRadius: BorderRadiusGeometry.all(Radius.circular(20)),
-            child: Image.network(
+            child: CachedNetworkImage(
               width: double.infinity,
-              _moviePoster,
+              imageUrl: _moviePoster,
               fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
+              memCacheWidth: 500,
+              errorWidget: (context, error, stackTrace) {
                 return Container(
                   color: Colors.black,
                   child: Text(
@@ -41,20 +43,8 @@ class TrendingMovieItem extends StatelessWidget {
                   ),
                 );
               },
-              loadingBuilder: (context, child, loadingProgress) {
-                if (loadingProgress == null) {
-                  return child;
-                }
-                final percent =
-                    loadingProgress.cumulativeBytesLoaded /
-                    loadingProgress.expectedTotalBytes!;
-                return Center(
-                  child: CircularProgressIndicator(
-                    value: percent,
-                    color: Colors.grey,
-                  ),
-                );
-              },
+              placeholder: (context, url) =>
+                  Container(color: Colors.grey[300]),
             ),
           ),
         ),

@@ -12,4 +12,11 @@ class SearchMovieDisplay {
     required this.movieSlug,
     required this.totalItems
   });
+
+  @override
+  String toString() {
+    return 'SearchMovieDisplay{movieName: $movieName}';
+  }
+
+
 }

@@ -5,6 +5,7 @@ import 'package:movie_app/features/movie/data/datasources/remote/api/MovieApi.da
 import 'package:movie_app/features/movie/data/datasources/remote/helper/NetworkHelper.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/mapper/MovieMapper.dart';
 import 'package:movie_app/features/movie/domain/models/CategoryModel.dart';
+import 'package:movie_app/features/movie/domain/models/MovieActors.dart';
 import 'package:movie_app/features/movie/domain/models/MovieDetails.dart';
 import 'package:movie_app/features/movie/domain/models/MovieDisplay.dart';
 import 'package:movie_app/features/movie/domain/models/SearchMovieDisplay.dart';
@@ -88,8 +89,16 @@ class MovieRepositoryImpl implements MovieRepository {
   @override
   Future<MovieDetails> getMovieDetailsInformation(String slug) async {
     final movieDetails = await _movieApi.movieDetailInfo(slug);
-    print("detail $movieDetails");
     return MovieMapper.mapToMovieDetails(movieDetails.data.item);
+  }
+
+  @override
+  Future<List<MovieActors>> getMovieActors(String slug) async {
+    final movieActors = await _movieApi.actorsMovie(slug);
+    final profileSize = movieActors.data.profileSizes.w185;
+    return movieActors.data.peoples.map((people) {
+      return MovieMapper.mapToMovieActors(profileSize, people);
+    }).toList();
   }
 
 }

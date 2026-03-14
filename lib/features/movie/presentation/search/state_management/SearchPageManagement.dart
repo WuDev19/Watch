@@ -43,6 +43,7 @@ class SearchPageManagement extends Cubit<SearchState> {
         ),
       );
     } catch (e) {
+      print(e);
       emit(state.copyWith(errorMovies: e.toString(), isMoviesLoading: false));
     }
   }

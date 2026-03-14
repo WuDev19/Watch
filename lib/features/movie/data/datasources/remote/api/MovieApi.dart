@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
+import 'package:movie_app/features/movie/data/datasources/remote/dto/movie_details/ActorDataDTO.dart';
+import 'package:movie_app/features/movie/data/datasources/remote/dto/movie_details/MovieData.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/dto/movie_details/MovieDetailsResponse.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/dto/search/CategoryInSearchPageDTO.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/dto/MovieResponse.dart';
@@ -65,8 +67,22 @@ class MovieApi {
     );
   }
 
-  Future<MovieDetailsResponse> movieDetailInfo(String slug) async {
+  Future<MovieDetailsResponse<MovieData>> movieDetailInfo(String slug) async {
     final response = await _dio.get("/v1/api/phim/$slug");
-    return MovieDetailsResponse.fromJson(response.data);
+    final data = response.data["data"];
+    return MovieDetailsResponse.fromJson(
+      data,
+      (jsonT) => MovieData.fromJson(jsonT),
+    );
   }
+
+  Future<MovieDetailsResponse<ActorDataDTO>> actorsMovie(String slug) async {
+    final response = await _dio.get("/v1/api/phim/$slug/peoples");
+    final data = response.data["data"];
+    return MovieDetailsResponse.fromJson(
+      data,
+      (jsonT) => ActorDataDTO.fromJson(jsonT),
+    );
+  }
+
 }

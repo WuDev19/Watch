@@ -83,7 +83,7 @@ class AppRoutes {
         pageBuilder: (context, state) {
           final slug = state.pathParameters["slug"];
           return CustomTransitionPage(
-            child: MovieDetailsScreen(movieSlug: slug ?? ""),
+            child: MovieDetailsScreen(key: ValueKey(slug),movieSlug: slug ?? ""), // cho key khác nhau thì pushReplacement sẽ thay đổi
             transitionDuration: const Duration(milliseconds: 300),
             transitionsBuilder:
                 (context, animation, secondaryAnimation, child) {

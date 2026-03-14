@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 class SearchResultItem extends StatelessWidget {
@@ -24,11 +25,15 @@ class SearchResultItem extends StatelessWidget {
           borderRadius: BorderRadiusGeometry.all(Radius.circular(20)),
           child: AspectRatio(
             aspectRatio: 2 / 3,
-            child: Image.network(
-              _moviePoster,
-              cacheWidth: (widthCache * MediaQuery.of(context).devicePixelRatio)
-                  .round(), //cache với dung lượng này để tối ưu ram
-              fit: BoxFit.cover,
+            child: CachedNetworkImage(
+              imageUrl: _moviePoster,
+              memCacheWidth:
+                  (widthCache * MediaQuery.of(context).devicePixelRatio)
+                      .round(),
+              //cache với dung lượng này để tối ưu ram
+              fit: BoxFit.contain,
+              errorWidget: (context, url, error) => const Icon(Icons.error),
+              placeholder: (context, url) => Container(color: Colors.grey[300]),
             ),
           ),
         ),

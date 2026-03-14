@@ -83,17 +83,15 @@ class _HomePageState extends State<HomePage>
                 if (state.error != null &&
                     state.isLoading == false &&
                     state.movies.isEmpty) {
-                  return Container(
-                    height: double.infinity,
-                    width: double.infinity,
-                    color: Colors.black,
-                    child: Center(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          context.read<HomeBloc>().getHomePageMovie();
-                        },
-                        child: Text("Retry"),
+                  return Center(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: VColors.colorIcon,
                       ),
+                      onPressed: () {
+                        context.read<HomeBloc>().getHomePageMovie();
+                      },
+                      child: Text("Retry"),
                     ),
                   );
                 }

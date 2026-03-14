@@ -1,12 +1,13 @@
-import 'package:movie_app/features/movie/data/datasources/remote/dto/movie_details/MovieData.dart';
-
-class MovieDetailsResponse {
-  MovieData data;
+class MovieDetailsResponse<T> {
+  T data;
 
   MovieDetailsResponse({required this.data});
 
-  factory MovieDetailsResponse.fromJson(Map<String, dynamic> json) =>
-      MovieDetailsResponse(data: MovieData.fromJson(json["data"]));
+  factory MovieDetailsResponse.fromJson(
+    Map<String, dynamic> json,
+    T Function(Map<String, dynamic> jsonT) fromJsonT,
+  ) => MovieDetailsResponse(data: fromJsonT(json));
 
-  Map<String, dynamic> toJson() => {"data": data.toJson()};
+  Map<String, dynamic> toJson(Map<String, dynamic> Function(T item) toJsonT) =>
+      {"data": toJsonT(data)};
 }

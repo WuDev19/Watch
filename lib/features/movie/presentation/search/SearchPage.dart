@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import 'package:movie_app/features/movie/domain/models/CategoryModel.dart';
 import 'package:movie_app/features/movie/presentation/search/state/SearchState.dart';
@@ -76,11 +77,13 @@ class _SearchPageState extends State<SearchPage> {
               controller: _textEditingController,
               leading: InkWell(
                 onTap: () {
-                  _isSearchKeyWord = true;
-                  _searchPageManagement.searchMovie(
-                    _textEditingController.text,
-                    true,
-                  );
+                  if (_textEditingController.text.isNotEmpty) {
+                    _isSearchKeyWord = true;
+                    _searchPageManagement.searchMovie(
+                      _textEditingController.text,
+                      true,
+                    );
+                  }
                 },
                 child: const Icon(Icons.search, color: VColors.colorIcon),
               ),
@@ -94,11 +97,13 @@ class _SearchPageState extends State<SearchPage> {
                 TextStyle(color: Colors.white),
               ),
               onSubmitted: (value) {
-                _isSearchKeyWord = true;
-                _searchPageManagement.searchMovie(
-                  _textEditingController.text,
-                  true,
-                );
+                if (value.isNotEmpty) {
+                  _isSearchKeyWord = true;
+                  _searchPageManagement.searchMovie(
+                    _textEditingController.text,
+                    true,
+                  );
+                }
               },
             ),
             const SizedBox(height: 10),
@@ -246,10 +251,15 @@ class _SearchPageState extends State<SearchPage> {
                         padding: const EdgeInsets.only(top: 10),
                         itemBuilder: (context, index) {
                           final result = state.$1[index];
-                          return SearchResultItem(
-                            moviePoster: result.moviePoster,
-                            movieName: result.movieName,
-                            movieYear: result.movieYear,
+                          return InkWell(
+                            onTap: () => context.push(
+                              "/movie-details/${result.movieSlug}",
+                            ),
+                            child: SearchResultItem(
+                              moviePoster: result.moviePoster,
+                              movieName: result.movieName,
+                              movieYear: result.movieYear,
+                            ),
                           );
                         },
                         itemCount: state.$1.length,

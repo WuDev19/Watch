@@ -21,6 +21,8 @@ import '../../features/movie/data/repositories/MovieRepositoryImpl.dart'
 import '../../features/movie/domain/repositories/MovieRepository.dart' as _i503;
 import '../../features/movie/domain/usecases/GetCategoriesUseCase.dart'
     as _i716;
+import '../../features/movie/domain/usecases/GetMovieActorsUseCase.dart'
+    as _i392;
 import '../../features/movie/domain/usecases/GetMovieDetailsInfoUseCase.dart'
     as _i244;
 import '../../features/movie/domain/usecases/HomePageMovieUseCase.dart'
@@ -61,6 +63,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i716.GetCategoriesUseCase>(
       () => _i716.GetCategoriesUseCase(gh<_i503.MovieRepository>()),
     );
+    gh.lazySingleton<_i392.GetMovieActorsUseCase>(
+      () => _i392.GetMovieActorsUseCase(gh<_i503.MovieRepository>()),
+    );
+    gh.lazySingleton<_i244.GetMovieDetailsInfoUseCase>(
+      () => _i244.GetMovieDetailsInfoUseCase(gh<_i503.MovieRepository>()),
+    );
     gh.lazySingleton<_i755.HomePageMovieUseCase>(
       () => _i755.HomePageMovieUseCase(gh<_i503.MovieRepository>()),
     );
@@ -72,9 +80,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i68.SearchMovieUseCase>(
       () => _i68.SearchMovieUseCase(gh<_i503.MovieRepository>()),
     );
-    gh.lazySingleton<_i244.GetMovieDetailsInfoUseCase>(
-      () => _i244.GetMovieDetailsInfoUseCase(gh<_i503.MovieRepository>()),
-    );
     gh.factory<_i964.SearchPageManagement>(
       () => _i964.SearchPageManagement(
         gh<_i68.SearchMovieUseCase>(),
@@ -82,11 +87,15 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i63.SearchMovieAccordingToCategoryUseCase>(),
       ),
     );
-    gh.factory<_i862.MovieDetailManagement>(
-      () => _i862.MovieDetailManagement(gh<_i244.GetMovieDetailsInfoUseCase>()),
-    );
     gh.factory<_i309.HomeBloc>(
       () => _i309.HomeBloc(gh<_i755.HomePageMovieUseCase>()),
+    );
+    gh.factory<_i862.MovieDetailManagement>(
+      () => _i862.MovieDetailManagement(
+        gh<_i244.GetMovieDetailsInfoUseCase>(),
+        gh<_i392.GetMovieActorsUseCase>(),
+        gh<_i63.SearchMovieAccordingToCategoryUseCase>(),
+      ),
     );
     return this;
   }

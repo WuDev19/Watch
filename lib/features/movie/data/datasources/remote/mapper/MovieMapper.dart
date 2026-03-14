@@ -2,12 +2,14 @@ import 'package:movie_app/features/movie/data/datasources/remote/dto/movie_detai
 import 'package:movie_app/features/movie/data/datasources/remote/dto/movie_details/EpisodeDTO.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/dto/movie_details/EpisodeListDTO.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/dto/movie_details/MovieDetailsDTO.dart';
+import 'package:movie_app/features/movie/data/datasources/remote/dto/movie_details/PeopleDTO.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/dto/search/CategoryInSearchPageDTO.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/dto/home/Item.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/dto/search/SearchMovieDTO.dart';
 import 'package:movie_app/features/movie/domain/models/CategoryModel.dart';
 import 'package:movie_app/features/movie/domain/models/Episode.dart';
 import 'package:movie_app/features/movie/domain/models/EpisodeList.dart';
+import 'package:movie_app/features/movie/domain/models/MovieActors.dart';
 import 'package:movie_app/features/movie/domain/models/MovieDetails.dart';
 import 'package:movie_app/features/movie/domain/models/MovieDisplay.dart';
 import 'package:movie_app/features/movie/domain/models/SearchMovieDisplay.dart';
@@ -100,9 +102,19 @@ class MovieMapper {
     );
   }
 
+  static MovieActors mapToMovieActors(
+    String profileSize,
+    PeopleDTO people,
+  ) {
+    return MovieActors(
+      name: people.name,
+      originalName: people.originalName,
+      profilePicture: profileSize + people.profilePath,
+    );
+  }
+
   static String _parseHtmlString(String htmlString) {
     String step1 = htmlString.replaceAll(RegExp(r'<[^>]*>|&[^;]+;'), ' ');
     return step1.replaceAll(RegExp(r'\s+'), ' ').trim();
   }
-
 }
