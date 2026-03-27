@@ -8,6 +8,6 @@ class GetCountryUseCase {
 
   GetCountryUseCase(this._movieRepository);
 
-  Future<List<CountryModel>> execute() => _movieRepository.getCountry();
+  Future<List<CountryModel>> execute() => _movieRepository.getCountries();
 
 }

@@ -5,7 +5,9 @@ import 'package:lottie/lottie.dart';
 import 'package:movie_app/features/movie/presentation/search/state/SearchState.dart';
 import 'package:movie_app/features/movie/presentation/search/state_management/SearchPageManagement.dart';
 import 'package:movie_app/features/movie/presentation/search/widgets/CategoryWidget.dart';
+import 'package:movie_app/features/movie/presentation/search/widgets/CountryWidget.dart';
 import 'package:movie_app/features/movie/presentation/search/widgets/SearchResultItem.dart';
+import 'package:movie_app/features/movie/presentation/search/widgets/YearWidget.dart';
 import '../../../../core/colors/VColors.dart';
 import '../../domain/models/SearchMovieDisplay.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -33,7 +35,9 @@ class _SearchPageState extends State<SearchPage> {
     _selectedCategory = ValueNotifier(-1);
     _searchPageManagement = context.read<SearchPageManagement>();
     _searchController.addListener(_onScrollSearchLast);
-    context.read<SearchPageManagement>().getCategories();
+    _searchPageManagement.getCategories();
+    _searchPageManagement.getCountries();
+    _searchPageManagement.getYears();
     super.initState();
   }
 
@@ -113,6 +117,10 @@ class _SearchPageState extends State<SearchPage> {
                 _slugCategory = slugCategory;
               },
             ),
+            const SizedBox(height: 5),
+            CountryWidget(callback: (isSearchKeyword, slugCategory) {}),
+            const SizedBox(height: 5),
+            YearWidget(callback: (isSearchKeyword, year) {}),
             const SizedBox(height: 10),
             //danh sách khi tìm kiếm
             Expanded(

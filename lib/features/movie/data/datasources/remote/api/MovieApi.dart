@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
+import 'package:movie_app/features/movie/data/datasources/remote/dto/Year.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/dto/movie_details/ActorDataDTO.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/dto/movie_details/MovieData.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/dto/movie_details/MovieDetailsResponse.dart';
@@ -85,12 +86,19 @@ class MovieApi {
     );
   }
 
-  Future<MovieResponse<CategoryOrCountryDTO>> getCountry() async {
+  Future<MovieResponse<CategoryOrCountryDTO>> getCountries() async {
     final response = await _dio.get("/v1/api/quoc-gia");
-    final data = response.data["data"];
     return MovieResponse.fromJson(
-      data,
+      response.data,
       (jsonT) => CategoryOrCountryDTO.fromJson(jsonT),
+    );
+  }
+
+  Future<MovieResponse<Year>> getYears() async {
+    final response = await _dio.get("/v1/api/nam-phat-hanh");
+    return MovieResponse.fromJson(
+      response.data,
+          (jsonT) => Year.fromJson(jsonT),
     );
   }
 

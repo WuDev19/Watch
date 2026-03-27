@@ -2,6 +2,7 @@ import 'package:injectable/injectable.dart';
 import 'package:isar_community/isar.dart';
 import 'package:movie_app/features/movie/data/datasources/local/entity/CategoryLocal.dart';
 import 'package:movie_app/features/movie/data/datasources/local/entity/CountryLocal.dart';
+import 'package:movie_app/features/movie/data/datasources/local/entity/YearLocal.dart';
 import 'package:movie_app/features/movie/data/datasources/local/mapper/MovieLocalMapper.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/api/MovieApi.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/helper/NetworkHelper.dart';
@@ -12,6 +13,7 @@ import 'package:movie_app/features/movie/domain/models/MovieActors.dart';
 import 'package:movie_app/features/movie/domain/models/MovieDetails.dart';
 import 'package:movie_app/features/movie/domain/models/MovieDisplay.dart';
 import 'package:movie_app/features/movie/domain/models/SearchMovieDisplay.dart';
+import 'package:movie_app/features/movie/domain/models/YearModel.dart';
 import 'package:movie_app/features/movie/domain/repositories/MovieRepository.dart';
 
 @LazySingleton(as: MovieRepository)
@@ -105,13 +107,13 @@ class MovieRepositoryImpl implements MovieRepository {
   }
 
   @override
-  Future<List<CountryModel>> getCountry() async {
+  Future<List<CountryModel>> getCountries() async {
     final check = await _isar.countryLocals.count();
     if (check > 0) {
       final data = await _isar.countryLocals.where().findAll();
       return data.map((e) => MovieLocalMapper.mapToCountryModel(e)).toList();
     } else {
-      final response = await _movieApi.getCountry();
+      final response = await _movieApi.getCountries();
       await _isar.writeTxn(() async {
         final listCountry = response.data.items
             .map((e) => MovieMapper.mapToCountryLocal(e))
@@ -120,6 +122,26 @@ class MovieRepositoryImpl implements MovieRepository {
       });
       return response.data.items
           .map((e) => MovieMapper.mapToCountryModel(e))
+          .toList();
+    }
+  }
+
+  @override
+  Future<List<YearModel>> getYears() async {
+    final check = await _isar.yearLocals.count();
+    if (check > 0) {
+      final data = await _isar.yearLocals.where().findAll();
+      return data.map((e) => MovieLocalMapper.mapToYearModel(e)).toList();
+    } else {
+      final response = await _movieApi.getYears();
+      await _isar.writeTxn(() async {
+        final listYear = response.data.items
+            .map((e) => MovieMapper.mapToYearLocal(e))
+            .toList();
+        _isar.yearLocals.putAll(listYear);
+      });
+      return response.data.items
+          .map((e) => MovieMapper.mapToYearModel(e))
           .toList();
     }
   }

@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:movie_app/features/movie/domain/models/SearchMovieDisplay.dart';
+import 'package:movie_app/features/movie/domain/usecases/GetAllYearUseCase.dart';
 import 'package:movie_app/features/movie/domain/usecases/GetCategoriesUseCase.dart';
 import 'package:movie_app/features/movie/domain/usecases/GetCountryUseCase.dart';
 import 'package:movie_app/features/movie/domain/usecases/SearchMovieAccordingToCategoryUseCase.dart';
@@ -14,6 +15,7 @@ class SearchPageManagement extends Cubit<SearchState> {
   final SearchMovieAccordingToCategoryUseCase
   _searchMovieAccordingToCategoryUseCase;
   final GetCountryUseCase _getCountryUseCase;
+  final GetAllYearUseCase _getAllYearUseCase;
   final List<SearchMovieDisplay> allMovies = [];
 
   SearchPageManagement(
@@ -21,6 +23,7 @@ class SearchPageManagement extends Cubit<SearchState> {
     this._getCategoriesUseCase,
     this._searchMovieAccordingToCategoryUseCase,
     this._getCountryUseCase,
+    this._getAllYearUseCase,
   ) : super(SearchState());
 
   void searchMovie(String keyword, bool isNewSearch) async {
@@ -113,6 +116,67 @@ class SearchPageManagement extends Cubit<SearchState> {
       );
     } catch (e) {
       emit(state.copyWith(isMoviesLoading: false, errorMovies: e.toString()));
+    }
+  }
+
+  void searchMovieAccordingToCountry(
+    String countrySlug,
+    bool isNewCountry,
+  ) async {}
+
+  void getCountries() async {
+    emit(
+      state.copyWith(
+        isCountriesLoading: true,
+        errorCountries: null,
+        countries: [],
+      ),
+    );
+    try {
+      final data = await _getCountryUseCase.execute();
+      emit(
+        state.copyWith(
+          countries: data,
+          isCountriesLoading: false,
+          errorCountries: null,
+        ),
+      );
+    } catch (e) {
+      emit(
+        state.copyWith(
+          errorCountries: e.toString(),
+          isCountriesLoading: false,
+          countries: [],
+        ),
+      );
+    }
+  }
+
+  void getYears() async {
+    emit(
+      state.copyWith(
+        isYearsLoading: true,
+        errorYears: null,
+        years: [],
+      ),
+    );
+    try {
+      final data = await _getAllYearUseCase.execute();
+      emit(
+        state.copyWith(
+          years: data,
+          isYearsLoading: false,
+          errorYears: null,
+        ),
+      );
+    } catch (e) {
+      emit(
+        state.copyWith(
+          errorYears: e.toString(),
+          isYearsLoading: false,
+          years: [],
+        ),
+      );
     }
   }
 }

@@ -1,38 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:movie_app/features/movie/domain/models/YearModel.dart';
 
 import '../../../../../core/colors/VColors.dart';
-import '../../../domain/models/CategoryModel.dart';
 import '../state/SearchState.dart';
 import '../state_management/SearchPageManagement.dart';
 
-class CategoryWidget extends StatefulWidget {
-  final Function(bool isSearchKeyword, String slugCategory) _callback;
+class YearWidget extends StatefulWidget {
+  final Function(bool isSearchKeyword, int year) _callback;
 
-  const CategoryWidget({
+  const YearWidget({
     super.key,
-    required Function(bool isSearchKeyword, String slugCategory) callback,
+    required Function(bool isSearchKeyword, int year) callback,
   }) : _callback = callback;
 
   @override
-  State<CategoryWidget> createState() => _CategoryWidgetState();
+  State<YearWidget> createState() => _YearWidgetState();
 }
 
-class _CategoryWidgetState extends State<CategoryWidget> {
-  late ValueNotifier<int> _selectedCategory;
+class _YearWidgetState extends State<YearWidget> {
+  late ValueNotifier<int> _selectedYear;
   late SearchPageManagement _searchPageManagement;
   int _currentIndex = -1;
 
   @override
   void initState() {
-    _selectedCategory = ValueNotifier(-1);
+    _selectedYear = ValueNotifier(-1);
     _searchPageManagement = context.read<SearchPageManagement>();
     super.initState();
   }
 
   @override
   void dispose() {
-    _selectedCategory.dispose();
+    _selectedYear.dispose();
     super.dispose();
   }
 
@@ -41,31 +41,31 @@ class _CategoryWidgetState extends State<CategoryWidget> {
     return BlocSelector<
       SearchPageManagement,
       SearchState,
-      (List<CategoryModel>, bool, String?)
+      (List<YearModel>, bool, String?)
     >(
       selector: (SearchState state) =>
-          (state.categories, state.isCategoriesLoading, state.errorCategories),
+          (state.years, state.isYearsLoading, state.errorYears),
       builder: (context, state) {
         if (state.$1.isNotEmpty && state.$2 == false && state.$3 == null) {
           return SizedBox(
             height: 45,
             child: ListView.builder(
               itemBuilder: (context, index) {
-                final category = state.$1[index];
+                final year = state.$1[index];
                 return InkWell(
                   onTap: () {
                     if (_currentIndex != index) {
-                      widget._callback(false, category.categorySlug);
+                      widget._callback(false, year.year);
                       _currentIndex = index;
-                      _selectedCategory.value = index;
+                      _selectedYear.value = index;
                       _searchPageManagement.searchMovieAccordingToCategory(
-                        category.categorySlug,
+                        year.year.toString(),
                         true,
                       );
                     }
                   },
                   child: ValueListenableBuilder(
-                    valueListenable: _selectedCategory,
+                    valueListenable: _selectedYear,
                     builder: (BuildContext context, value, Widget? child) {
                       return AnimatedContainer(
                         duration: const Duration(milliseconds: 300),
@@ -81,7 +81,7 @@ class _CategoryWidgetState extends State<CategoryWidget> {
                         ),
                         child: Center(
                           child: Text(
-                            category.category,
+                            year.year.toString(),
                             style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,

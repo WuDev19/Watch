@@ -19,6 +19,7 @@ import '../../features/movie/data/datasources/remote/api/MovieApi.dart'
 import '../../features/movie/data/repositories/MovieRepositoryImpl.dart'
     as _i709;
 import '../../features/movie/domain/repositories/MovieRepository.dart' as _i503;
+import '../../features/movie/domain/usecases/GetAllYearUseCase.dart' as _i414;
 import '../../features/movie/domain/usecases/GetCategoriesUseCase.dart'
     as _i716;
 import '../../features/movie/domain/usecases/GetCountryUseCase.dart' as _i253;
@@ -84,6 +85,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i253.GetCountryUseCase>(
       () => _i253.GetCountryUseCase(gh<_i503.MovieRepository>()),
     );
+    gh.lazySingleton<_i414.GetAllYearUseCase>(
+      () => _i414.GetAllYearUseCase(gh<_i503.MovieRepository>()),
+    );
     gh.factory<_i309.HomeBloc>(
       () => _i309.HomeBloc(gh<_i755.HomePageMovieUseCase>()),
     );
@@ -100,6 +104,7 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i716.GetCategoriesUseCase>(),
         gh<_i63.SearchMovieAccordingToCategoryUseCase>(),
         gh<_i253.GetCountryUseCase>(),
+        gh<_i414.GetAllYearUseCase>(),
       ),
     );
     return this;

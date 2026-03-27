@@ -1,7 +1,9 @@
 import 'package:injectable/injectable.dart';
 import 'package:isar_community/isar.dart';
 import 'package:movie_app/features/movie/data/datasources/local/entity/CategoryLocal.dart';
+import 'package:movie_app/features/movie/data/datasources/local/entity/CountryLocal.dart';
 import 'package:movie_app/features/movie/data/datasources/local/entity/HistorySearchEntity.dart';
+import 'package:movie_app/features/movie/data/datasources/local/entity/YearLocal.dart';
 import 'package:path_provider/path_provider.dart';
 
 @module
@@ -11,7 +13,12 @@ abstract class IsarModule {
   Future<Isar> provideIsar() async {
     final dir = await getApplicationDocumentsDirectory();
     return Isar.open(
-      [HistorySearchEntitySchema, CategoryLocalSchema],
+      [
+        HistorySearchEntitySchema,
+        CategoryLocalSchema,
+        CountryLocalSchema,
+        YearLocalSchema,
+      ],
       directory: dir.path,
       name: "movie_app",
     );

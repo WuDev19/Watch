@@ -1,4 +1,6 @@
 import 'package:movie_app/features/movie/data/datasources/local/entity/CountryLocal.dart';
+import 'package:movie_app/features/movie/data/datasources/local/entity/YearLocal.dart';
+import 'package:movie_app/features/movie/data/datasources/remote/dto/Year.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/dto/movie_details/CategoryDTO.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/dto/movie_details/EpisodeDTO.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/dto/movie_details/EpisodeListDTO.dart';
@@ -15,6 +17,7 @@ import 'package:movie_app/features/movie/domain/models/MovieActors.dart';
 import 'package:movie_app/features/movie/domain/models/MovieDetails.dart';
 import 'package:movie_app/features/movie/domain/models/MovieDisplay.dart';
 import 'package:movie_app/features/movie/domain/models/SearchMovieDisplay.dart';
+import 'package:movie_app/features/movie/domain/models/YearModel.dart';
 import 'package:movie_app/utils/constants.dart';
 import 'package:intl/intl.dart';
 
@@ -118,6 +121,14 @@ class MovieMapper {
 
   static CountryLocal mapToCountryLocal(CategoryOrCountryDTO item) {
     return CountryLocal(item.id, item.name, item.slug);
+  }
+
+  static YearLocal mapToYearLocal(Year year) {
+    return YearLocal(year.year);
+  }
+
+  static YearModel mapToYearModel(Year year) {
+    return YearModel(year.year);
   }
 
   static String _parseHtmlString(String htmlString) {

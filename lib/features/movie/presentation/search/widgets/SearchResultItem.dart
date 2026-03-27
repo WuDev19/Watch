@@ -31,7 +31,7 @@ class SearchResultItem extends StatelessWidget {
               cacheWidth: (widthCache * MediaQuery.of(context).devicePixelRatio)
                   .round(),
               //cache với dung lượng này để tối ưu ram
-              fit: BoxFit.contain,
+              fit: BoxFit.cover,
               errorBuilder: (context, url, error) => const Icon(Icons.error),
               loadingBuilder: (context, child, loadingProgress) {
                 if (loadingProgress == null) return child;

@@ -4,6 +4,7 @@ import 'package:movie_app/features/movie/domain/models/CategoryModel.dart';
 import 'package:movie_app/features/movie/domain/models/MovieDetails.dart';
 import 'package:movie_app/features/movie/domain/models/MovieDisplay.dart';
 import 'package:movie_app/features/movie/domain/models/SearchMovieDisplay.dart';
+import 'package:movie_app/features/movie/domain/models/YearModel.dart';
 
 abstract class MovieRepository {
   Future<List<MovieDisplay>> getHomePageMovie();
@@ -21,5 +22,7 @@ abstract class MovieRepository {
 
   Future<List<MovieActors>> getMovieActors(String slug);
 
-  Future<List<CountryModel>> getCountry();
+  Future<List<CountryModel>> getCountries();
+
+  Future<List<YearModel>> getYears();
 }
