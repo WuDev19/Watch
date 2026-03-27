@@ -3,7 +3,7 @@ import 'package:injectable/injectable.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/dto/movie_details/ActorDataDTO.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/dto/movie_details/MovieData.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/dto/movie_details/MovieDetailsResponse.dart';
-import 'package:movie_app/features/movie/data/datasources/remote/dto/search/CategoryInSearchPageDTO.dart';
+import 'package:movie_app/features/movie/data/datasources/remote/dto/CategoryOrCountryDTO.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/dto/MovieResponse.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/dto/home/Item.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/dto/search/SearchMovieDTO.dart';
@@ -40,11 +40,11 @@ class MovieApi {
     );
   }
 
-  Future<MovieResponse<CategoryInSearchPageDTO>> getCategory() async {
+  Future<MovieResponse<CategoryOrCountryDTO>> getCategory() async {
     final response = await _dio.get("/v1/api/the-loai");
     return MovieResponse.fromJson(
       response.data,
-      (jsonT) => CategoryInSearchPageDTO.fromJson(jsonT),
+      (jsonT) => CategoryOrCountryDTO.fromJson(jsonT),
     );
   }
 
@@ -82,6 +82,15 @@ class MovieApi {
     return MovieDetailsResponse.fromJson(
       data,
       (jsonT) => ActorDataDTO.fromJson(jsonT),
+    );
+  }
+
+  Future<MovieResponse<CategoryOrCountryDTO>> getCountry() async {
+    final response = await _dio.get("/v1/api/quoc-gia");
+    final data = response.data["data"];
+    return MovieResponse.fromJson(
+      data,
+      (jsonT) => CategoryOrCountryDTO.fromJson(jsonT),
     );
   }
 
