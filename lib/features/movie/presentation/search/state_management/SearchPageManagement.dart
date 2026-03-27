@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:movie_app/features/movie/domain/models/SearchMovieDisplay.dart';
 import 'package:movie_app/features/movie/domain/usecases/GetCategoriesUseCase.dart';
+import 'package:movie_app/features/movie/domain/usecases/GetCountryUseCase.dart';
 import 'package:movie_app/features/movie/domain/usecases/SearchMovieAccordingToCategoryUseCase.dart';
 import 'package:movie_app/features/movie/domain/usecases/SearchMovieUseCase.dart';
 import 'package:movie_app/features/movie/presentation/search/state/SearchState.dart';
@@ -12,12 +13,14 @@ class SearchPageManagement extends Cubit<SearchState> {
   final GetCategoriesUseCase _getCategoriesUseCase;
   final SearchMovieAccordingToCategoryUseCase
   _searchMovieAccordingToCategoryUseCase;
+  final GetCountryUseCase _getCountryUseCase;
   final List<SearchMovieDisplay> allMovies = [];
 
   SearchPageManagement(
     this._searchMovieUseCase,
     this._getCategoriesUseCase,
     this._searchMovieAccordingToCategoryUseCase,
+    this._getCountryUseCase,
   ) : super(SearchState());
 
   void searchMovie(String keyword, bool isNewSearch) async {

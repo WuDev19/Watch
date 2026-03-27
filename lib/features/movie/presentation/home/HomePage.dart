@@ -77,7 +77,7 @@ class _HomePageState extends State<HomePage>
                     state.movies.isEmpty &&
                     state.error == null) {
                   return Center(
-                    child: CircularProgressIndicator(color: Colors.grey),
+                    child: CircularProgressIndicator(color: VColors.colorIcon),
                   );
                 }
                 if (state.error != null &&

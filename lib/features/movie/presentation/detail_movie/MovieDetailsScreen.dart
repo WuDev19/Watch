@@ -11,7 +11,6 @@ import 'package:movie_app/features/movie/presentation/detail_movie/widgets/Actor
 import 'package:movie_app/features/movie/presentation/detail_movie/widgets/GenreItem.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/widgets/RelatedMovieItem.dart';
 import 'package:movie_app/utils/constants.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 class MovieDetailsScreen extends StatefulWidget {
   final String _movieSlug;
@@ -122,6 +121,26 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                     height: heightImage,
                     width: _screenWidth,
                     fit: BoxFit.cover,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      final value =
+                          loadingProgress.cumulativeBytesLoaded /
+                          loadingProgress.expectedTotalBytes!;
+                      return Container(
+                        width: _screenWidth,
+                        height: heightImage,
+                        color: VColors.blackBackground,
+                        alignment: Alignment.topCenter,
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            value: value,
+                            color: VColors.colorIcon,
+                          ),
+                        ),
+                      );
+                    },
+                    errorBuilder: (context, url, error) =>
+                        const Icon(Icons.error),
                   ),
                   DraggableScrollableSheet(
                     maxChildSize: 0.9,
@@ -198,7 +217,10 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                                         if (state.$3 != null) {
                                           return Center(
                                             child: ElevatedButton(
-                                              style: ElevatedButton.styleFrom(backgroundColor: VColors.colorIcon),
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor:
+                                                    VColors.colorIcon,
+                                              ),
                                               onPressed: () {
                                                 _movieDetailManagement
                                                     .getMovieActors(
@@ -279,7 +301,10 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                                         if (state.$3 != null) {
                                           return Center(
                                             child: ElevatedButton(
-                                              style: ElevatedButton.styleFrom(backgroundColor: VColors.colorIcon),
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor:
+                                                    VColors.colorIcon,
+                                              ),
                                               onPressed: () {
                                                 _movieDetailManagement
                                                     .getMovieDetailsInfo(

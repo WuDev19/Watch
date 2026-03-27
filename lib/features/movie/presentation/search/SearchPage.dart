@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
-import 'package:movie_app/features/movie/domain/models/CategoryModel.dart';
 import 'package:movie_app/features/movie/presentation/search/state/SearchState.dart';
 import 'package:movie_app/features/movie/presentation/search/state_management/SearchPageManagement.dart';
+import 'package:movie_app/features/movie/presentation/search/widgets/CategoryWidget.dart';
 import 'package:movie_app/features/movie/presentation/search/widgets/SearchResultItem.dart';
 import '../../../../core/colors/VColors.dart';
 import '../../domain/models/SearchMovieDisplay.dart';
@@ -25,7 +25,6 @@ class _SearchPageState extends State<SearchPage> {
   bool _isSearchKeyWord = false;
   String _slugCategory = "";
   bool _isLoadingMore = false;
-  int _currentIndex = -1; //để xử lý click vào category
 
   @override
   void initState() {
@@ -107,79 +106,15 @@ class _SearchPageState extends State<SearchPage> {
               },
             ),
             const SizedBox(height: 10),
-            BlocSelector<
-              SearchPageManagement,
-              SearchState,
-              (List<CategoryModel>, bool, String?)
-            >(
-              selector: (SearchState state) => (
-                state.categories,
-                state.isCategoriesLoading,
-                state.errorCategories,
-              ),
-              builder: (context, state) {
-                if (state.$1.isNotEmpty &&
-                    state.$2 == false &&
-                    state.$3 == null) {
-                  return SizedBox(
-                    height: 45,
-                    child: ListView.builder(
-                      itemBuilder: (context, index) {
-                        final category = state.$1[index];
-                        return InkWell(
-                          onTap: () {
-                            if (_currentIndex != index) {
-                              _isSearchKeyWord = false;
-                              _slugCategory = category.categorySlug;
-                              _currentIndex = index;
-                              _selectedCategory.value = index;
-                              _searchPageManagement
-                                  .searchMovieAccordingToCategory(
-                                    category.categorySlug,
-                                    true,
-                                  );
-                            }
-                          },
-                          child: ValueListenableBuilder(
-                            valueListenable: _selectedCategory,
-                            builder:
-                                (BuildContext context, value, Widget? child) {
-                                  return AnimatedContainer(
-                                    duration: const Duration(milliseconds: 300),
-                                    margin: const EdgeInsets.all(5),
-                                    padding: const EdgeInsets.all(8),
-                                    decoration: BoxDecoration(
-                                      color: value == index
-                                          ? VColors.colorIcon
-                                          : VColors.greySearch,
-                                      borderRadius:
-                                          const BorderRadiusGeometry.all(
-                                            Radius.circular(10),
-                                          ),
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        category.category,
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                },
-                          ),
-                        );
-                      },
-                      itemCount: state.$1.length,
-                      scrollDirection: Axis.horizontal,
-                    ),
-                  );
-                }
-                return const SizedBox();
+            //danh sách category
+            CategoryWidget(
+              callback: (isSearchKeyword, slugCategory) {
+                _isSearchKeyWord = isSearchKeyword;
+                _slugCategory = slugCategory;
               },
             ),
             const SizedBox(height: 10),
+            //danh sách khi tìm kiếm
             Expanded(
               child:
                   BlocSelector<

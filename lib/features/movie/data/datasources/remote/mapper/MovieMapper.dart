@@ -1,12 +1,14 @@
+import 'package:movie_app/features/movie/data/datasources/local/entity/CountryLocal.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/dto/movie_details/CategoryDTO.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/dto/movie_details/EpisodeDTO.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/dto/movie_details/EpisodeListDTO.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/dto/movie_details/MovieDetailsDTO.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/dto/movie_details/PeopleDTO.dart';
-import 'package:movie_app/features/movie/data/datasources/remote/dto/search/CategoryInSearchPageDTO.dart';
+import 'package:movie_app/features/movie/data/datasources/remote/dto/CategoryOrCountryDTO.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/dto/home/Item.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/dto/search/SearchMovieDTO.dart';
 import 'package:movie_app/features/movie/domain/models/CategoryModel.dart';
+import 'package:movie_app/features/movie/domain/models/CountryModel.dart';
 import 'package:movie_app/features/movie/domain/models/Episode.dart';
 import 'package:movie_app/features/movie/domain/models/EpisodeList.dart';
 import 'package:movie_app/features/movie/domain/models/MovieActors.dart';
@@ -42,7 +44,7 @@ class MovieMapper {
   }
 
   static CategoryModel mapFromCategorySearchToCategoryModel(
-    CategoryInSearchPageDTO item,
+    CategoryOrCountryDTO item,
   ) {
     return CategoryModel(category: item.name, categorySlug: item.slug);
   }
@@ -102,15 +104,20 @@ class MovieMapper {
     );
   }
 
-  static MovieActors mapToMovieActors(
-    String profileSize,
-    PeopleDTO people,
-  ) {
+  static MovieActors mapToMovieActors(String profileSize, PeopleDTO people) {
     return MovieActors(
       name: people.name,
       originalName: people.originalName,
       profilePicture: profileSize + people.profilePath,
     );
+  }
+
+  static CountryModel mapToCountryModel(CategoryOrCountryDTO item) {
+    return CountryModel(item.name, item.slug);
+  }
+
+  static CountryLocal mapToCountryLocal(CategoryOrCountryDTO item) {
+    return CountryLocal(item.id, item.name, item.slug);
   }
 
   static String _parseHtmlString(String htmlString) {

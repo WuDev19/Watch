@@ -1,6 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../../core/colors/VColors.dart';
+
 class ActorItem extends StatelessWidget {
   final String _nameActor;
   final String _originalNameActor;
@@ -24,14 +26,23 @@ class ActorItem extends StatelessWidget {
           borderRadius: BorderRadiusGeometry.all(Radius.circular(20)),
           child: AspectRatio(
             aspectRatio: 2 / 3,
-            child: CachedNetworkImage(
-              imageUrl: _profilePicture,
+            child: Image.network(
+              _profilePicture,
               fit: BoxFit.cover,
-              errorWidget: (context, url, error) => const Icon(Icons.error),
-              placeholder: (context, url) => Container(
-                color: Colors.grey[300],
-              ),
-              memCacheWidth: 300,
+              cacheWidth: 300,
+              errorBuilder: (context, url, error) => const Icon(Icons.error),
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) return child;
+                final value =
+                    loadingProgress.cumulativeBytesLoaded /
+                    loadingProgress.expectedTotalBytes!;
+                return Center(
+                  child: CircularProgressIndicator(
+                    value: value,
+                    color: VColors.colorIcon,
+                  ),
+                );
+              },
             ),
           ),
         ),

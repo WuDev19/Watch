@@ -1,3 +1,4 @@
+import 'package:movie_app/features/movie/domain/models/CountryModel.dart';
 import 'package:movie_app/features/movie/domain/models/MovieActors.dart';
 import 'package:movie_app/features/movie/domain/models/CategoryModel.dart';
 import 'package:movie_app/features/movie/domain/models/MovieDetails.dart';
@@ -17,5 +18,8 @@ abstract class MovieRepository {
   );
 
   Future<MovieDetails> getMovieDetailsInformation(String slug);
+
   Future<List<MovieActors>> getMovieActors(String slug);
+
+  Future<List<CountryModel>> getCountry();
 }

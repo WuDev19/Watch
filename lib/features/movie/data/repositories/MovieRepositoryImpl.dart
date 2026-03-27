@@ -1,10 +1,13 @@
 import 'package:injectable/injectable.dart';
 import 'package:isar_community/isar.dart';
-import 'package:movie_app/features/movie/data/datasources/local/CategoryLocal.dart';
+import 'package:movie_app/features/movie/data/datasources/local/entity/CategoryLocal.dart';
+import 'package:movie_app/features/movie/data/datasources/local/entity/CountryLocal.dart';
+import 'package:movie_app/features/movie/data/datasources/local/mapper/MovieLocalMapper.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/api/MovieApi.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/helper/NetworkHelper.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/mapper/MovieMapper.dart';
 import 'package:movie_app/features/movie/domain/models/CategoryModel.dart';
+import 'package:movie_app/features/movie/domain/models/CountryModel.dart';
 import 'package:movie_app/features/movie/domain/models/MovieActors.dart';
 import 'package:movie_app/features/movie/domain/models/MovieDetails.dart';
 import 'package:movie_app/features/movie/domain/models/MovieDisplay.dart';
@@ -101,4 +104,23 @@ class MovieRepositoryImpl implements MovieRepository {
     }).toList();
   }
 
+  @override
+  Future<List<CountryModel>> getCountry() async {
+    final check = await _isar.countryLocals.count();
+    if (check > 0) {
+      final data = await _isar.countryLocals.where().findAll();
+      return data.map((e) => MovieLocalMapper.mapToCountryModel(e)).toList();
+    } else {
+      final response = await _movieApi.getCountry();
+      await _isar.writeTxn(() async {
+        final listCountry = response.data.items
+            .map((e) => MovieMapper.mapToCountryLocal(e))
+            .toList();
+        _isar.countryLocals.putAll(listCountry);
+      });
+      return response.data.items
+          .map((e) => MovieMapper.mapToCountryModel(e))
+          .toList();
+    }
+  }
 }

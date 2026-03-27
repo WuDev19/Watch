@@ -1,5 +1,6 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+
+import '../../../../../core/colors/VColors.dart';
 
 class SearchResultItem extends StatelessWidget {
   final String _moviePoster;
@@ -25,15 +26,25 @@ class SearchResultItem extends StatelessWidget {
           borderRadius: BorderRadiusGeometry.all(Radius.circular(20)),
           child: AspectRatio(
             aspectRatio: 2 / 3,
-            child: CachedNetworkImage(
-              imageUrl: _moviePoster,
-              memCacheWidth:
-                  (widthCache * MediaQuery.of(context).devicePixelRatio)
-                      .round(),
+            child: Image.network(
+              _moviePoster,
+              cacheWidth: (widthCache * MediaQuery.of(context).devicePixelRatio)
+                  .round(),
               //cache với dung lượng này để tối ưu ram
               fit: BoxFit.contain,
-              errorWidget: (context, url, error) => const Icon(Icons.error),
-              placeholder: (context, url) => Container(color: Colors.grey[300]),
+              errorBuilder: (context, url, error) => const Icon(Icons.error),
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) return child;
+                final value =
+                    loadingProgress.cumulativeBytesLoaded /
+                    loadingProgress.expectedTotalBytes!;
+                return Center(
+                  child: CircularProgressIndicator(
+                    value: value,
+                    color: VColors.colorIcon,
+                  ),
+                );
+              },
             ),
           ),
         ),

@@ -1,16 +1,16 @@
-class CategoryInSearchPageDTO {
+class CategoryOrCountryDTO {
   String id;
   String name;
   String slug;
 
-  CategoryInSearchPageDTO({
+  CategoryOrCountryDTO({
     required this.id,
     required this.name,
     required this.slug,
   });
 
-  factory CategoryInSearchPageDTO.fromJson(Map<String, dynamic> json) =>
-      CategoryInSearchPageDTO(
+  factory CategoryOrCountryDTO.fromJson(Map<String, dynamic> json) =>
+      CategoryOrCountryDTO(
         id: json["_id"],
         name: json["name"],
         slug: json["slug"],

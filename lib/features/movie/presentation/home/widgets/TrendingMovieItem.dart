@@ -1,5 +1,5 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:movie_app/core/colors/VColors.dart';
 
 class TrendingMovieItem extends StatelessWidget {
   final String _moviePoster;
@@ -29,12 +29,12 @@ class TrendingMovieItem extends StatelessWidget {
           onTap: () => _onDetail(_movieSlug),
           child: ClipRRect(
             borderRadius: BorderRadiusGeometry.all(Radius.circular(20)),
-            child: CachedNetworkImage(
+            child: Image.network(
               width: double.infinity,
-              imageUrl: _moviePoster,
+              _moviePoster,
               fit: BoxFit.cover,
-              memCacheWidth: 500,
-              errorWidget: (context, error, stackTrace) {
+              cacheWidth: 500,
+              errorBuilder: (context, error, stackTrace) {
                 return Container(
                   color: Colors.black,
                   child: Text(
@@ -43,8 +43,18 @@ class TrendingMovieItem extends StatelessWidget {
                   ),
                 );
               },
-              placeholder: (context, url) =>
-                  Container(color: Colors.grey[300]),
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) return child;
+                final value =
+                    loadingProgress.cumulativeBytesLoaded /
+                    loadingProgress.expectedTotalBytes!;
+                return Center(
+                  child: CircularProgressIndicator(
+                    value: value,
+                    color: VColors.colorIcon,
+                  ),
+                );
+              },
             ),
           ),
         ),
