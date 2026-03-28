@@ -30,12 +30,14 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
   late MovieDetailManagement _movieDetailManagement;
   String? _categorySlug;
   bool _isLoading = false;
+  Map<String, dynamic> dynamicCategory = {
+    "sort_field": "year",
+    "sort_type": "desc",
+  };
 
   @override
   void initState() {
     super.initState();
-    print("init");
-    print(widget._movieSlug);
     _scrollController = ScrollController();
     _relatedMovieController = ScrollController();
     _relatedMovieController.addListener(_onLoadMore);
@@ -58,7 +60,11 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
       if (_isLoading) return;
       _isLoading = true;
       if (_categorySlug != null) {
-        _movieDetailManagement.relatedMovie(_categorySlug!, widget._movieSlug);
+        _movieDetailManagement.relatedMovie(
+          _categorySlug!,
+          widget._movieSlug,
+          dynamicCategory,
+        );
       }
     }
   }
@@ -85,7 +91,6 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
               state.errorMovieDetails,
             ),
             builder: (context, state) {
-              print("build 1");
               if (state.$2 == true && state.$3 == null && state.$1 == null) {
                 return Center(child: const CircularProgressIndicator());
               }
@@ -113,6 +118,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
               _movieDetailManagement.relatedMovie(
                 _categorySlug!,
                 widget._movieSlug,
+                dynamicCategory,
               );
               return Stack(
                 children: [

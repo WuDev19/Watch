@@ -22,6 +22,9 @@ class SearchState extends Equatable {
   final int currentPageMoviesCountry;
   final int currentPageMoviesYear;
   final int totalItems;
+  final int totalItemsCategory;
+  final int totalItemsCountry;
+  final int totalItemsYear;
 
   const SearchState({
     this.movies = const [],
@@ -41,6 +44,9 @@ class SearchState extends Equatable {
     this.currentPageMoviesCountry = 0,
     this.currentPageMoviesYear = 0,
     this.totalItems = 24,
+    this.totalItemsCategory = 24,
+    this.totalItemsCountry = 24,
+    this.totalItemsYear = 24,
   });
 
   SearchState copyWith({
@@ -61,6 +67,9 @@ class SearchState extends Equatable {
     int? currentPageMoviesCountry,
     int? currentPageMoviesYear,
     int? totalItems,
+    int? totalItemsCategory,
+    int? totalItemsCountry,
+    int? totalItemsYear,
   }) {
     return SearchState(
       movies: movies ?? this.movies,
@@ -83,7 +92,15 @@ class SearchState extends Equatable {
       currentPageMoviesYear:
           currentPageMoviesYear ?? this.currentPageMoviesYear,
       totalItems: totalItems ?? this.totalItems,
+      totalItemsCategory: totalItemsCategory ?? this.totalItemsCategory,
+      totalItemsCountry: totalItemsCountry ?? this.totalItemsCountry,
+      totalItemsYear: totalItemsYear ?? this.totalItemsYear,
     );
+  }
+
+  @override
+  String toString() {
+    return 'SearchState{totalItems: $totalItems, totalItemsCategory: $totalItemsCategory, totalItemsCountry: $totalItemsCountry, totalItemsYear: $totalItemsYear}';
   }
 
   @override
@@ -105,5 +122,8 @@ class SearchState extends Equatable {
     currentPageMoviesCountry,
     currentPageMoviesYear,
     totalItems,
+    totalItemsCategory,
+    totalItemsCountry,
+    totalItemsYear,
   ]; //instance chỉ khác nhau khi các field trong này khác nhau
 }

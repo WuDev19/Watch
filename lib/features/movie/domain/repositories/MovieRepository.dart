@@ -15,7 +15,17 @@ abstract class MovieRepository {
 
   Future<List<SearchMovieDisplay>> searchMovieAccordingToCategory(
     String category,
-    int page,
+    Map<String, dynamic> params,
+  );
+
+  Future<List<SearchMovieDisplay>> searchMovieAccordingToCountry(
+    String country,
+    Map<String, dynamic> params,
+  );
+
+  Future<List<SearchMovieDisplay>> searchMovieAccordingToYear(
+    int year,
+    Map<String, dynamic> params,
   );
 
   Future<MovieDetails> getMovieDetailsInformation(String slug);

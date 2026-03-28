@@ -1,18 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import '../../../../../core/colors/VColors.dart';
 import '../../../domain/models/CategoryModel.dart';
 import '../state/SearchState.dart';
 import '../state_management/SearchPageManagement.dart';
 
 class CategoryWidget extends StatefulWidget {
-  final Function(bool isSearchKeyword, String slugCategory) _callback;
+  final Function(bool isSearchKeyword, String categorySlug) _callback;
+  final Function(bool isClear) _isClear;
+  final Function(bool isNewCategory, String categorySlug) _onSearch;
 
   const CategoryWidget({
     super.key,
-    required Function(bool isSearchKeyword, String slugCategory) callback,
-  }) : _callback = callback;
+    required Function(bool isSearchKeyword, String categorySlug) callback,
+    required Function(bool isClear) isClear,
+    required Function(bool isNewCategory, String categorySlug) onSearch,
+  }) : _callback = callback,
+       _isClear = isClear,
+       _onSearch = onSearch;
 
   @override
   State<CategoryWidget> createState() => _CategoryWidgetState();
@@ -20,13 +25,11 @@ class CategoryWidget extends StatefulWidget {
 
 class _CategoryWidgetState extends State<CategoryWidget> {
   late ValueNotifier<int> _selectedCategory;
-  late SearchPageManagement _searchPageManagement;
   int _currentIndex = -1;
 
   @override
   void initState() {
     _selectedCategory = ValueNotifier(-1);
-    _searchPageManagement = context.read<SearchPageManagement>();
     super.initState();
   }
 
@@ -56,12 +59,14 @@ class _CategoryWidgetState extends State<CategoryWidget> {
                   onTap: () {
                     if (_currentIndex != index) {
                       widget._callback(false, category.categorySlug);
+                      widget._isClear(false);
+                      widget._onSearch(true, category.categorySlug);
                       _currentIndex = index;
                       _selectedCategory.value = index;
-                      _searchPageManagement.searchMovieAccordingToCategory(
-                        category.categorySlug,
-                        true,
-                      );
+                    } else {
+                      widget._isClear(true);
+                      _currentIndex = -1;
+                      _selectedCategory.value = -1;
                     }
                   },
                   child: ValueListenableBuilder(

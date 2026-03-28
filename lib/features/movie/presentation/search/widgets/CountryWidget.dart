@@ -7,12 +7,18 @@ import '../state/SearchState.dart';
 import '../state_management/SearchPageManagement.dart';
 
 class CountryWidget extends StatefulWidget {
-  final Function(bool isSearchKeyword, String slugCategory) _callback;
+  final Function(bool isSearchKeyword, String slugCountry) _callback;
+  final Function(bool isClear) _isClear;
+  final Function(bool isNewCountry, String countrySlug) _onSearch;
 
   const CountryWidget({
     super.key,
     required Function(bool isSearchKeyword, String slugCategory) callback,
-  }) : _callback = callback;
+    required Function(bool isClear) isClear,
+    required Function(bool isNewCountry, String countrySlug) onSearch,
+  }) : _callback = callback,
+       _isClear = isClear,
+       _onSearch = onSearch;
 
   @override
   State<CountryWidget> createState() => _CountryWidgetState();
@@ -20,13 +26,11 @@ class CountryWidget extends StatefulWidget {
 
 class _CountryWidgetState extends State<CountryWidget> {
   late ValueNotifier<int> _selectedCountry;
-  late SearchPageManagement _searchPageManagement;
   int _currentIndex = -1;
 
   @override
   void initState() {
     _selectedCountry = ValueNotifier(-1);
-    _searchPageManagement = context.read<SearchPageManagement>();
     super.initState();
   }
 
@@ -52,16 +56,20 @@ class _CountryWidgetState extends State<CountryWidget> {
             child: ListView.builder(
               itemBuilder: (context, index) {
                 final country = state.$1[index];
+                print("index - $_currentIndex va $index");
                 return InkWell(
                   onTap: () {
                     if (_currentIndex != index) {
+                      print("index - new $index");
                       widget._callback(false, country.countrySlug);
+                      widget._isClear(false);
+                      widget._onSearch(true, country.countrySlug);
                       _currentIndex = index;
                       _selectedCountry.value = index;
-                      _searchPageManagement.searchMovieAccordingToCategory(
-                        country.countrySlug,
-                        true,
-                      );
+                    } else {
+                      widget._isClear(true);
+                      _currentIndex = -1;
+                      _selectedCountry.value = -1;
                     }
                   },
                   child: ValueListenableBuilder(

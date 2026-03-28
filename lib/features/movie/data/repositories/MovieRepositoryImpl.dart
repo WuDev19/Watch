@@ -75,12 +75,47 @@ class MovieRepositoryImpl implements MovieRepository {
   @override
   Future<List<SearchMovieDisplay>> searchMovieAccordingToCategory(
     String category,
-    int page,
+    Map<String, dynamic> params,
   ) async {
     final movies = await _movieApi.searchMovieAccordingToCategory(
       category,
-      page,
+      params,
     );
+    return movies.data.items
+        .map(
+          (e) => MovieMapper.mapToSearchMovieDisplay(
+            e,
+            movies.data.params?.pagination?.totalItems ?? 0,
+          ),
+        )
+        .toList();
+  }
+
+  @override
+  Future<List<SearchMovieDisplay>> searchMovieAccordingToCountry(
+    String country,
+    Map<String, dynamic> params,
+  ) async {
+    final movies = await _movieApi.searchMovieAccordingToCountry(
+      country,
+      params,
+    );
+    return movies.data.items
+        .map(
+          (e) => MovieMapper.mapToSearchMovieDisplay(
+            e,
+            movies.data.params?.pagination?.totalItems ?? 0,
+          ),
+        )
+        .toList();
+  }
+
+  @override
+  Future<List<SearchMovieDisplay>> searchMovieAccordingToYear(
+    int year,
+    Map<String, dynamic> params,
+  ) async {
+    final movies = await _movieApi.searchMovieAccordingToYear(year, params);
     return movies.data.items
         .map(
           (e) => MovieMapper.mapToSearchMovieDisplay(

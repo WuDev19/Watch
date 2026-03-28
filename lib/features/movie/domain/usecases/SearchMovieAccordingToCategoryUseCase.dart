@@ -8,6 +8,8 @@ class SearchMovieAccordingToCategoryUseCase {
 
   SearchMovieAccordingToCategoryUseCase(this._movieRepository);
 
-  Future<List<SearchMovieDisplay>> execute(String category, int page) =>
-      _movieRepository.searchMovieAccordingToCategory(category, page);
+  Future<List<SearchMovieDisplay>> execute(
+    String category,
+    Map<String, dynamic> params,
+  ) => _movieRepository.searchMovieAccordingToCategory(category, params);
 }

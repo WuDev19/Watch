@@ -8,11 +8,17 @@ import '../state_management/SearchPageManagement.dart';
 
 class YearWidget extends StatefulWidget {
   final Function(bool isSearchKeyword, int year) _callback;
+  final Function(bool isClear) _isClear;
+  final Function(bool isNewYear, int year) _onSearch;
 
   const YearWidget({
     super.key,
     required Function(bool isSearchKeyword, int year) callback,
-  }) : _callback = callback;
+    required Function(bool isClear) isClear,
+    required Function(bool isNewYear, int year) onSearch,
+  }) : _callback = callback,
+       _isClear = isClear,
+       _onSearch = onSearch;
 
   @override
   State<YearWidget> createState() => _YearWidgetState();
@@ -20,13 +26,11 @@ class YearWidget extends StatefulWidget {
 
 class _YearWidgetState extends State<YearWidget> {
   late ValueNotifier<int> _selectedYear;
-  late SearchPageManagement _searchPageManagement;
   int _currentIndex = -1;
 
   @override
   void initState() {
     _selectedYear = ValueNotifier(-1);
-    _searchPageManagement = context.read<SearchPageManagement>();
     super.initState();
   }
 
@@ -56,12 +60,14 @@ class _YearWidgetState extends State<YearWidget> {
                   onTap: () {
                     if (_currentIndex != index) {
                       widget._callback(false, year.year);
+                      widget._isClear(false);
+                      widget._onSearch(true, year.year);
                       _currentIndex = index;
                       _selectedYear.value = index;
-                      _searchPageManagement.searchMovieAccordingToCategory(
-                        year.year.toString(),
-                        true,
-                      );
+                    } else {
+                      widget._isClear(true);
+                      _currentIndex = -1;
+                      _selectedYear.value = -1;
                     }
                   },
                   child: ValueListenableBuilder(

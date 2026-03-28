@@ -69,7 +69,11 @@ class MovieDetailManagement extends Cubit<MovieDetailState> {
     }
   }
 
-  void relatedMovie(String category, String slug) async {
+  void relatedMovie(
+    String category,
+    String slug,
+    Map<String, dynamic> params,
+  ) async {
     final maxPage = (state.totalItems / 24).ceil();
     if (state.isLoadingMovieRelated || state.currentPage >= maxPage) return;
     int nextPage = state.currentPage + 1;
@@ -77,7 +81,7 @@ class MovieDetailManagement extends Cubit<MovieDetailState> {
     try {
       final result = await _searchMovieAccordingToCategoryUseCase.execute(
         category,
-        nextPage,
+        params,
       );
       result.removeWhere((element) => element.movieSlug == slug);
       emit(

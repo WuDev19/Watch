@@ -32,7 +32,7 @@ class MovieApi {
     _searchToken = CancelToken();
     final response = await _dio.get(
       "/v1/api/tim-kiem",
-      queryParameters: {"keyword": keyword, "page": page, "limit": 24},
+      queryParameters: {"keyword": keyword, "page": page},
       cancelToken: _searchToken,
     );
     return MovieResponse.fromJson(
@@ -51,16 +51,39 @@ class MovieApi {
 
   Future<MovieResponse<SearchMovieDto>> searchMovieAccordingToCategory(
     String category,
-    int page,
+    Map<String, dynamic> params
   ) async {
     final response = await _dio.get(
       "/v1/api/the-loai/$category",
-      queryParameters: {
-        "page": page,
-        "limit": 24,
-        "sort_field": "year",
-        "sort_type": "desc",
-      },
+      queryParameters: params
+    );
+    return MovieResponse.fromJson(
+      response.data,
+      (jsonT) => SearchMovieDto.fromJson(jsonT),
+    );
+  }
+
+  Future<MovieResponse<SearchMovieDto>> searchMovieAccordingToCountry(
+    String country,
+    Map<String, dynamic> params
+  ) async {
+    final response = await _dio.get(
+      "/v1/api/quoc-gia/$country",
+      queryParameters: params
+    );
+    return MovieResponse.fromJson(
+      response.data,
+      (jsonT) => SearchMovieDto.fromJson(jsonT),
+    );
+  }
+
+  Future<MovieResponse<SearchMovieDto>> searchMovieAccordingToYear(
+    int year,
+    Map<String, dynamic> params
+  ) async {
+    final response = await _dio.get(
+      "/v1/api/nam-phat-hanh/$year",
+      queryParameters: params
     );
     return MovieResponse.fromJson(
       response.data,
@@ -98,8 +121,7 @@ class MovieApi {
     final response = await _dio.get("/v1/api/nam-phat-hanh");
     return MovieResponse.fromJson(
       response.data,
-          (jsonT) => Year.fromJson(jsonT),
+      (jsonT) => Year.fromJson(jsonT),
     );
   }
-
 }
