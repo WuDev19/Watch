@@ -36,7 +36,6 @@ class MovieDetailManagement extends Cubit<MovieDetailState> {
         ),
       );
     } catch (e) {
-      print("loi o detail $e");
       emit(
         state.copyWith(
           movieDetails: null,
@@ -59,7 +58,6 @@ class MovieDetailManagement extends Cubit<MovieDetailState> {
         ),
       );
     } catch (e) {
-      print("loi o actor $e");
       emit(
         state.copyWith(
           errorMovieActors: e.toString(),
@@ -72,21 +70,32 @@ class MovieDetailManagement extends Cubit<MovieDetailState> {
   void relatedMovie(
     String category,
     String slug,
+    bool isNew,
     Map<String, dynamic> params,
   ) async {
-    final maxPage = (state.totalItems / 24).ceil();
-    if (state.isLoadingMovieRelated || state.currentPage >= maxPage) return;
-    int nextPage = state.currentPage + 1;
-    emit(state.copyWith(isLoadingMovieRelated: true, errorMovieRelated: null));
+    if (!isNew) {
+      final maxPage = (state.totalItems / 24).ceil();
+      if (state.isLoadingMovieRelated || state.currentPage >= maxPage) return;
+    }
+    int nextPage = isNew ? 1 : state.currentPage + 1;
+    emit(
+      state.copyWith(
+        movieRelated: isNew ? const [] : state.movieRelated,
+        isLoadingMovieRelated: true,
+        errorMovieRelated: null,
+      ),
+    );
     try {
+      params["page"] = nextPage;
       final result = await _searchMovieAccordingToCategoryUseCase.execute(
         category,
         params,
       );
       result.removeWhere((element) => element.movieSlug == slug);
+      print("${[...state.movieRelated, ...result].length}");
       emit(
         state.copyWith(
-          movieRelated: [...state.movieRelated, ...result],
+          movieRelated: isNew ? result : [...state.movieRelated, ...result],
           isLoadingMovieRelated: false,
           errorMovieRelated: null,
           currentPage: nextPage,
@@ -98,7 +107,6 @@ class MovieDetailManagement extends Cubit<MovieDetailState> {
         ),
       );
     } catch (e) {
-      print("loi o related $e");
       emit(
         state.copyWith(
           errorMovieRelated: e.toString(),

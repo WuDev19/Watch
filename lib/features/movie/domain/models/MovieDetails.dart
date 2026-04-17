@@ -49,4 +49,9 @@ class MovieDetails {
     required this.episodes,
     required this.alternativeNames,
   });
+
+  @override
+  String toString() {
+    return 'MovieDetails{category: $category}';
+  }
 }

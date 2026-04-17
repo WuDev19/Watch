@@ -96,7 +96,6 @@ class SearchPageManagement extends Cubit<SearchState> {
     bool isNewCategory,
     Map<String, dynamic> params,
   ) async {
-    print("${state.totalItemsCategory}");
     if (!isNewCategory) {
       final maxPage = (state.totalItemsCategory / 24).ceil();
       if (state.isMoviesLoading || state.currentPageMoviesCategory >= maxPage) {

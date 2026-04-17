@@ -151,8 +151,11 @@ class _SearchPageState extends State<SearchPage> {
               },
               isClear: (isClear) {
                 //ham nay de clear cai lan dau minh bam (vi du minh bam category truoc thi khi bam lai vao chinh no thi clear)
-                if (isClear && _isCategoryFirst) {
-                  _isCategoryFirst = false;
+                if (isClear) {
+                  if (_isCategoryFirst) {
+                    _isCategoryFirst = false;
+                  }
+                  _deleteCategoryParams();
                 }
               },
               onSearch: (bool isNewCategory, String categorySlug) {
@@ -189,8 +192,11 @@ class _SearchPageState extends State<SearchPage> {
                 }
               },
               isClear: (isClear) {
-                if (isClear && _isCountryFirst) {
-                  _isCountryFirst = false;
+                if (isClear) {
+                  if (_isCountryFirst) {
+                    _isCountryFirst = false;
+                  }
+                  _deleteCountryParams();
                 }
               },
               onSearch: (isNewCountry, countrySlug) {
@@ -227,8 +233,11 @@ class _SearchPageState extends State<SearchPage> {
                 }
               },
               isClear: (isClear) {
-                if (isClear && _isYearFirst) {
-                  _isYearFirst = false;
+                if (isClear) {
+                  if (_isYearFirst) {
+                    _isYearFirst = false;
+                  }
+                  _deleteYearParams();
                 }
               },
               onSearch: (isNewYear, year) {
@@ -312,7 +321,8 @@ class _SearchPageState extends State<SearchPage> {
                           state.$3 == null) {
                         return Center(
                           child: Text(
-                            state.$1.isEmpty && _textEditingController.text.isNotEmpty
+                            state.$1.isEmpty &&
+                                    _textEditingController.text.isNotEmpty
                                 ? "None of the movies match your keywords"
                                 : _textEditingController.text.isEmpty
                                 ? "Search your favorite movies"
@@ -350,5 +360,20 @@ class _SearchPageState extends State<SearchPage> {
         ),
       ),
     );
+  }
+
+  void _deleteCategoryParams() {
+    dynamicYear.remove("category");
+    dynamicCountry.remove("category");
+  }
+
+  void _deleteCountryParams() {
+    dynamicYear.remove("country");
+    dynamicCategory.remove("country");
+  }
+
+  void _deleteYearParams() {
+    dynamicCategory.remove("year");
+    dynamicCountry.remove("year");
   }
 }

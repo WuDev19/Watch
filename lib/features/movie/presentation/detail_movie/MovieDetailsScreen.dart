@@ -1,3 +1,6 @@
+import 'dart:isolate';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -8,6 +11,7 @@ import 'package:movie_app/features/movie/domain/models/SearchMovieDisplay.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/state/MovieDetailState.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/state_management/MovieDetailManagement.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/widgets/ActorItem.dart';
+import 'package:movie_app/features/movie/presentation/detail_movie/widgets/ExpandScrollText.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/widgets/GenreItem.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/widgets/RelatedMovieItem.dart';
 import 'package:movie_app/utils/constants.dart';
@@ -63,6 +67,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
         _movieDetailManagement.relatedMovie(
           _categorySlug!,
           widget._movieSlug,
+          false,
           dynamicCategory,
         );
       }
@@ -79,7 +84,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
     final double itemWidth = (_screenWidth - 32) / 3;
     final double itemHeight = itemWidth * 1.5 + 40;
     return Scaffold(
-      body:
+      body: // detail movie
           BlocSelector<
             MovieDetailManagement,
             MovieDetailState,
@@ -92,7 +97,14 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
             ),
             builder: (context, state) {
               if (state.$2 == true && state.$3 == null && state.$1 == null) {
-                return Center(child: const CircularProgressIndicator());
+                return Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  color: VColors.blackBackground,
+                  child: const Center(
+                    child: CircularProgressIndicator(color: VColors.colorIcon),
+                  ),
+                );
               }
               if (state.$3 != null) {
                 return Center(
@@ -118,6 +130,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
               _movieDetailManagement.relatedMovie(
                 _categorySlug!,
                 widget._movieSlug,
+                true,
                 dynamicCategory,
               );
               return Stack(
@@ -137,7 +150,8 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                         height: heightImage,
                         color: VColors.blackBackground,
                         alignment: Alignment.topCenter,
-                        child: Center(
+                        child: Container(
+                          margin: EdgeInsets.only(top: 0.25 * heightImage),
                           child: CircularProgressIndicator(
                             value: value,
                             color: VColors.colorIcon,
@@ -147,6 +161,59 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                     },
                     errorBuilder: (context, url, error) =>
                         const Icon(Icons.error),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(top: 0.4 * heightImage),
+                    alignment: AlignmentGeometry.topCenter,
+                    child: Wrap(
+                      children: [
+                        ElevatedButton.icon(
+                          onPressed: () {},
+                          label: const Text(
+                            "Trailer",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          icon: const Icon(
+                            Icons.play_arrow,
+                            color: VColors.colorIcon,
+                          ),
+                          style: const ButtonStyle(
+                            overlayColor: WidgetStatePropertyAll(
+                              VColors.colorIcon,
+                            ),
+                            backgroundColor: WidgetStatePropertyAll(
+                              VColors.greySearch,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        ElevatedButton.icon(
+                          onPressed: () {},
+                          label: const Text(
+                            "Watch movie",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          icon: const Icon(
+                            Icons.play_arrow,
+                            color: VColors.colorIcon,
+                          ),
+                          style: const ButtonStyle(
+                            overlayColor: WidgetStatePropertyAll(
+                              VColors.colorIcon,
+                            ),
+                            backgroundColor: WidgetStatePropertyAll(
+                              VColors.greySearch,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   DraggableScrollableSheet(
                     maxChildSize: 0.9,
@@ -187,9 +254,8 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              Text(
-                                movieDetail.content,
-                                style: TextStyle(color: Colors.white),
+                              ExpandScrollText(
+                                movieSynopsis: movieDetail.content,
                               ),
                               const SizedBox(height: 10),
                               Text(
@@ -202,7 +268,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                               ),
                               SizedBox(
                                 height: itemHeight,
-                                child:
+                                child: //movie actors
                                     BlocSelector<
                                       MovieDetailManagement,
                                       MovieDetailState,
@@ -214,10 +280,11 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                                         state.errorMovieActors,
                                       ),
                                       builder: (context, state) {
-                                        print("build2");
                                         if (state.$2) {
                                           return const Center(
-                                            child: CircularProgressIndicator(),
+                                            child: CircularProgressIndicator(
+                                              color: VColors.colorIcon,
+                                            ),
                                           );
                                         }
                                         if (state.$3 != null) {
@@ -326,8 +393,11 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                                             ),
                                           );
                                         }
+                                        print("shuffle- ${state.$1}");
                                         return ListView.builder(
-                                          key: PageStorageKey("related_movie"),
+                                          key: PageStorageKey(
+                                            "related_movie:${movieDetail.slug}",
+                                          ),
                                           controller: _relatedMovieController,
                                           itemExtent: itemWidth,
                                           itemBuilder: (context, index) {
