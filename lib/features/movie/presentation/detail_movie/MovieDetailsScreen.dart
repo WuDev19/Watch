@@ -1,16 +1,16 @@
-import 'dart:isolate';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:movie_app/core/colors/VColors.dart';
+import 'package:movie_app/features/movie/domain/models/EpisodeList.dart';
 import 'package:movie_app/features/movie/domain/models/MovieActors.dart';
 import 'package:movie_app/features/movie/domain/models/MovieDetails.dart';
 import 'package:movie_app/features/movie/domain/models/SearchMovieDisplay.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/state/MovieDetailState.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/state_management/MovieDetailManagement.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/widgets/ActorItem.dart';
+import 'package:movie_app/features/movie/presentation/detail_movie/widgets/EpisodeItem.dart';
+import 'package:movie_app/features/movie/presentation/detail_movie/widgets/EpisodeWidget.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/widgets/ExpandScrollText.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/widgets/GenreItem.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/widgets/RelatedMovieItem.dart';
@@ -32,6 +32,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
   late ScrollController _scrollController;
   late ScrollController _relatedMovieController;
   late MovieDetailManagement _movieDetailManagement;
+  late ValueNotifier<List<EpisodeList>> _episodeListNotifier;
   String? _categorySlug;
   bool _isLoading = false;
   Map<String, dynamic> dynamicCategory = {
@@ -45,6 +46,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
     _scrollController = ScrollController();
     _relatedMovieController = ScrollController();
     _relatedMovieController.addListener(_onLoadMore);
+    _episodeListNotifier = ValueNotifier([]);
     _movieDetailManagement = context.read<MovieDetailManagement>();
     _movieDetailManagement.getMovieDetailsInfo(widget._movieSlug);
     _movieDetailManagement.getMovieActors(widget._movieSlug);
@@ -85,348 +87,355 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
     final double itemHeight = itemWidth * 1.5 + 40;
     return Scaffold(
       body: // detail movie
-          BlocSelector<
-            MovieDetailManagement,
-            MovieDetailState,
-            (MovieDetails?, bool, String?)
-          >(
-            selector: (state) => (
-              state.movieDetails,
-              state.isLoadingMovieDetails,
-              state.errorMovieDetails,
-            ),
-            builder: (context, state) {
-              if (state.$2 == true && state.$3 == null && state.$1 == null) {
-                return Container(
-                  width: double.infinity,
-                  height: double.infinity,
-                  color: VColors.blackBackground,
-                  child: const Center(
-                    child: CircularProgressIndicator(color: VColors.colorIcon),
-                  ),
-                );
-              }
-              if (state.$3 != null) {
-                return Center(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      _movieDetailManagement.getMovieDetailsInfo(
-                        widget._movieSlug,
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.cyan,
-                    ),
-                    child: Text("Retry", style: TextStyle(color: Colors.white)),
-                  ),
-                );
-              }
-              final movieDetail = state.$1!;
-              final genres = movieDetail.category
-                  .map((e) => GenreItem(genre: e.category))
-                  .toList();
-              movieDetail.category.shuffle();
-              _categorySlug = movieDetail.category[0].categorySlug;
-              _movieDetailManagement.relatedMovie(
-                _categorySlug!,
-                widget._movieSlug,
-                true,
-                dynamicCategory,
-              );
-              return Stack(
-                children: [
-                  Image.network(
-                    Constants.baseImageUrl + movieDetail.posterUrl,
-                    height: heightImage,
+      BlocSelector<MovieDetailManagement, MovieDetailState, (MovieDetails?, bool, String?)>(
+        selector: (state) => (
+          state.movieDetails,
+          state.isLoadingMovieDetails,
+          state.errorMovieDetails,
+        ),
+        builder: (context, state) {
+          if (state.$2 == true && state.$3 == null && state.$1 == null) {
+            return Container(
+              width: double.infinity,
+              height: double.infinity,
+              color: VColors.blackBackground,
+              child: const Center(
+                child: CircularProgressIndicator(color: VColors.colorIcon),
+              ),
+            );
+          }
+          if (state.$3 != null) {
+            return Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  _movieDetailManagement.getMovieDetailsInfo(widget._movieSlug);
+                },
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.cyan),
+                child: Text("Retry", style: TextStyle(color: Colors.white)),
+              ),
+            );
+          }
+          final movieDetail = state.$1!;
+          _episodeListNotifier.value =
+              movieDetail.episodes.first.episodeList; //danh sách server
+          final genres = movieDetail.category
+              .map((e) => GenreItem(genre: e.category))
+              .toList();
+          movieDetail.category.shuffle();
+          _categorySlug = movieDetail
+              .category[0]
+              .categorySlug; //lấy ngẫu nhiên một category để call related movie
+          _movieDetailManagement.relatedMovie(
+            _categorySlug!,
+            widget._movieSlug,
+            true,
+            dynamicCategory,
+          );
+          return Stack(
+            children: [
+              Image.network(
+                Constants.baseImageUrl + movieDetail.posterUrl,
+                height: heightImage,
+                width: _screenWidth,
+                fit: BoxFit.cover,
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  final value =
+                      loadingProgress.cumulativeBytesLoaded /
+                      loadingProgress.expectedTotalBytes!;
+                  return Container(
                     width: _screenWidth,
-                    fit: BoxFit.cover,
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      final value =
-                          loadingProgress.cumulativeBytesLoaded /
-                          loadingProgress.expectedTotalBytes!;
-                      return Container(
-                        width: _screenWidth,
-                        height: heightImage,
-                        color: VColors.blackBackground,
-                        alignment: Alignment.topCenter,
-                        child: Container(
-                          margin: EdgeInsets.only(top: 0.25 * heightImage),
-                          child: CircularProgressIndicator(
-                            value: value,
-                            color: VColors.colorIcon,
-                          ),
-                        ),
-                      );
-                    },
-                    errorBuilder: (context, url, error) =>
-                        const Icon(Icons.error),
-                  ),
-                  Container(
-                    margin: EdgeInsets.only(top: 0.4 * heightImage),
-                    alignment: AlignmentGeometry.topCenter,
-                    child: Wrap(
-                      children: [
-                        ElevatedButton.icon(
-                          onPressed: () {},
-                          label: const Text(
-                            "Trailer",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          icon: const Icon(
-                            Icons.play_arrow,
-                            color: VColors.colorIcon,
-                          ),
-                          style: const ButtonStyle(
-                            overlayColor: WidgetStatePropertyAll(
-                              VColors.colorIcon,
-                            ),
-                            backgroundColor: WidgetStatePropertyAll(
-                              VColors.greySearch,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        ElevatedButton.icon(
-                          onPressed: () {},
-                          label: const Text(
-                            "Watch movie",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          icon: const Icon(
-                            Icons.play_arrow,
-                            color: VColors.colorIcon,
-                          ),
-                          style: const ButtonStyle(
-                            overlayColor: WidgetStatePropertyAll(
-                              VColors.colorIcon,
-                            ),
-                            backgroundColor: WidgetStatePropertyAll(
-                              VColors.greySearch,
-                            ),
-                          ),
-                        ),
-                      ],
+                    height: heightImage,
+                    color: VColors.blackBackground,
+                    alignment: Alignment.topCenter,
+                    child: Container(
+                      margin: EdgeInsets.only(top: 0.25 * heightImage),
+                      child: CircularProgressIndicator(
+                        value: value,
+                        color: VColors.colorIcon,
+                      ),
                     ),
-                  ),
-                  DraggableScrollableSheet(
-                    maxChildSize: 0.9,
-                    initialChildSize: marginContent,
-                    minChildSize: marginContent,
-                    builder: (BuildContext context, ScrollController scrollController) {
-                      return Container(
-                        decoration: BoxDecoration(
-                          color: Colors.black,
-                          borderRadius: const BorderRadiusGeometry.only(
-                            topLeft: Radius.circular(40),
-                            topRight: Radius.circular(40),
-                          ),
+                  );
+                },
+                errorBuilder: (context, url, error) => const Icon(Icons.error),
+              ),
+              Container(
+                margin: EdgeInsets.only(top: 0.4 * heightImage),
+                alignment: AlignmentGeometry.topCenter,
+                child: Wrap(
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () {},
+                      label: const Text(
+                        "Trailer",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
                         ),
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(20),
-                        child: SingleChildScrollView(
-                          controller: scrollController,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.max,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildNameQualityCountry(movieDetail),
-                              const SizedBox(height: 10),
-                              _buildTimeStarView(movieDetail),
-                              const SizedBox(height: 10),
-                              _buildReleaseDateGenre(
-                                movieDetail,
-                                secondaryTitle,
-                                genres,
-                              ),
-                              const SizedBox(height: 10),
-                              Text(
-                                "Synopsis",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: secondaryTitle,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              ExpandScrollText(
-                                movieSynopsis: movieDetail.content,
-                              ),
-                              const SizedBox(height: 10),
-                              Text(
-                                "Actors",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: secondaryTitle,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              SizedBox(
-                                height: itemHeight,
-                                child: //movie actors
-                                    BlocSelector<
-                                      MovieDetailManagement,
-                                      MovieDetailState,
-                                      (List<MovieActors>, bool, String?)
-                                    >(
-                                      selector: (MovieDetailState state) => (
-                                        state.movieActors,
-                                        state.isLoadingMovieActors,
-                                        state.errorMovieActors,
-                                      ),
-                                      builder: (context, state) {
-                                        if (state.$2) {
-                                          return const Center(
-                                            child: CircularProgressIndicator(
-                                              color: VColors.colorIcon,
-                                            ),
-                                          );
-                                        }
-                                        if (state.$3 != null) {
-                                          return Center(
-                                            child: ElevatedButton(
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor:
-                                                    VColors.colorIcon,
-                                              ),
-                                              onPressed: () {
-                                                _movieDetailManagement
-                                                    .getMovieActors(
-                                                      widget._movieSlug,
-                                                    );
-                                              },
-                                              child: Text(
-                                                "Retry",
-                                                style: TextStyle(
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                            ),
-                                          );
-                                        }
-                                        if (state.$1.isEmpty) {
-                                          return Center(
-                                            child: Text(
-                                              "Nothing to show",
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                          );
-                                        }
-                                        return ListView.builder(
-                                          itemExtent: itemWidth,
-                                          itemBuilder: (context, index) {
-                                            final actor = state.$1[index];
-                                            return Container(
-                                              margin: const EdgeInsets.all(8),
-                                              child: ActorItem(
-                                                nameActor: actor.name,
-                                                originalNameActor:
-                                                    actor.originalName,
-                                                profilePicture:
-                                                    actor.profilePicture,
-                                              ),
-                                            );
-                                          },
-                                          itemCount: state.$1.length,
-                                          scrollDirection: Axis.horizontal,
-                                        );
-                                      },
-                                    ),
-                              ),
-                              Text(
-                                "Related movies",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: secondaryTitle,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              SizedBox(
-                                height: itemHeight - 40,
-                                child:
-                                    BlocSelector<
-                                      MovieDetailManagement,
-                                      MovieDetailState,
-                                      (List<SearchMovieDisplay>, bool, String?)
-                                    >(
-                                      selector: (state) => (
-                                        state.movieRelated,
-                                        state.isLoadingMovieRelated,
-                                        state.errorMovieRelated,
-                                      ),
-                                      builder: (context, state) {
-                                        _isLoading = false;
-                                        if (state.$2) {
-                                          return Center(
-                                            child:
-                                                const CircularProgressIndicator(
-                                                  color: VColors.colorIcon,
-                                                ),
-                                          );
-                                        }
-                                        if (state.$3 != null) {
-                                          return Center(
-                                            child: ElevatedButton(
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor:
-                                                    VColors.colorIcon,
-                                              ),
-                                              onPressed: () {
-                                                _movieDetailManagement
-                                                    .getMovieDetailsInfo(
-                                                      widget._movieSlug,
-                                                    );
-                                              },
-                                              child: Text(
-                                                "Retry",
-                                                style: TextStyle(
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                            ),
-                                          );
-                                        }
-                                        print("shuffle- ${state.$1}");
-                                        return ListView.builder(
-                                          key: PageStorageKey(
-                                            "related_movie:${movieDetail.slug}",
+                      ),
+                      icon: const Icon(
+                        Icons.play_arrow,
+                        color: VColors.colorIcon,
+                      ),
+                      style: const ButtonStyle(
+                        overlayColor: WidgetStatePropertyAll(VColors.colorIcon),
+                        backgroundColor: WidgetStatePropertyAll(
+                          VColors.greySearch,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    ElevatedButton.icon(
+                      onPressed: () {},
+                      label: const Text(
+                        "Watch movie",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      icon: const Icon(
+                        Icons.play_arrow,
+                        color: VColors.colorIcon,
+                      ),
+                      style: const ButtonStyle(
+                        overlayColor: WidgetStatePropertyAll(VColors.colorIcon),
+                        backgroundColor: WidgetStatePropertyAll(
+                          VColors.greySearch,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              DraggableScrollableSheet(
+                maxChildSize: 0.9,
+                initialChildSize: marginContent,
+                minChildSize: marginContent,
+                builder: (BuildContext context, ScrollController scrollController) {
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                      borderRadius: const BorderRadiusGeometry.only(
+                        topLeft: Radius.circular(40),
+                        topRight: Radius.circular(40),
+                      ),
+                    ),
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(20),
+                    child: SingleChildScrollView(
+                      controller: scrollController,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.max,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildNameQualityCountry(movieDetail),
+                          const SizedBox(height: 10),
+                          _buildTimeStarView(movieDetail),
+                          const SizedBox(height: 10),
+                          _buildReleaseDateGenre(
+                            movieDetail,
+                            secondaryTitle,
+                            genres,
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            "Synopsis",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: secondaryTitle,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          ExpandScrollText(movieSynopsis: movieDetail.content),
+                          const SizedBox(height: 10),
+                          Text(
+                            "Episodes",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: secondaryTitle,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          EpisodeWidget(
+                            episodes: movieDetail.episodes,
+                            onServerName: (episode) {
+                              _episodeListNotifier.value = episode.episodeList;
+                            },
+                          ),
+                          ValueListenableBuilder(
+                            valueListenable: _episodeListNotifier,
+                            builder: (context, value, child) {
+                              print("build lại episodes");
+                              return EpisodeItem(episodeList: value);
+                            },
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            "Actors",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: secondaryTitle,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(
+                            height: itemHeight,
+                            child: //movie actors
+                                BlocSelector<
+                                  MovieDetailManagement,
+                                  MovieDetailState,
+                                  (List<MovieActors>, bool, String?)
+                                >(
+                                  selector: (MovieDetailState state) => (
+                                    state.movieActors,
+                                    state.isLoadingMovieActors,
+                                    state.errorMovieActors,
+                                  ),
+                                  builder: (context, state) {
+                                    if (state.$2) {
+                                      return const Center(
+                                        child: CircularProgressIndicator(
+                                          color: VColors.colorIcon,
+                                        ),
+                                      );
+                                    }
+                                    if (state.$3 != null) {
+                                      return Center(
+                                        child: ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: VColors.colorIcon,
                                           ),
-                                          controller: _relatedMovieController,
-                                          itemExtent: itemWidth,
-                                          itemBuilder: (context, index) {
-                                            final movie = state.$1[index];
-                                            return InkWell(
-                                              onTap: () => context.pushReplacement(
-                                                "/movie-details/${movie.movieSlug}",
-                                              ),
-                                              child: RelatedMovieItem(
-                                                moviePoster: movie.moviePoster,
-                                              ),
-                                            );
+                                          onPressed: () {
+                                            _movieDetailManagement
+                                                .getMovieActors(
+                                                  widget._movieSlug,
+                                                );
                                           },
-                                          itemCount: state.$1.length,
-                                          scrollDirection: Axis.horizontal,
+                                          child: Text(
+                                            "Retry",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                    if (state.$1.isEmpty) {
+                                      return Center(
+                                        child: Text(
+                                          "Nothing to show",
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                      );
+                                    }
+                                    return ListView.builder(
+                                      itemExtent: itemWidth,
+                                      itemBuilder: (context, index) {
+                                        final actor = state.$1[index];
+                                        return Container(
+                                          margin: const EdgeInsets.all(8),
+                                          child: ActorItem(
+                                            nameActor: actor.name,
+                                            originalNameActor:
+                                                actor.originalName,
+                                            profilePicture:
+                                                actor.profilePicture,
+                                          ),
                                         );
                                       },
-                                    ),
-                              ),
-                            ],
+                                      itemCount: state.$1.length,
+                                      scrollDirection: Axis.horizontal,
+                                    );
+                                  },
+                                ),
                           ),
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              );
-            },
-          ),
+                          Text(
+                            "Related movies",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: secondaryTitle,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(
+                            height: itemHeight - 40,
+                            child:
+                                BlocSelector<
+                                  MovieDetailManagement,
+                                  MovieDetailState,
+                                  (List<SearchMovieDisplay>, bool, String?)
+                                >(
+                                  selector: (state) => (
+                                    state.movieRelated,
+                                    state.isLoadingMovieRelated,
+                                    state.errorMovieRelated,
+                                  ),
+                                  builder: (context, state) {
+                                    _isLoading = false;
+                                    if (state.$2) {
+                                      return Center(
+                                        child: const CircularProgressIndicator(
+                                          color: VColors.colorIcon,
+                                        ),
+                                      );
+                                    }
+                                    if (state.$3 != null) {
+                                      return Center(
+                                        child: ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: VColors.colorIcon,
+                                          ),
+                                          onPressed: () {
+                                            _movieDetailManagement
+                                                .getMovieDetailsInfo(
+                                                  widget._movieSlug,
+                                                );
+                                          },
+                                          child: Text(
+                                            "Retry",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                    print("shuffle- ${state.$1}");
+                                    return ListView.builder(
+                                      key: PageStorageKey(
+                                        "related_movie:${movieDetail.slug}",
+                                      ),
+                                      controller: _relatedMovieController,
+                                      itemExtent: itemWidth,
+                                      itemBuilder: (context, index) {
+                                        final movie = state.$1[index];
+                                        return InkWell(
+                                          onTap: () => context.pushReplacement(
+                                            "/movie-details/${movie.movieSlug}",
+                                          ),
+                                          child: RelatedMovieItem(
+                                            moviePoster: movie.moviePoster,
+                                          ),
+                                        );
+                                      },
+                                      itemCount: state.$1.length,
+                                      scrollDirection: Axis.horizontal,
+                                    );
+                                  },
+                                ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 
@@ -442,6 +451,8 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
           movieDetail.movieStar.toStringAsFixed(1),
           style: TextStyle(color: Colors.white),
         ),
+        const SizedBox(width: 20),
+        Text(movieDetail.episodeTotal, style: TextStyle(color: Colors.white)),
         const Spacer(),
         Text(
           movieDetail.view >= 2

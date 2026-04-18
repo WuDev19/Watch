@@ -56,15 +56,26 @@ class MovieMapper {
     return CategoryModel(category: item.name, categorySlug: item.slug);
   }
 
-  static Episode mapToEpisodeModel(EpisodeDTO episode) {
+  static Episode mapToEpisodeModel(EpisodeDTO episode, int position) {
     final episodeList = episode.episodeList
         .map((e) => mapToEpisodeListModel(e))
         .toList();
-    return Episode(serverName: episode.serverName, episodeList: episodeList);
+    return position == 0
+        ? Episode(
+            serverName: episode.serverName,
+            episodeList: episodeList,
+            isSelected: true,
+          )
+        : Episode(
+            serverName: episode.serverName,
+            episodeList: episodeList,
+            isSelected: false,
+          );
   }
 
   static EpisodeList mapToEpisodeListModel(EpisodeListDTO episodeList) {
     return EpisodeList(
+      name: episodeList.name,
       filename: episodeList.filename,
       linkM3U8: episodeList.linkM3U8,
     );
@@ -75,9 +86,10 @@ class MovieMapper {
         .map((e) => mapFromCategoryDtoToCategoryModel(e))
         .toList();
     final country = movieDetails.country.map((e) => e.name).join(", ");
-    final episodes = movieDetails.episodes
-        .map((e) => mapToEpisodeModel(e))
-        .toList();
+    final episodes = <Episode>[];
+    for(int i = 0; i < movieDetails.episodes.length; i++){
+      episodes.add(mapToEpisodeModel(movieDetails.episodes[i], i));
+    }
     final created = DateTime.parse(movieDetails.created.time);
     final releaseDate = DateFormat("dd/MM/yyyy").format(created);
     final content = _parseHtmlString(movieDetails.content);
