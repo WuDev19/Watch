@@ -32,7 +32,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
   late ScrollController _scrollController;
   late ScrollController _relatedMovieController;
   late MovieDetailManagement _movieDetailManagement;
-  late ValueNotifier<List<EpisodeList>> _episodeListNotifier;
+  late ValueNotifier<Map<int, List<EpisodeList>>> _episodeListNotifier;
   String? _categorySlug;
   bool _isLoading = false;
   Map<String, dynamic> dynamicCategory = {
@@ -46,7 +46,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
     _scrollController = ScrollController();
     _relatedMovieController = ScrollController();
     _relatedMovieController.addListener(_onLoadMore);
-    _episodeListNotifier = ValueNotifier([]);
+    _episodeListNotifier = ValueNotifier({});
     _movieDetailManagement = context.read<MovieDetailManagement>();
     _movieDetailManagement.getMovieDetailsInfo(widget._movieSlug);
     _movieDetailManagement.getMovieActors(widget._movieSlug);
@@ -117,7 +117,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
           }
           final movieDetail = state.$1!;
           _episodeListNotifier.value =
-              movieDetail.episodes.first.episodeList; //danh sách server
+              movieDetail.episodes.first.paginationEpisode; //danh sách server
           final genres = movieDetail.category
               .map((e) => GenreItem(genre: e.category))
               .toList();
@@ -261,14 +261,13 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                           EpisodeWidget(
                             episodes: movieDetail.episodes,
                             onServerName: (episode) {
-                              _episodeListNotifier.value = episode.episodeList;
+                              _episodeListNotifier.value = episode.paginationEpisode;
                             },
                           ),
                           ValueListenableBuilder(
                             valueListenable: _episodeListNotifier,
                             builder: (context, value, child) {
-                              print("build lại episodes");
-                              return EpisodeItem(episodeList: value);
+                              return EpisodeItem(episodeList: value[1] as List<EpisodeList>);
                             },
                           ),
                           const SizedBox(height: 10),

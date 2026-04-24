@@ -2,17 +2,17 @@ import 'EpisodeList.dart';
 
 class Episode {
   String serverName;
-  List<EpisodeList> episodeList;
+  Map<int, List<EpisodeList>> paginationEpisode;
   bool isSelected;
 
   Episode({
     required this.serverName,
-    required this.episodeList,
+    required this.paginationEpisode,
     required this.isSelected,
   });
 
   @override
   String toString() {
-    return 'Episode{serverName: $serverName, episodeList: $episodeList}';
+    return 'Episode{serverName: $serverName, episodeList: $paginationEpisode}';
   }
 }

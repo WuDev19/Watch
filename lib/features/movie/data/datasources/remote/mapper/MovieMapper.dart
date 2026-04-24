@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:movie_app/features/movie/data/datasources/local/entity/CountryLocal.dart';
 import 'package:movie_app/features/movie/data/datasources/local/entity/YearLocal.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/dto/Year.dart';
@@ -56,19 +57,50 @@ class MovieMapper {
     return CategoryModel(category: item.name, categorySlug: item.slug);
   }
 
-  static Episode mapToEpisodeModel(EpisodeDTO episode, int position) {
-    final episodeList = episode.episodeList
-        .map((e) => mapToEpisodeListModel(e))
-        .toList();
+  static Future<Episode> mapToEpisodeModel(
+    EpisodeDTO episode,
+    int position,
+  ) async {
+    List<EpisodeList> episodeList = [];
+    if (episode.episodeList.length >= 1000) {
+      //nếu lớn hơn 1000 tập thì ném sang isolate cho đỡ lag
+      episodeList = await compute(
+        handleEpisodeListIfTooLarge,
+        episode.episodeList,
+      );
+    } else {
+      episodeList = episode.episodeList
+          .map((e) => mapToEpisodeListModel(e))
+          .toList();
+    }
+    final paginationEpisode =
+        <int, List<EpisodeList>>{}; //fake pagination bằng map
+    final length = episodeList.length;
+    if (length > 12) {
+      int totalPage = (length / 12).ceil();
+      int from = 0;
+      int to = 12;
+      for (int i = 1; i <= totalPage; i++) {
+        paginationEpisode[i] = episodeList.sublist(from, to);
+        from = to;
+        if (to + 12 > length) {
+          to = length;
+        } else {
+          to += 12;
+        }
+      }
+    } else {
+      paginationEpisode[1] = episodeList;
+    }
     return position == 0
         ? Episode(
             serverName: episode.serverName,
-            episodeList: episodeList,
+            paginationEpisode: paginationEpisode,
             isSelected: true,
           )
         : Episode(
             serverName: episode.serverName,
-            episodeList: episodeList,
+            paginationEpisode: paginationEpisode,
             isSelected: false,
           );
   }
@@ -81,14 +113,22 @@ class MovieMapper {
     );
   }
 
-  static MovieDetails mapToMovieDetails(MovieDetailsDTO movieDetails) {
+  static List<EpisodeList> handleEpisodeListIfTooLarge(
+    List<EpisodeListDTO> episodeListDTO,
+  ) {
+    return episodeListDTO.map((e) => mapToEpisodeListModel(e)).toList();
+  }
+
+  static Future<MovieDetails> mapToMovieDetails(
+    MovieDetailsDTO movieDetails,
+  ) async {
     final category = movieDetails.category
         .map((e) => mapFromCategoryDtoToCategoryModel(e))
         .toList();
     final country = movieDetails.country.map((e) => e.name).join(", ");
     final episodes = <Episode>[];
-    for(int i = 0; i < movieDetails.episodes.length; i++){
-      episodes.add(mapToEpisodeModel(movieDetails.episodes[i], i));
+    for (int i = 0; i < movieDetails.episodes.length; i++) {
+      episodes.add(await mapToEpisodeModel(movieDetails.episodes[i], i));
     }
     final created = DateTime.parse(movieDetails.created.time);
     final releaseDate = DateFormat("dd/MM/yyyy").format(created);
