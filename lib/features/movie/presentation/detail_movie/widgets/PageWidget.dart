@@ -7,7 +7,11 @@ class PageWidget extends StatefulWidget {
   final Map<int, List<EpisodeList>> pagination;
   final Function(List<EpisodeList> episodeList) onChoosePage;
 
-  const PageWidget({super.key, required this.pagination, required this.onChoosePage});
+  const PageWidget({
+    super.key,
+    required this.pagination,
+    required this.onChoosePage,
+  });
 
   @override
   State<PageWidget> createState() => _PageWidgetState();
@@ -18,6 +22,7 @@ class _PageWidgetState extends State<PageWidget> {
   int destination = 0;
   late final ValueNotifier<int> previous;
   late final ValueNotifier<int> next;
+  late final ValueNotifier<int> currentIndex;
 
   @override
   void initState() {
@@ -25,6 +30,7 @@ class _PageWidgetState extends State<PageWidget> {
     _itemScrollController = ItemScrollController();
     previous = ValueNotifier(destination);
     next = ValueNotifier(destination);
+    currentIndex = ValueNotifier(0);
   }
 
   // mai fix lại
@@ -69,19 +75,29 @@ class _PageWidgetState extends State<PageWidget> {
                 return GestureDetector(
                   onTap: () {
                     widget.onChoosePage(widget.pagination[page]!);
+                    currentIndex.value = index;
                   },
-                  child: Container(
-                    alignment: Alignment.center,
-                    margin: const EdgeInsets.all(2),
-                    decoration: const BoxDecoration(
-                      color: VColors.greySearch,
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                    ),
-                    width: 40,
-                    child: Text(
-                      "${index + 1}",
-                      style: const TextStyle(color: Colors.white),
-                    ),
+                  child: ValueListenableBuilder(
+                    valueListenable: currentIndex,
+                    builder: (context, value, child) {
+                      return Container(
+                        alignment: Alignment.center,
+                        margin: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: value == index
+                              ? VColors.colorIcon
+                              : VColors.greySearch,
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(10),
+                          ),
+                        ),
+                        width: 40,
+                        child: Text(
+                          "${index + 1}",
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      );
+                    },
                   ),
                 );
               },

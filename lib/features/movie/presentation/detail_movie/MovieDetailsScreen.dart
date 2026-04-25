@@ -170,7 +170,9 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                 child: Wrap(
                   children: [
                     ElevatedButton.icon(
-                      onPressed: () {},
+                      onPressed: () {
+                        print("${movieDetail.trailerUrl}");
+                      },
                       label: const Text(
                         "Trailer",
                         style: TextStyle(
