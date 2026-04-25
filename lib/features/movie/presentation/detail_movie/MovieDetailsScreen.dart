@@ -193,7 +193,9 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                     ),
                     const SizedBox(width: 10),
                     ElevatedButton.icon(
-                      onPressed: () {},
+                      onPressed: () {
+                        print("${movieDetail.episodes.first.paginationEpisode[1]?.first.linkM3U8}");
+                      },
                       label: const Text(
                         "Watch movie",
                         style: TextStyle(
