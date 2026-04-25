@@ -171,7 +171,10 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                   children: [
                     ElevatedButton.icon(
                       onPressed: () {
-                        print("${movieDetail.trailerUrl}");
+                        context.push(
+                          "/watch-movie",
+                          extra: movieDetail.trailerUrl,
+                        );
                       },
                       label: const Text(
                         "Trailer",
@@ -194,7 +197,15 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                     const SizedBox(width: 10),
                     ElevatedButton.icon(
                       onPressed: () {
-                        print("${movieDetail.episodes.first.paginationEpisode[1]?.first.linkM3U8}");
+                        context.push(
+                          "/watch-movie",
+                          extra: movieDetail
+                              .episodes
+                              .first
+                              .paginationEpisode[1]
+                              ?.first
+                              .linkM3U8,
+                        );
                       },
                       label: const Text(
                         "Watch movie",

@@ -4,6 +4,7 @@ import 'package:movie_app/core/colors/VColors.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/MovieDetailsScreen.dart';
 import 'package:movie_app/features/movie/presentation/home/HomePage.dart';
 import 'package:movie_app/features/movie/presentation/search/SearchPage.dart';
+import 'package:movie_app/features/movie/presentation/watch_movie/WatchMovieScreen.dart';
 
 class AppRoutes {
   AppRoutes._();
@@ -97,6 +98,32 @@ class AppRoutes {
                       end: Offset.zero,
                     ).animate(animation),
                     child: child,
+                  );
+                },
+          );
+        },
+      ),
+      GoRoute(
+        path: "/watch-movie",
+        pageBuilder: (context, state) {
+          final url = state.extra as String;
+          return CustomTransitionPage(
+            child: WatchMovieScreen(urlMovie: url),
+            transitionDuration: const Duration(milliseconds: 800),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+                  final curved = CurvedAnimation(
+                    parent: animation,
+                    curve: Curves.easeOutBack,
+                  );
+                  return ScaleTransition(
+                    scale: curved,
+                    child: ClipRRect(
+                      borderRadius: BorderRadiusGeometry.all(
+                        Radius.circular(20),
+                      ),
+                      child: child,
+                    ),
                   );
                 },
           );
