@@ -273,8 +273,18 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                           ValueListenableBuilder(
                             valueListenable: _episodeListValues,
                             builder: (context, value, child) {
-                              return EpisodeItem(
-                                episodeList: value,
+                              return AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 500),
+                                transitionBuilder: (child, animation) {
+                                  return FadeTransition(
+                                    opacity: animation,
+                                    child: child,
+                                  );
+                                },
+                                child: EpisodeItem(
+                                  key: ValueKey(value),
+                                  episodeList: value,
+                                ),
                               );
                             },
                           ),
