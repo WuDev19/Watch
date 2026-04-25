@@ -76,17 +76,18 @@ class MovieMapper {
     final paginationEpisode =
         <int, List<EpisodeList>>{}; //fake pagination bằng map
     final length = episodeList.length;
-    if (length > 12) {
-      int totalPage = (length / 12).ceil();
+    int perPage = 24; // số tập mỗi trang
+    if (length > perPage) {
+      int totalPage = (length / perPage).ceil();
       int from = 0;
-      int to = 12;
+      int to = perPage;
       for (int i = 1; i <= totalPage; i++) {
         paginationEpisode[i] = episodeList.sublist(from, to);
         from = to;
-        if (to + 12 > length) {
+        if (to + perPage > length) {
           to = length;
         } else {
-          to += 12;
+          to += perPage;
         }
       }
     } else {

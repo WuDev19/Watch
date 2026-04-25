@@ -33,11 +33,11 @@ class _EpisodeWidgetState extends State<EpisodeWidget> {
               onTap: () {
                 widget.onServerName(episode);
                 if (_oldIndex != index) {
-                  _oldIndex = index;
                   setState(() {
                     episode.isSelected = true;
                     widget.episodes[_oldIndex].isSelected = false;
                   });
+                  _oldIndex = index;
                 }
               },
               child: Card(
@@ -46,8 +46,8 @@ class _EpisodeWidgetState extends State<EpisodeWidget> {
                   borderRadius: BorderRadiusGeometry.all(Radius.circular(10)),
                 ),
                 color: episode.isSelected
-                    ? VColors.greySearch
-                    : Colors.transparent,
+                    ? VColors.colorIcon
+                    : VColors.greySearch,
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(

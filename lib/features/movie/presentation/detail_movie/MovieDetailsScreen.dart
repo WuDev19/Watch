@@ -13,6 +13,7 @@ import 'package:movie_app/features/movie/presentation/detail_movie/widgets/Episo
 import 'package:movie_app/features/movie/presentation/detail_movie/widgets/EpisodeWidget.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/widgets/ExpandScrollText.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/widgets/GenreItem.dart';
+import 'package:movie_app/features/movie/presentation/detail_movie/widgets/PageWidget.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/widgets/RelatedMovieItem.dart';
 import 'package:movie_app/utils/constants.dart';
 
@@ -32,7 +33,8 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
   late ScrollController _scrollController;
   late ScrollController _relatedMovieController;
   late MovieDetailManagement _movieDetailManagement;
-  late ValueNotifier<Map<int, List<EpisodeList>>> _episodeListNotifier;
+  late ValueNotifier<Map<int, List<EpisodeList>>> _paginationEpisodeValues;
+  late ValueNotifier<List<EpisodeList>> _episodeListValues;
   String? _categorySlug;
   bool _isLoading = false;
   Map<String, dynamic> dynamicCategory = {
@@ -46,7 +48,8 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
     _scrollController = ScrollController();
     _relatedMovieController = ScrollController();
     _relatedMovieController.addListener(_onLoadMore);
-    _episodeListNotifier = ValueNotifier({});
+    _paginationEpisodeValues = ValueNotifier({});
+    _episodeListValues = ValueNotifier([]);
     _movieDetailManagement = context.read<MovieDetailManagement>();
     _movieDetailManagement.getMovieDetailsInfo(widget._movieSlug);
     _movieDetailManagement.getMovieActors(widget._movieSlug);
@@ -116,8 +119,10 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
             );
           }
           final movieDetail = state.$1!;
-          _episodeListNotifier.value =
+          _paginationEpisodeValues.value =
               movieDetail.episodes.first.paginationEpisode; //danh sách server
+          _episodeListValues.value =
+              movieDetail.episodes.first.paginationEpisode[1]!;
           final genres = movieDetail.category
               .map((e) => GenreItem(genre: e.category))
               .toList();
@@ -261,13 +266,30 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                           EpisodeWidget(
                             episodes: movieDetail.episodes,
                             onServerName: (episode) {
-                              _episodeListNotifier.value = episode.paginationEpisode;
+                              _paginationEpisodeValues.value =
+                                  episode.paginationEpisode;
                             },
                           ),
                           ValueListenableBuilder(
-                            valueListenable: _episodeListNotifier,
+                            valueListenable: _episodeListValues,
                             builder: (context, value, child) {
-                              return EpisodeItem(episodeList: value[1] as List<EpisodeList>);
+                              return EpisodeItem(
+                                episodeList: value,
+                              );
+                            },
+                          ),
+                          const SizedBox(height: 10),
+                          ValueListenableBuilder(
+                            valueListenable: _paginationEpisodeValues,
+                            builder: (context, value, child) {
+                              return Center(
+                                child: PageWidget(
+                                  pagination: value,
+                                  onChoosePage: (episodeList) {
+                                    _episodeListValues.value = episodeList;
+                                  },
+                                ),
+                              );
                             },
                           ),
                           const SizedBox(height: 10),
