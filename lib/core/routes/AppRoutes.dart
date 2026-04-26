@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:movie_app/core/colors/VColors.dart';
+import 'package:movie_app/features/movie/domain/models/MovieWatch.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/MovieDetailsScreen.dart';
 import 'package:movie_app/features/movie/presentation/home/HomePage.dart';
 import 'package:movie_app/features/movie/presentation/search/SearchPage.dart';
@@ -106,9 +107,19 @@ class AppRoutes {
       GoRoute(
         path: "/watch-movie",
         pageBuilder: (context, state) {
-          final url = state.extra as String;
+          final data = state.extra;
+          MovieWatch? movieWatch;
+          String? trailerUrl;
+          if (data is MovieWatch) {
+            movieWatch = data;
+          } else if (data is String) {
+            trailerUrl = data;
+          }
           return CustomTransitionPage(
-            child: WatchMovieScreen(urlMovie: url),
+            child: WatchMovieScreen(
+              movieWatch: movieWatch,
+              trailerUrl: trailerUrl,
+            ),
             transitionDuration: const Duration(milliseconds: 800),
             transitionsBuilder:
                 (context, animation, secondaryAnimation, child) {

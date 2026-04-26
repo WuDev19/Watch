@@ -66,8 +66,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i503.MovieRepository>(
       () => _i709.MovieRepositoryImpl(gh<_i500.MovieApi>(), gh<_i214.Isar>()),
     );
+    gh.lazySingleton<_i414.GetAllYearUseCase>(
+      () => _i414.GetAllYearUseCase(gh<_i503.MovieRepository>()),
+    );
     gh.lazySingleton<_i716.GetCategoriesUseCase>(
       () => _i716.GetCategoriesUseCase(gh<_i503.MovieRepository>()),
+    );
+    gh.lazySingleton<_i253.GetCountryUseCase>(
+      () => _i253.GetCountryUseCase(gh<_i503.MovieRepository>()),
     );
     gh.lazySingleton<_i392.GetMovieActorsUseCase>(
       () => _i392.GetMovieActorsUseCase(gh<_i503.MovieRepository>()),
@@ -83,15 +89,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i503.MovieRepository>(),
       ),
     );
-    gh.lazySingleton<_i68.SearchMovieUseCase>(
-      () => _i68.SearchMovieUseCase(gh<_i503.MovieRepository>()),
-    );
-    gh.lazySingleton<_i253.GetCountryUseCase>(
-      () => _i253.GetCountryUseCase(gh<_i503.MovieRepository>()),
-    );
-    gh.lazySingleton<_i414.GetAllYearUseCase>(
-      () => _i414.GetAllYearUseCase(gh<_i503.MovieRepository>()),
-    );
     gh.lazySingleton<_i123.SearchMovieAccordingToCountryUseCase>(
       () => _i123.SearchMovieAccordingToCountryUseCase(
         gh<_i503.MovieRepository>(),
@@ -99,6 +96,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i2.SearchMovieAccordingToYearUseCase>(
       () => _i2.SearchMovieAccordingToYearUseCase(gh<_i503.MovieRepository>()),
+    );
+    gh.lazySingleton<_i68.SearchMovieUseCase>(
+      () => _i68.SearchMovieUseCase(gh<_i503.MovieRepository>()),
     );
     gh.factory<_i309.HomeBloc>(
       () => _i309.HomeBloc(gh<_i755.HomePageMovieUseCase>()),

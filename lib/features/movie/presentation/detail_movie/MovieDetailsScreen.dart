@@ -5,6 +5,7 @@ import 'package:movie_app/core/colors/VColors.dart';
 import 'package:movie_app/features/movie/domain/models/EpisodeList.dart';
 import 'package:movie_app/features/movie/domain/models/MovieActors.dart';
 import 'package:movie_app/features/movie/domain/models/MovieDetails.dart';
+import 'package:movie_app/features/movie/domain/models/MovieWatch.dart';
 import 'package:movie_app/features/movie/domain/models/SearchMovieDisplay.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/state/MovieDetailState.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/state_management/MovieDetailManagement.dart';
@@ -61,6 +62,8 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
     _relatedMovieController.removeListener(_onLoadMore);
     _scrollController.dispose();
     _relatedMovieController.dispose();
+    _episodeListValues.dispose();
+    _paginationEpisodeValues.dispose();
   }
 
   void _onLoadMore() {
@@ -197,15 +200,17 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                     const SizedBox(width: 10),
                     ElevatedButton.icon(
                       onPressed: () {
-                        context.push(
-                          "/watch-movie",
-                          extra: movieDetail
-                              .episodes
-                              .first
-                              .paginationEpisode[1]
-                              ?.first
-                              .linkM3U8,
+                        final currentEpisode = movieDetail
+                            .episodes
+                            .first
+                            .paginationEpisode[1]
+                            ?.first;
+                        final movieWatch = MovieWatch(
+                          movieName: movieDetail.name,
+                          currentEpisode: currentEpisode!,
+                          episodes: movieDetail.episodes,
                         );
+                        context.push("/watch-movie", extra: movieWatch);
                       },
                       label: const Text(
                         "Watch movie",
@@ -299,10 +304,16 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                                 child: EpisodeItem(
                                   key: ValueKey(value),
                                   episodeList: value,
-                                  onWatch: (urlMovie) {
+                                  currentEpisode: value.first,
+                                  onWatch: (currentEpisode) {
+                                    final movieWatch = MovieWatch(
+                                      movieName: movieDetail.name,
+                                      currentEpisode: currentEpisode,
+                                      episodes: movieDetail.episodes,
+                                    );
                                     context.push(
                                       "/watch-movie",
-                                      extra: urlMovie,
+                                      extra: movieWatch,
                                     );
                                   },
                                 ),
