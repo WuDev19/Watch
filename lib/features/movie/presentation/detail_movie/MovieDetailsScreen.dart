@@ -299,6 +299,12 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                                 child: EpisodeItem(
                                   key: ValueKey(value),
                                   episodeList: value,
+                                  onWatch: (urlMovie) {
+                                    context.push(
+                                      "/watch-movie",
+                                      extra: urlMovie,
+                                    );
+                                  },
                                 ),
                               );
                             },

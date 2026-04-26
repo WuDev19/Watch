@@ -5,8 +5,13 @@ import '../../../../../core/colors/VColors.dart';
 
 class EpisodeItem extends StatefulWidget {
   final List<EpisodeList> episodeList;
+  final Function(String urlMovie) onWatch;
 
-  const EpisodeItem({super.key, required this.episodeList});
+  const EpisodeItem({
+    super.key,
+    required this.episodeList,
+    required this.onWatch,
+  });
 
   @override
   State<EpisodeItem> createState() => _EpisodeItemState();
@@ -18,13 +23,18 @@ class _EpisodeItemState extends State<EpisodeItem> {
     return Wrap(
       children: widget.episodeList
           .map(
-            (e) => Card(
-              color: VColors.greySearch,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  "Ep ${e.name}",
-                  style: const TextStyle(color: Colors.white),
+            (e) => GestureDetector(
+              onTap: () {
+                widget.onWatch(e.linkM3U8);
+              },
+              child: Card(
+                color: VColors.greySearch,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    "Ep ${e.name}",
+                    style: const TextStyle(color: Colors.white),
+                  ),
                 ),
               ),
             ),
