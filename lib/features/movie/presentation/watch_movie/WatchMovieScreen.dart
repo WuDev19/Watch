@@ -36,7 +36,7 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
         widget.movieWatch!.episodes.first.paginationEpisode,
       );
       _episodeListValues = ValueNotifier(
-        widget.movieWatch!.episodes.first.paginationEpisode[1]!,
+        widget.movieWatch!.currentListEpisode,
       );
       _betterPlayerController = BetterPlayerController(
         BetterPlayerConfiguration(
@@ -57,14 +57,14 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
         await Future.delayed(const Duration(milliseconds: 1000));
         BetterPlayerDataSource betterPlayerDataSource =
-        BetterPlayerDataSource.network(
-          widget.movieWatch!.currentEpisode.linkM3U8,
-          cacheConfiguration: BetterPlayerCacheConfiguration(
-            useCache: true,
-            maxCacheSize: 100 * 1024 * 1024,
-            maxCacheFileSize: 10 * 1024 * 1024,
-          ),
-        );
+            BetterPlayerDataSource.network(
+              widget.movieWatch!.currentEpisode.linkM3U8,
+              cacheConfiguration: BetterPlayerCacheConfiguration(
+                useCache: true,
+                maxCacheSize: 100 * 1024 * 1024,
+                maxCacheFileSize: 10 * 1024 * 1024,
+              ),
+            );
         await _betterPlayerController.setupDataSource(betterPlayerDataSource);
         _betterPlayerController.enterFullScreen();
         _betterPlayerController.play();
@@ -89,70 +89,74 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
     return Scaffold(
       body: widget.movieWatch != null
           ? Column(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadiusGeometry.only(
-              bottomRight: Radius.circular(20),
-              bottomLeft: Radius.circular(20),
-            ),
-            child: BetterPlayer(controller: _betterPlayerController),
-          ),
-          Text(
-            "Episodes",
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: secondaryTitle,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 10),
-          EpisodeWidget(
-            episodes: widget.movieWatch!.episodes,
-            onServerName: (episode) {
-              _paginationEpisodeValues.value = episode.paginationEpisode;
-            },
-          ),
-          ValueListenableBuilder(
-            valueListenable: _episodeListValues,
-            builder: (context, value, child) {
-              return AnimatedSwitcher(
-                duration: const Duration(milliseconds: 500),
-                transitionBuilder: (child, animation) {
-                  return FadeTransition(opacity: animation, child: child);
-                },
-                child: EpisodeItem(
-                    key: ValueKey(value),
-                    episodeList: value,
-                    currentEpisode: widget.movieWatch!.currentEpisode,
-                    onWatch: (currentEpisode) {
-                      _changeEpisode(currentEpisode);
-                    },
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadiusGeometry.only(
+                    bottomRight: Radius.circular(20),
+                    bottomLeft: Radius.circular(20),
+                  ),
+                  child: BetterPlayer(controller: _betterPlayerController),
                 ),
-              );
-            },
-          ),
-          const SizedBox(height: 10),
-          ValueListenableBuilder(
-            valueListenable: _paginationEpisodeValues,
-            builder: (context, value, child) {
-              return Center(
-                child: PageWidget(
-                  pagination: value,
-                  onChoosePage: (episodeList) {
-                    _episodeListValues.value = episodeList;
+                Text(
+                  "Episodes",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: secondaryTitle,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                EpisodeWidget(
+                  episodes: widget.movieWatch!.episodes,
+                  onServerName: (episode) {
+                    _paginationEpisodeValues.value = episode.paginationEpisode;
                   },
                 ),
-              );
-            },
-          ),
-        ],
-      )
+                ValueListenableBuilder(
+                  valueListenable: _episodeListValues,
+                  builder: (context, value, child) {
+                    return AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 500),
+                      transitionBuilder: (child, animation) {
+                        return FadeTransition(opacity: animation, child: child);
+                      },
+                      child: EpisodeItem(
+                        key: ValueKey(value),
+                        episodeList: value,
+                        currentEpisode: widget.movieWatch!.currentEpisode,
+                        onWatch: (currentEpisode) {
+                          _changeEpisode(currentEpisode);
+                        },
+                        isInWatch: true,
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 10),
+                ValueListenableBuilder(
+                  valueListenable: _paginationEpisodeValues,
+                  builder: (context, value, child) {
+                    return Center(
+                      child: PageWidget(
+                        pagination: value,
+                        onChoosePage: (episodeList) {
+                          _episodeListValues.value = episodeList;
+                        },
+                        currentPage: widget.movieWatch!.currentListEpisode,
+                        isInWatch: true,
+                      ),
+                    );
+                  },
+                ),
+              ],
+            )
           : Center(child: const CircularProgressIndicator()),
     );
   }
 
   Future<void> _changeEpisode(EpisodeList currentEpisode) async {
     BetterPlayerDataSource dataSource = BetterPlayerDataSource.network(
+      // lấy nguôn khác set vào controller hiện tại
       currentEpisode.linkM3U8,
       cacheConfiguration: BetterPlayerCacheConfiguration(
         useCache: true,

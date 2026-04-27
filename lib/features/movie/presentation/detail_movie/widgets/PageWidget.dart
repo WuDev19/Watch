@@ -6,11 +6,15 @@ import '../../../domain/models/EpisodeList.dart';
 class PageWidget extends StatefulWidget {
   final Map<int, List<EpisodeList>> pagination;
   final Function(List<EpisodeList> episodeList) onChoosePage;
+  final List<EpisodeList>? currentPage;
+  final bool isInWatch;
 
   const PageWidget({
     super.key,
     required this.pagination,
     required this.onChoosePage,
+    required this.currentPage,
+    required this.isInWatch,
   });
 
   @override
@@ -31,6 +35,26 @@ class _PageWidgetState extends State<PageWidget> {
     previous = ValueNotifier(destination);
     next = ValueNotifier(destination);
     currentIndex = ValueNotifier(0);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollToPage();
+    });
+  }
+
+  void _scrollToPage() {
+    if (widget.isInWatch) {
+      widget.pagination.forEach((key, value) {
+        if (value == widget.currentPage) {
+          destination = key - 1;
+        }
+      });
+      _itemScrollController.scrollTo(
+        index: destination,
+        duration: const Duration(milliseconds: 500),
+      );
+      currentIndex.value = destination;
+      previous.value = destination;
+      next.value = destination;
+    }
   }
 
   // mai fix lại

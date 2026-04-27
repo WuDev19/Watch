@@ -5,10 +5,12 @@ class MovieWatch {
   String movieName;
   EpisodeList currentEpisode;
   List<Episode> episodes;
+  List<EpisodeList> currentListEpisode;
 
   MovieWatch({
     required this.movieName,
     required this.currentEpisode,
     required this.episodes,
+    required this.currentListEpisode
   });
 }

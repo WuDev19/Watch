@@ -209,6 +209,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                           movieName: movieDetail.name,
                           currentEpisode: currentEpisode!,
                           episodes: movieDetail.episodes,
+                          currentListEpisode: [],
                         );
                         context.push("/watch-movie", extra: movieWatch);
                       },
@@ -304,18 +305,20 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                                 child: EpisodeItem(
                                   key: ValueKey(value),
                                   episodeList: value,
-                                  currentEpisode: value.first,
+                                  currentEpisode: null,
                                   onWatch: (currentEpisode) {
                                     final movieWatch = MovieWatch(
                                       movieName: movieDetail.name,
                                       currentEpisode: currentEpisode,
                                       episodes: movieDetail.episodes,
+                                      currentListEpisode: value,
                                     );
                                     context.push(
                                       "/watch-movie",
                                       extra: movieWatch,
                                     );
                                   },
+                                  isInWatch: false,
                                 ),
                               );
                             },
@@ -330,6 +333,8 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                                   onChoosePage: (episodeList) {
                                     _episodeListValues.value = episodeList;
                                   },
+                                  currentPage: null,
+                                  isInWatch: false,
                                 ),
                               );
                             },
@@ -503,7 +508,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
   }
 
   Widget _buildTimeStarView(MovieDetails movieDetail) {
-    return Row(
+    return Wrap(
       children: [
         const Icon(Icons.timer, color: VColors.colorIcon),
         const SizedBox(width: 5),
@@ -516,7 +521,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
         ),
         const SizedBox(width: 20),
         Text(movieDetail.episodeTotal, style: TextStyle(color: Colors.white)),
-        const Spacer(),
+        const SizedBox(width: 20),
         Text(
           movieDetail.view >= 2
               ? "${movieDetail.view} views"
