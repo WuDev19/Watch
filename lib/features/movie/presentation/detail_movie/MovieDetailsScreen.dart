@@ -17,6 +17,7 @@ import 'package:movie_app/features/movie/presentation/detail_movie/widgets/Genre
 import 'package:movie_app/features/movie/presentation/detail_movie/widgets/PageWidget.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/widgets/RelatedMovieItem.dart';
 import 'package:movie_app/utils/constants.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class MovieDetailsScreen extends StatefulWidget {
   final String _movieSlug;
@@ -173,11 +174,41 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                 child: Wrap(
                   children: [
                     ElevatedButton.icon(
-                      onPressed: () {
-                        context.push(
-                          "/watch-movie",
-                          extra: movieDetail.trailerUrl,
+                      onPressed: () async {
+                        final success = await _openYoutube(
+                          movieDetail.trailerUrl,
                         );
+                        if (!context.mounted) return;
+                        if (!success) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: const Text(
+                                "Can not open the trailer",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              padding: const EdgeInsets.all(20),
+                              backgroundColor: VColors.colorIcon,
+                              behavior: SnackBarBehavior.floating,
+                              //phải có behavior này thì mới custom margin được
+                              duration: const Duration(seconds: 2),
+                              margin: const EdgeInsets.only(
+                                left: 10,
+                                right: 10,
+                                bottom: 20,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                                side: const BorderSide(
+                                  color: Colors.white,
+                                  width: 1,
+                                ),
+                              ),
+                            ),
+                          );
+                        }
                       },
                       label: const Text(
                         "Trailer",
@@ -195,6 +226,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                         backgroundColor: WidgetStatePropertyAll(
                           VColors.greySearch,
                         ),
+                        elevation: WidgetStatePropertyAll(10),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -205,11 +237,13 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                             .first
                             .paginationEpisode[1]
                             ?.first;
+                        final currentListEpisodes =
+                            movieDetail.episodes.first.paginationEpisode[1]!;
                         final movieWatch = MovieWatch(
                           movieName: movieDetail.name,
                           currentEpisode: currentEpisode!,
                           episodes: movieDetail.episodes,
-                          currentListEpisode: [],
+                          currentListEpisode: currentListEpisodes,
                         );
                         context.push("/watch-movie", extra: movieWatch);
                       },
@@ -229,6 +263,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                         backgroundColor: WidgetStatePropertyAll(
                           VColors.greySearch,
                         ),
+                        elevation: WidgetStatePropertyAll(10),
                       ),
                     ),
                   ],
@@ -610,5 +645,19 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
         ),
       ],
     );
+  }
+
+  Future<bool> _openYoutube(String url) async {
+    final uri = Uri.parse(url);
+    bool success = false;
+    try {
+      success = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      if (!success) {
+        success = await launchUrl(uri);
+      }
+    } catch (e) {
+      success = false;
+    }
+    return success;
   }
 }
