@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/foundation.dart';
 import 'package:movie_app/features/movie/data/datasources/local/entity/CountryLocal.dart';
 import 'package:movie_app/features/movie/data/datasources/local/entity/YearLocal.dart';
@@ -109,6 +111,7 @@ class MovieMapper {
   static EpisodeList mapToEpisodeListModel(EpisodeListDTO episodeList) {
     return EpisodeList(
       name: episodeList.name,
+      slug: episodeList.slug,
       filename: episodeList.filename,
       linkM3U8: episodeList.linkM3U8,
     );
@@ -134,6 +137,7 @@ class MovieMapper {
     final created = DateTime.parse(movieDetails.created.time);
     final releaseDate = DateFormat("dd/MM/yyyy").format(created);
     final content = _parseHtmlString(movieDetails.content);
+    final total = int.tryParse(movieDetails.episodeTotal.split(" ")[0].trim());
     return MovieDetails(
       movieStar: movieDetails.tmdb.voteAverage,
       releaseDate: releaseDate,
@@ -157,6 +161,7 @@ class MovieMapper {
       country: country,
       episodes: episodes,
       alternativeNames: movieDetails.alternativeNames,
+      total: total ?? 1
     );
   }
 

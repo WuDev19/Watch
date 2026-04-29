@@ -24,6 +24,7 @@ class MovieDetails {
   String country;
   List<Episode> episodes;
   List<String> alternativeNames;
+  int total;
 
   MovieDetails({
     required this.movieStar,
@@ -48,6 +49,7 @@ class MovieDetails {
     required this.country,
     required this.episodes,
     required this.alternativeNames,
+    required this.total
   });
 
   @override

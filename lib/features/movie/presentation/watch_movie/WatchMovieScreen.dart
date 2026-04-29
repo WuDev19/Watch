@@ -1,8 +1,13 @@
 import 'package:better_player_plus/better_player_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:movie_app/core/colors/VColors.dart';
+import 'package:movie_app/features/movie/domain/models/CombineDetailAndWatch.dart';
+import 'package:movie_app/features/movie/domain/models/MovieHistoryModel.dart';
 import 'package:movie_app/features/movie/domain/models/MovieWatch.dart';
+import 'package:movie_app/features/movie/presentation/watch_movie/state_management/WatchMovieManagement.dart';
+import 'package:movie_app/utils/MethodHelperUtils.dart';
 import '../../../../utils/constants.dart';
 import '../../domain/models/EpisodeList.dart';
 import '../detail_movie/widgets/EpisodeItem.dart';
@@ -10,14 +15,9 @@ import '../detail_movie/widgets/EpisodeWidget.dart';
 import '../detail_movie/widgets/PageWidget.dart';
 
 class WatchMovieScreen extends StatefulWidget {
-  final MovieWatch? movieWatch;
-  final String? trailerUrl;
+  final CombineDetailAndWatch? combineDetailAndWatch;
 
-  const WatchMovieScreen({
-    super.key,
-    required this.movieWatch,
-    this.trailerUrl,
-  });
+  const WatchMovieScreen({super.key, required this.combineDetailAndWatch});
 
   @override
   State<WatchMovieScreen> createState() => _WatchMovieScreenState();
@@ -27,15 +27,24 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
   BetterPlayerController? _betterPlayerController;
   late ValueNotifier<Map<int, List<EpisodeList>>> _paginationEpisodeValues;
   late ValueNotifier<List<EpisodeList>> _episodeListValues;
+  late WatchMovieManagement _watchMovieManagement;
 
   @override
   void initState() {
     super.initState();
-    if (widget.movieWatch != null) {
+    if (widget.combineDetailAndWatch != null) {
+      _watchMovieManagement = context.read<WatchMovieManagement>();
       _paginationEpisodeValues = ValueNotifier(
-        widget.movieWatch!.episodes.first.paginationEpisode,
+        widget
+            .combineDetailAndWatch!
+            .movieWatch
+            .episodes
+            .first
+            .paginationEpisode,
       );
-      _episodeListValues = ValueNotifier(widget.movieWatch!.currentListEpisode);
+      _episodeListValues = ValueNotifier(
+        widget.combineDetailAndWatch!.movieWatch.currentListEpisode,
+      );
       _betterPlayerController = BetterPlayerController(
         BetterPlayerConfiguration(
           autoPlay: false,
@@ -56,7 +65,7 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
         await Future.delayed(const Duration(milliseconds: 1000));
         BetterPlayerDataSource betterPlayerDataSource =
             BetterPlayerDataSource.network(
-              widget.movieWatch!.currentEpisode.linkM3U8,
+              widget.combineDetailAndWatch!.movieWatch.currentEpisode.linkM3U8,
               cacheConfiguration: BetterPlayerCacheConfiguration(
                 useCache: true,
                 maxCacheSize: 100 * 1024 * 1024,
@@ -85,7 +94,7 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
   Widget build(BuildContext context) {
     final secondaryTitle = Constants.calculateFontSize(context, 1.1);
     return Scaffold(
-      body: widget.movieWatch != null
+      body: widget.combineDetailAndWatch != null
           ? Container(
               height: Constants.getHeightScreen(context),
               color: VColors.blackBackground,
@@ -104,7 +113,7 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
                     Container(
                       margin: const EdgeInsets.only(left: 10),
                       child: Text(
-                        widget.movieWatch!.movieName,
+                        widget.combineDetailAndWatch!.movieWatch.movieName,
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -128,7 +137,8 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
                     Container(
                       margin: const EdgeInsets.only(left: 10),
                       child: EpisodeWidget(
-                        episodes: widget.movieWatch!.episodes,
+                        episodes:
+                            widget.combineDetailAndWatch!.movieWatch.episodes,
                         onServerName: (episode) {
                           _paginationEpisodeValues.value =
                               episode.paginationEpisode;
@@ -151,8 +161,25 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
                             child: EpisodeItem(
                               key: ValueKey(value),
                               episodeList: value,
-                              currentEpisode: widget.movieWatch!.currentEpisode,
+                              currentEpisode: widget
+                                  .combineDetailAndWatch!
+                                  .movieWatch
+                                  .currentEpisode,
                               onWatch: (currentEpisode) {
+                                _watchMovieManagement.saveMovieHistory(
+                                  MovieHistoryModel(
+                                    movieWatch: widget
+                                        .combineDetailAndWatch!
+                                        .movieWatch,
+                                    movieDetails: widget
+                                        .combineDetailAndWatch!
+                                        .movieDetails,
+                                    currentEpisode:
+                                        MethodHelperUtils.getCurrentEpisode(
+                                          currentEpisode,
+                                        ),
+                                  ),
+                                );
                                 _changeEpisode(currentEpisode);
                               },
                               isInWatch: true,
@@ -171,7 +198,10 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
                             onChoosePage: (episodeList) {
                               _episodeListValues.value = episodeList;
                             },
-                            currentPage: widget.movieWatch!.currentListEpisode,
+                            currentPage: widget
+                                .combineDetailAndWatch!
+                                .movieWatch
+                                .currentListEpisode,
                             isInWatch: true,
                           ),
                         );

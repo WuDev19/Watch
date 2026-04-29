@@ -1,7 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
+import 'package:movie_app/features/movie/domain/models/MovieHistoryModel.dart';
 import 'package:movie_app/features/movie/domain/usecases/GetMovieActorsUseCase.dart';
 import 'package:movie_app/features/movie/domain/usecases/GetMovieDetailsInfoUseCase.dart';
+import 'package:movie_app/features/movie/domain/usecases/SaveMovieHistoryUseCase.dart';
 import 'package:movie_app/features/movie/domain/usecases/SearchMovieAccordingToCategoryUseCase.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/state/MovieDetailState.dart';
 
@@ -11,11 +13,13 @@ class MovieDetailManagement extends Cubit<MovieDetailState> {
   final GetMovieActorsUseCase _getMovieActorsUseCase;
   final SearchMovieAccordingToCategoryUseCase
   _searchMovieAccordingToCategoryUseCase;
+  final SaveMovieHistoryUseCase _saveMovieHistoryUseCase;
 
   MovieDetailManagement(
     this._getMovieDetailsInfoUseCase,
     this._getMovieActorsUseCase,
     this._searchMovieAccordingToCategoryUseCase,
+    this._saveMovieHistoryUseCase,
   ) : super(MovieDetailState());
 
   void getMovieDetailsInfo(String slug) async {
@@ -92,7 +96,6 @@ class MovieDetailManagement extends Cubit<MovieDetailState> {
         params,
       );
       result.removeWhere((element) => element.movieSlug == slug);
-      print("${[...state.movieRelated, ...result].length}");
       emit(
         state.copyWith(
           movieRelated: isNew ? result : [...state.movieRelated, ...result],
@@ -115,4 +118,9 @@ class MovieDetailManagement extends Cubit<MovieDetailState> {
       );
     }
   }
+
+  void saveMovieHistory(MovieHistoryModel model) async {
+    await _saveMovieHistoryUseCase.execute(model);
+  }
+
 }

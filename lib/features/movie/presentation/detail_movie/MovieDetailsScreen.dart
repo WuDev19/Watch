@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:movie_app/core/colors/VColors.dart';
+import 'package:movie_app/features/movie/domain/models/CombineDetailAndWatch.dart';
 import 'package:movie_app/features/movie/domain/models/EpisodeList.dart';
 import 'package:movie_app/features/movie/domain/models/MovieActors.dart';
 import 'package:movie_app/features/movie/domain/models/MovieDetails.dart';
+import 'package:movie_app/features/movie/domain/models/MovieHistoryModel.dart';
 import 'package:movie_app/features/movie/domain/models/MovieWatch.dart';
 import 'package:movie_app/features/movie/domain/models/SearchMovieDisplay.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/state/MovieDetailState.dart';
@@ -16,6 +18,7 @@ import 'package:movie_app/features/movie/presentation/detail_movie/widgets/Expan
 import 'package:movie_app/features/movie/presentation/detail_movie/widgets/GenreItem.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/widgets/PageWidget.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/widgets/RelatedMovieItem.dart';
+import 'package:movie_app/utils/MethodHelperUtils.dart';
 import 'package:movie_app/utils/constants.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -245,7 +248,18 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                           episodes: movieDetail.episodes,
                           currentListEpisode: currentListEpisodes,
                         );
-                        context.push("/watch-movie", extra: movieWatch);
+                        final movieCombine = CombineDetailAndWatch(
+                          movieDetails: movieDetail,
+                          movieWatch: movieWatch,
+                        );
+                        _movieDetailManagement.saveMovieHistory(
+                          MovieHistoryModel(
+                            movieWatch: movieWatch,
+                            movieDetails: movieDetail,
+                            currentEpisode: 1,
+                          ),
+                        );
+                        context.push("/watch-movie", extra: movieCombine);
                       },
                       label: const Text(
                         "Watch movie",
@@ -322,6 +336,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                           EpisodeWidget(
                             episodes: movieDetail.episodes,
                             onServerName: (episode) {
+                              print("episode - $episode");
                               _paginationEpisodeValues.value =
                                   episode.paginationEpisode;
                             },
@@ -348,9 +363,22 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                                       episodes: movieDetail.episodes,
                                       currentListEpisode: value,
                                     );
+                                    final movieCombine = CombineDetailAndWatch(
+                                      movieDetails: movieDetail,
+                                      movieWatch: movieWatch,
+                                    );
+                                    _movieDetailManagement.saveMovieHistory(
+                                      MovieHistoryModel(
+                                        movieWatch: movieWatch,
+                                        movieDetails: movieDetail,
+                                        currentEpisode: MethodHelperUtils.getCurrentEpisode(
+                                          currentEpisode,
+                                        ),
+                                      ),
+                                    );
                                     context.push(
                                       "/watch-movie",
-                                      extra: movieWatch,
+                                      extra: movieCombine,
                                     );
                                   },
                                   isInWatch: false,
@@ -659,4 +687,5 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
     }
     return success;
   }
+
 }

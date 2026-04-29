@@ -29,6 +29,8 @@ import '../../features/movie/domain/usecases/GetMovieDetailsInfoUseCase.dart'
     as _i244;
 import '../../features/movie/domain/usecases/HomePageMovieUseCase.dart'
     as _i755;
+import '../../features/movie/domain/usecases/SaveMovieHistoryUseCase.dart'
+    as _i749;
 import '../../features/movie/domain/usecases/SearchMovieAccordingToCategoryUseCase.dart'
     as _i63;
 import '../../features/movie/domain/usecases/SearchMovieAccordingToCountryUseCase.dart'
@@ -44,6 +46,8 @@ import '../../features/movie/presentation/home/state_management/ScalePageBloc.da
     as _i673;
 import '../../features/movie/presentation/search/state_management/SearchPageManagement.dart'
     as _i964;
+import '../../features/movie/presentation/watch_movie/state_management/WatchMovieManagement.dart'
+    as _i816;
 import 'IsarModule.dart' as _i448;
 import 'NetworkModule.dart' as _i802;
 
@@ -100,15 +104,19 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i68.SearchMovieUseCase>(
       () => _i68.SearchMovieUseCase(gh<_i503.MovieRepository>()),
     );
-    gh.factory<_i309.HomeBloc>(
-      () => _i309.HomeBloc(gh<_i755.HomePageMovieUseCase>()),
+    gh.lazySingleton<_i749.SaveMovieHistoryUseCase>(
+      () => _i749.SaveMovieHistoryUseCase(gh<_i503.MovieRepository>()),
     );
     gh.factory<_i862.MovieDetailManagement>(
       () => _i862.MovieDetailManagement(
         gh<_i244.GetMovieDetailsInfoUseCase>(),
         gh<_i392.GetMovieActorsUseCase>(),
         gh<_i63.SearchMovieAccordingToCategoryUseCase>(),
+        gh<_i749.SaveMovieHistoryUseCase>(),
       ),
+    );
+    gh.factory<_i309.HomeBloc>(
+      () => _i309.HomeBloc(gh<_i755.HomePageMovieUseCase>()),
     );
     gh.factory<_i964.SearchPageManagement>(
       () => _i964.SearchPageManagement(
@@ -120,6 +128,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i123.SearchMovieAccordingToCountryUseCase>(),
         gh<_i2.SearchMovieAccordingToYearUseCase>(),
       ),
+    );
+    gh.factory<_i816.WatchMovieManagement>(
+      () => _i816.WatchMovieManagement(gh<_i749.SaveMovieHistoryUseCase>()),
     );
     return this;
   }

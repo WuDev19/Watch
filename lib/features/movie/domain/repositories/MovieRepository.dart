@@ -6,6 +6,8 @@ import 'package:movie_app/features/movie/domain/models/MovieDisplay.dart';
 import 'package:movie_app/features/movie/domain/models/SearchMovieDisplay.dart';
 import 'package:movie_app/features/movie/domain/models/YearModel.dart';
 
+import '../models/MovieHistoryModel.dart';
+
 abstract class MovieRepository {
   Future<List<MovieDisplay>> getHomePageMovie();
 
@@ -35,4 +37,6 @@ abstract class MovieRepository {
   Future<List<CountryModel>> getCountries();
 
   Future<List<YearModel>> getYears();
+
+  Future<void> saveMovieHistory(MovieHistoryModel model);
 }
