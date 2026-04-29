@@ -505,7 +505,6 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                                         ),
                                       );
                                     }
-                                    print("shuffle- ${state.$1}");
                                     return ListView.builder(
                                       key: PageStorageKey(
                                         "related_movie:${movieDetail.slug}",
