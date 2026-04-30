@@ -29,6 +29,8 @@ class _EpisodeItemState extends State<EpisodeItem> {
     super.initState();
     if (widget.isInWatch) {
       final index = widget.episodeList.indexOf(widget.currentEpisode!);
+      print("episode list - ${widget.currentEpisode} va $index}");
+      print("episode list - ${widget.episodeList} va $index}");
       _episodeValue = ValueNotifier(index);
     }
   }

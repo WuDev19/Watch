@@ -11,6 +11,11 @@ class MovieWatch {
     required this.movieName,
     required this.currentEpisode,
     required this.episodes,
-    required this.currentListEpisode
+    required this.currentListEpisode,
   });
+
+  @override
+  String toString() {
+    return 'MovieWatch{movieName: $movieName, currentEpisode: $currentEpisode, episodes: $episodes, currentListEpisode: $currentListEpisode}';
+  }
 }

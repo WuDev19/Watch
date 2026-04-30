@@ -14,4 +14,5 @@ class WatchMovieManagement extends Cubit<WatchMovieState> {
   void saveMovieHistory(MovieHistoryModel model) async {
     await _saveMovieHistoryUseCase.execute(model);
   }
+
 }

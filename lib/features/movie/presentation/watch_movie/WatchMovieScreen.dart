@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:movie_app/core/colors/VColors.dart';
 import 'package:movie_app/features/movie/domain/models/CombineDetailAndWatch.dart';
 import 'package:movie_app/features/movie/domain/models/MovieHistoryModel.dart';
-import 'package:movie_app/features/movie/domain/models/MovieWatch.dart';
 import 'package:movie_app/features/movie/presentation/watch_movie/state_management/WatchMovieManagement.dart';
 import 'package:movie_app/utils/MethodHelperUtils.dart';
 import '../../../../utils/constants.dart';
@@ -41,6 +40,9 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
             .episodes
             .first
             .paginationEpisode,
+      );
+      print(
+        "episode list - ${widget.combineDetailAndWatch!.movieWatch.currentListEpisode}",
       );
       _episodeListValues = ValueNotifier(
         widget.combineDetailAndWatch!.movieWatch.currentListEpisode,
@@ -142,6 +144,8 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
                         onServerName: (episode) {
                           _paginationEpisodeValues.value =
                               episode.paginationEpisode;
+                          _episodeListValues.value =
+                              episode.paginationEpisode[1] ?? [];
                         },
                       ),
                     ),
@@ -168,16 +172,12 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
                               onWatch: (currentEpisode) {
                                 _watchMovieManagement.saveMovieHistory(
                                   MovieHistoryModel(
-                                    movieWatch: widget
-                                        .combineDetailAndWatch!
-                                        .movieWatch,
-                                    movieDetails: widget
-                                        .combineDetailAndWatch!
-                                        .movieDetails,
                                     currentEpisode:
                                         MethodHelperUtils.getCurrentEpisode(
                                           currentEpisode,
                                         ),
+                                    combineDetailAndWatch:
+                                        widget.combineDetailAndWatch!,
                                   ),
                                 );
                                 _changeEpisode(currentEpisode);
@@ -194,6 +194,7 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
                       builder: (context, value, child) {
                         return Center(
                           child: PageWidget(
+                            key: ValueKey(value),
                             pagination: value,
                             onChoosePage: (episodeList) {
                               _episodeListValues.value = episodeList;

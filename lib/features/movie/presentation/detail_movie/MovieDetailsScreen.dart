@@ -249,14 +249,15 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                           currentListEpisode: currentListEpisodes,
                         );
                         final movieCombine = CombineDetailAndWatch(
-                          movieDetails: movieDetail,
                           movieWatch: movieWatch,
+                          movieSlug: movieDetail.slug,
+                          moviePoster: movieDetail.posterUrl,
+                          total: movieDetail.total,
                         );
                         _movieDetailManagement.saveMovieHistory(
                           MovieHistoryModel(
-                            movieWatch: movieWatch,
-                            movieDetails: movieDetail,
                             currentEpisode: 1,
+                            combineDetailAndWatch: movieCombine,
                           ),
                         );
                         context.push("/watch-movie", extra: movieCombine);
@@ -287,7 +288,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                 maxChildSize: 0.9,
                 initialChildSize: marginContent,
                 minChildSize: marginContent,
-                builder: (BuildContext context, ScrollController scrollController) {
+                builder: (context, scrollController) {
                   return Container(
                     decoration: BoxDecoration(
                       color: Colors.black,
@@ -336,9 +337,10 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                           EpisodeWidget(
                             episodes: movieDetail.episodes,
                             onServerName: (episode) {
-                              print("episode - $episode");
                               _paginationEpisodeValues.value =
                                   episode.paginationEpisode;
+                              _episodeListValues.value =
+                                  episode.paginationEpisode[1] ?? [];
                             },
                           ),
                           ValueListenableBuilder(
@@ -364,16 +366,18 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                                       currentListEpisode: value,
                                     );
                                     final movieCombine = CombineDetailAndWatch(
-                                      movieDetails: movieDetail,
                                       movieWatch: movieWatch,
+                                      movieSlug: movieDetail.slug,
+                                      moviePoster: movieDetail.posterUrl,
+                                      total: movieDetail.total,
                                     );
                                     _movieDetailManagement.saveMovieHistory(
                                       MovieHistoryModel(
-                                        movieWatch: movieWatch,
-                                        movieDetails: movieDetail,
-                                        currentEpisode: MethodHelperUtils.getCurrentEpisode(
-                                          currentEpisode,
-                                        ),
+                                        currentEpisode:
+                                            MethodHelperUtils.getCurrentEpisode(
+                                              currentEpisode,
+                                            ),
+                                        combineDetailAndWatch: movieCombine,
                                       ),
                                     );
                                     context.push(
@@ -392,6 +396,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                             builder: (context, value, child) {
                               return Center(
                                 child: PageWidget(
+                                  key: ValueKey(value),
                                   pagination: value,
                                   onChoosePage: (episodeList) {
                                     _episodeListValues.value = episodeList;
@@ -687,5 +692,4 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
     }
     return success;
   }
-
 }

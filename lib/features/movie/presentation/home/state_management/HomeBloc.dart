@@ -1,13 +1,16 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
+import 'package:movie_app/features/movie/domain/usecases/GetLastWatchedMovieUseCase.dart';
 import 'package:movie_app/features/movie/domain/usecases/HomePageMovieUseCase.dart';
 import 'package:movie_app/features/movie/presentation/home/state/HomeState.dart';
 
 @injectable
 class HomeBloc extends Cubit<HomeState> {
   final HomePageMovieUseCase _homePageMovieUseCase;
+  final GetLastWatchedMovieUseCase _getLastWatchedMovieUseCase;
 
-  HomeBloc(this._homePageMovieUseCase) : super(HomeState());
+  HomeBloc(this._homePageMovieUseCase, this._getLastWatchedMovieUseCase)
+    : super(HomeState());
 
   void getHomePageMovie() async {
     emit(state.copyWith(isLoading: true, movies: [], error: null));
@@ -20,6 +23,13 @@ class HomeBloc extends Cubit<HomeState> {
     }
   }
 
-
-
+  void getLastMovieWatched() async {
+    emit(state.copyWith(isLoadingMovieWatched: true));
+    try {
+      final result = await _getLastWatchedMovieUseCase.execute();
+      emit(state.copyWith(movieWatched: result, isLoadingMovieWatched: false));
+    } catch (e) {
+      emit(state.copyWith(errorMovieWatched: e.toString()));
+    }
+  }
 }

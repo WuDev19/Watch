@@ -12,25 +12,28 @@ class MovieHistory {
   @Index(unique: true, replace: true)
   String slug;
   String thumbUrl;
-  String episodeTotal;
   double progress;
+  int total;
   EpisodeListLocal currentEpisode;
   List<EpisodeLocal> episodes;
   List<EpisodeListLocal> currentListEpisode;
+  @Index()
+  DateTime lastWatched;
 
   MovieHistory({
     required this.name,
     required this.slug,
     required this.thumbUrl,
-    required this.episodeTotal,
     required this.progress,
+    required this.total,
     required this.currentEpisode,
     required this.episodes,
     required this.currentListEpisode,
+    required this.lastWatched,
   });
 
   @override
   String toString() {
-    return 'MovieHistory{id: $id, name: $name, thumbUrl: $thumbUrl, episodeTotal: $episodeTotal, progress: $progress, currentEpisode: $currentEpisode, episodes: $episodes, currentListEpisode: $currentListEpisode}';
+    return 'MovieHistory{id: $id, name: $name, thumbUrl: $thumbUrl, progress: $progress, currentEpisode: $currentEpisode, episodes: $episodes, currentListEpisode: $currentListEpisode}';
   }
 }

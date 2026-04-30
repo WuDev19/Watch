@@ -14,6 +14,7 @@ import 'package:movie_app/features/movie/domain/models/MovieActors.dart';
 import 'package:movie_app/features/movie/domain/models/MovieDetails.dart';
 import 'package:movie_app/features/movie/domain/models/MovieDisplay.dart';
 import 'package:movie_app/features/movie/domain/models/MovieHistoryModel.dart';
+import 'package:movie_app/features/movie/domain/models/MovieWatched.dart';
 import 'package:movie_app/features/movie/domain/models/SearchMovieDisplay.dart';
 import 'package:movie_app/features/movie/domain/models/YearModel.dart';
 import 'package:movie_app/features/movie/domain/repositories/MovieRepository.dart';
@@ -192,5 +193,16 @@ class MovieRepositoryImpl implements MovieRepository {
         movieHistory,
       ); //phải await ko là chưa kịp put thì transaction đã đóng
     });
+  }
+
+  @override
+  Future<MovieWatched?> getLastWatchedMovie() async {
+    final movieHistory = await _isar.movieHistorys
+        .where()
+        .sortByLastWatchedDesc()
+        .limit(1)
+        .findFirst();
+    if(movieHistory == null) return null;
+    return MovieLocalMapper.mapToMovieWatched(movieHistory);
   }
 }

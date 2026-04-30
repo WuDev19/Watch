@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:movie_app/core/colors/VColors.dart';
+import 'package:movie_app/features/movie/domain/models/MovieDisplay.dart';
+import 'package:movie_app/features/movie/domain/models/MovieWatched.dart';
 import 'package:movie_app/features/movie/presentation/home/state_management/HomeBloc.dart';
 import 'package:movie_app/features/movie/presentation/home/state/HomeState.dart';
 import 'package:movie_app/features/movie/presentation/home/state_management/ScalePageBloc.dart';
@@ -19,9 +21,10 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, RouteAware {
   late PageController _pageController;
   late double _heightScreen;
+  late HomeBloc _homeBloc;
 
   @override
   void initState() {
@@ -30,7 +33,9 @@ class _HomePageState extends State<HomePage>
     _pageController.addListener(() {
       context.read<ScalePageBloc>().scalePage(_pageController.page ?? 0.0);
     });
-    context.read<HomeBloc>().getHomePageMovie();
+    _homeBloc = context.read<HomeBloc>();
+    _homeBloc.getHomePageMovie();
+    _homeBloc.getLastMovieWatched();
   }
 
   @override
@@ -49,7 +54,35 @@ class _HomePageState extends State<HomePage>
         children: [
           SizedBox(
             height: _heightScreen * 0.3,
-            child: TitleMovieItem("hihihi"),
+            child:
+                BlocSelector<
+                  HomeBloc,
+                  HomeState,
+                  (MovieWatched?, bool, String?)
+                >(
+                  selector: (state) => (
+                    state.movieWatched,
+                    state.isLoadingMovieWatched,
+                    state.errorMovieWatched,
+                  ),
+                  builder: (context, state) {
+                    if (state.$2) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (state.$3 != null) {
+                      return Center(
+                        child: Text(
+                          "Has error ${state.$3}",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      );
+                    }
+                    if (state.$1 == null) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    return TitleMovieItem(state.$1!);
+                  },
+                ),
           ),
           //continue
           SizedBox(height: 20),
@@ -71,66 +104,74 @@ class _HomePageState extends State<HomePage>
           ),
           SizedBox(height: 20),
           Expanded(
-            child: BlocBuilder<HomeBloc, HomeState>(
-              builder: (BuildContext context, HomeState state) {
-                if (state.isLoading &&
-                    state.movies.isEmpty &&
-                    state.error == null) {
-                  return Center(
-                    child: CircularProgressIndicator(color: VColors.colorIcon),
-                  );
-                }
-                if (state.error != null &&
-                    state.isLoading == false &&
-                    state.movies.isEmpty) {
-                  return Center(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: VColors.colorIcon,
-                      ),
-                      onPressed: () {
-                        context.read<HomeBloc>().getHomePageMovie();
-                      },
-                      child: Text("Retry"),
-                    ),
-                  );
-                }
-                return PageView.builder(
-                  controller: _pageController,
-                  itemBuilder: (context, index) {
-                    final movie = state.movies[index];
-                    return BlocBuilder<ScalePageBloc, double>(
-                      builder: (BuildContext context, double state) {
-                        double diff = state - index;
-                        double scale =
-                            1 -
-                            (diff.abs() * 0.15); //scale theo vị trí khi vuốt
-                        scale = max(0.8, scale);
-                        return AnimatedBuilder(
-                          builder: (context, child) {
-                            return Transform.scale(
-                              scale: scale,
-                              child: TrendingMovieItem(
-                                moviePoster: movie.moviePoster,
-                                movieName: movie.movieName,
-                                movieSlug: movie.movieSlug,
-                                movieStar: movie.movieStar,
-                                onDetail: (slug) {
-                                  context.push("/movie-details/$slug");
-                                },
-                              ),
+            child:
+                BlocSelector<
+                  HomeBloc,
+                  HomeState,
+                  (List<MovieDisplay>, bool, String?)
+                >(
+                  selector: (state) =>
+                      (state.movies, state.isLoading, state.error),
+                  builder: (context, state) {
+                    if (state.$2 && state.$1.isEmpty && state.$3 == null) {
+                      return Center(
+                        child: CircularProgressIndicator(
+                          color: VColors.colorIcon,
+                        ),
+                      );
+                    }
+                    if (state.$3 != null &&
+                        state.$2 == false &&
+                        state.$1.isEmpty) {
+                      return Center(
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: VColors.colorIcon,
+                          ),
+                          onPressed: () {
+                            context.read<HomeBloc>().getHomePageMovie();
+                          },
+                          child: Text("Retry"),
+                        ),
+                      );
+                    }
+                    return PageView.builder(
+                      controller: _pageController,
+                      itemBuilder: (context, index) {
+                        final movie = state.$1[index];
+                        return BlocBuilder<ScalePageBloc, double>(
+                          builder: (BuildContext context, double state) {
+                            double diff = state - index;
+                            double scale =
+                                1 -
+                                (diff.abs() *
+                                    0.15); //scale theo vị trí khi vuốt
+                            scale = max(0.8, scale);
+                            return AnimatedBuilder(
+                              builder: (context, child) {
+                                return Transform.scale(
+                                  scale: scale,
+                                  child: TrendingMovieItem(
+                                    moviePoster: movie.moviePoster,
+                                    movieName: movie.movieName,
+                                    movieSlug: movie.movieSlug,
+                                    movieStar: movie.movieStar,
+                                    onDetail: (slug) {
+                                      context.push("/movie-details/$slug");
+                                    },
+                                  ),
+                                );
+                              },
+                              animation: _pageController,
                             );
                           },
-                          animation: _pageController,
                         );
                       },
+                      itemCount: state.$1.length,
+                      pageSnapping: true,
                     );
                   },
-                  itemCount: state.movies.length,
-                  pageSnapping: true,
-                );
-              },
-            ),
+                ),
           ),
           SizedBox(height: 50),
         ],

@@ -23,6 +23,8 @@ import '../../features/movie/domain/usecases/GetAllYearUseCase.dart' as _i414;
 import '../../features/movie/domain/usecases/GetCategoriesUseCase.dart'
     as _i716;
 import '../../features/movie/domain/usecases/GetCountryUseCase.dart' as _i253;
+import '../../features/movie/domain/usecases/GetLastWatchedMovieUseCase.dart'
+    as _i663;
 import '../../features/movie/domain/usecases/GetMovieActorsUseCase.dart'
     as _i392;
 import '../../features/movie/domain/usecases/GetMovieDetailsInfoUseCase.dart'
@@ -70,6 +72,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i503.MovieRepository>(
       () => _i709.MovieRepositoryImpl(gh<_i500.MovieApi>(), gh<_i214.Isar>()),
     );
+    gh.factory<_i663.GetLastWatchedMovieUseCase>(
+      () => _i663.GetLastWatchedMovieUseCase(gh<_i503.MovieRepository>()),
+    );
     gh.lazySingleton<_i414.GetAllYearUseCase>(
       () => _i414.GetAllYearUseCase(gh<_i503.MovieRepository>()),
     );
@@ -115,9 +120,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i749.SaveMovieHistoryUseCase>(),
       ),
     );
-    gh.factory<_i309.HomeBloc>(
-      () => _i309.HomeBloc(gh<_i755.HomePageMovieUseCase>()),
-    );
     gh.factory<_i964.SearchPageManagement>(
       () => _i964.SearchPageManagement(
         gh<_i68.SearchMovieUseCase>(),
@@ -127,6 +129,12 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i414.GetAllYearUseCase>(),
         gh<_i123.SearchMovieAccordingToCountryUseCase>(),
         gh<_i2.SearchMovieAccordingToYearUseCase>(),
+      ),
+    );
+    gh.factory<_i309.HomeBloc>(
+      () => _i309.HomeBloc(
+        gh<_i755.HomePageMovieUseCase>(),
+        gh<_i663.GetLastWatchedMovieUseCase>(),
       ),
     );
     gh.factory<_i816.WatchMovieManagement>(

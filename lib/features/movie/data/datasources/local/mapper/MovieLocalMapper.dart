@@ -7,8 +7,9 @@ import 'package:movie_app/features/movie/data/datasources/local/entity/YearLocal
 import 'package:movie_app/features/movie/domain/models/CountryModel.dart';
 import 'package:movie_app/features/movie/domain/models/Episode.dart';
 import 'package:movie_app/features/movie/domain/models/EpisodeList.dart';
+import 'package:movie_app/features/movie/domain/models/MovieWatched.dart';
 import 'package:movie_app/features/movie/domain/models/YearModel.dart';
-
+import 'package:movie_app/utils/constants.dart';
 import '../../../../domain/models/MovieHistoryModel.dart';
 
 abstract class MovieLocalMapper {
@@ -21,25 +22,31 @@ abstract class MovieLocalMapper {
   }
 
   static MovieHistory mapToMovieHistory(MovieHistoryModel model) {
-    final episodes = model.movieWatch.episodes
+    final episodes = model.combineDetailAndWatch.movieWatch.episodes
         .map((e) => mapToEpisodeLocal(e))
         .toList();
-    final currentListEpisode = model.movieWatch.currentListEpisode
+    final currentListEpisode = model
+        .combineDetailAndWatch
+        .movieWatch
+        .currentListEpisode
         .map((e) => mapToEpisodeListLocal(e))
         .toList();
     final progress =
-        (model.currentEpisode / model.movieDetails.total * 100)
+        (model.currentEpisode / model.combineDetailAndWatch.total * 100)
             .roundToDouble() /
         100;
     return MovieHistory(
-      name: model.movieWatch.movieName,
-      slug: model.movieDetails.slug,
-      thumbUrl: model.movieDetails.thumbUrl,
-      episodeTotal: model.movieDetails.episodeTotal,
+      name: model.combineDetailAndWatch.movieWatch.movieName,
+      slug: model.combineDetailAndWatch.movieSlug,
+      thumbUrl: model.combineDetailAndWatch.moviePoster,
       progress: progress,
-      currentEpisode: mapToEpisodeListLocal(model.movieWatch.currentEpisode),
+      total: model.combineDetailAndWatch.total,
+      currentEpisode: mapToEpisodeListLocal(
+        model.combineDetailAndWatch.movieWatch.currentEpisode,
+      ),
       episodes: episodes,
       currentListEpisode: currentListEpisode,
+      lastWatched: DateTime.now(),
     );
   }
 
@@ -55,6 +62,7 @@ abstract class MovieLocalMapper {
   static EpisodeListLocal mapToEpisodeListLocal(EpisodeList episodeList) {
     final episodeListLocal = EpisodeListLocal();
     episodeListLocal.name = episodeList.name;
+    episodeListLocal.slug = episodeList.slug;
     episodeListLocal.filename = episodeList.filename;
     episodeListLocal.linkM3U8 = episodeList.linkM3U8;
     return episodeListLocal;
@@ -72,5 +80,56 @@ abstract class MovieLocalMapper {
       pages.add(pageEpisode);
     });
     return pages;
+  }
+
+  static EpisodeList mapToEpisodeList(EpisodeListLocal local) {
+    return EpisodeList(
+      name: local.name,
+      slug: local.slug,
+      filename: local.filename,
+      linkM3U8: local.linkM3U8,
+    );
+  }
+
+  static Episode mapToEpisode(EpisodeLocal local, int position) {
+    final pagination = <int, List<EpisodeList>>{};
+    for (var element in local.paginationEpisode) {
+      final episodeList = element.episodeList
+          .map((e) => mapToEpisodeList(e))
+          .toList();
+      pagination[element.page] = episodeList;
+    }
+    return position == 0
+        ? Episode(
+            serverName: local.serverName,
+            paginationEpisode: pagination,
+            isSelected: true,
+          )
+        : Episode(
+            serverName: local.serverName,
+            paginationEpisode: pagination,
+            isSelected: false,
+          );
+  }
+
+  static MovieWatched mapToMovieWatched(MovieHistory history) {
+    final episodes = <Episode>[];
+    for (int i = 0; i < history.episodes.length; i++) {
+      episodes.add(mapToEpisode(history.episodes[i], i));
+    }
+    final currentListEpisode = history.currentListEpisode
+        .map((e) => mapToEpisodeList(e))
+        .toList();
+    return MovieWatched(
+      id: history.id,
+      name: history.name,
+      slug: history.slug,
+      thumbUrl: Constants.baseImageUrl + history.thumbUrl,
+      progress: history.progress,
+      currentEpisode: mapToEpisodeList(history.currentEpisode),
+      episodes: episodes,
+      currentListEpisode: currentListEpisode,
+      total: history.total,
+    );
   }
 }

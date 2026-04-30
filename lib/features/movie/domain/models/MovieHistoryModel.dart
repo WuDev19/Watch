@@ -1,14 +1,11 @@
-import 'package:movie_app/features/movie/domain/models/MovieDetails.dart';
-import 'package:movie_app/features/movie/domain/models/MovieWatch.dart';
+import 'package:movie_app/features/movie/domain/models/CombineDetailAndWatch.dart';
 
 class MovieHistoryModel {
-  MovieWatch movieWatch;
-  MovieDetails movieDetails;
+  CombineDetailAndWatch combineDetailAndWatch;
   int currentEpisode;
 
   MovieHistoryModel({
-    required this.movieWatch,
-    required this.movieDetails,
+    required this.combineDetailAndWatch,
     required this.currentEpisode,
   });
 }

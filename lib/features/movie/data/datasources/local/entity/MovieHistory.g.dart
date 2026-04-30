@@ -31,17 +31,17 @@ const MovieHistorySchema = CollectionSchema(
 
       target: r'EpisodeListLocal',
     ),
-    r'episodeTotal': PropertySchema(
-      id: 2,
-      name: r'episodeTotal',
-      type: IsarType.string,
-    ),
     r'episodes': PropertySchema(
-      id: 3,
+      id: 2,
       name: r'episodes',
       type: IsarType.objectList,
 
       target: r'EpisodeLocal',
+    ),
+    r'lastWatched': PropertySchema(
+      id: 3,
+      name: r'lastWatched',
+      type: IsarType.dateTime,
     ),
     r'name': PropertySchema(id: 4, name: r'name', type: IsarType.string),
     r'progress': PropertySchema(
@@ -55,6 +55,7 @@ const MovieHistorySchema = CollectionSchema(
       name: r'thumbUrl',
       type: IsarType.string,
     ),
+    r'total': PropertySchema(id: 8, name: r'total', type: IsarType.long),
   },
 
   estimateSize: _movieHistoryEstimateSize,
@@ -73,6 +74,19 @@ const MovieHistorySchema = CollectionSchema(
           name: r'slug',
           type: IndexType.hash,
           caseSensitive: true,
+        ),
+      ],
+    ),
+    r'lastWatched': IndexSchema(
+      id: -3939082614237404951,
+      name: r'lastWatched',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'lastWatched',
+          type: IndexType.value,
+          caseSensitive: false,
         ),
       ],
     ),
@@ -115,7 +129,6 @@ int _movieHistoryEstimateSize(
       );
     }
   }
-  bytesCount += 3 + object.episodeTotal.length * 3;
   bytesCount += 3 + object.episodes.length * 3;
   {
     final offsets = allOffsets[EpisodeLocal]!;
@@ -148,17 +161,18 @@ void _movieHistorySerialize(
     EpisodeListLocalSchema.serialize,
     object.currentListEpisode,
   );
-  writer.writeString(offsets[2], object.episodeTotal);
   writer.writeObjectList<EpisodeLocal>(
-    offsets[3],
+    offsets[2],
     allOffsets,
     EpisodeLocalSchema.serialize,
     object.episodes,
   );
+  writer.writeDateTime(offsets[3], object.lastWatched);
   writer.writeString(offsets[4], object.name);
   writer.writeDouble(offsets[5], object.progress);
   writer.writeString(offsets[6], object.slug);
   writer.writeString(offsets[7], object.thumbUrl);
+  writer.writeLong(offsets[8], object.total);
 }
 
 MovieHistory _movieHistoryDeserialize(
@@ -183,19 +197,20 @@ MovieHistory _movieHistoryDeserialize(
           EpisodeListLocal(),
         ) ??
         [],
-    episodeTotal: reader.readString(offsets[2]),
     episodes:
         reader.readObjectList<EpisodeLocal>(
-          offsets[3],
+          offsets[2],
           EpisodeLocalSchema.deserialize,
           allOffsets,
           EpisodeLocal(),
         ) ??
         [],
+    lastWatched: reader.readDateTime(offsets[3]),
     name: reader.readString(offsets[4]),
     progress: reader.readDouble(offsets[5]),
     slug: reader.readString(offsets[6]),
     thumbUrl: reader.readString(offsets[7]),
+    total: reader.readLong(offsets[8]),
   );
   object.id = id;
   return object;
@@ -226,8 +241,6 @@ P _movieHistoryDeserializeProp<P>(
               [])
           as P;
     case 2:
-      return (reader.readString(offset)) as P;
-    case 3:
       return (reader.readObjectList<EpisodeLocal>(
                 offset,
                 EpisodeLocalSchema.deserialize,
@@ -236,6 +249,8 @@ P _movieHistoryDeserializeProp<P>(
               ) ??
               [])
           as P;
+    case 3:
+      return (reader.readDateTime(offset)) as P;
     case 4:
       return (reader.readString(offset)) as P;
     case 5:
@@ -244,6 +259,8 @@ P _movieHistoryDeserializeProp<P>(
       return (reader.readString(offset)) as P;
     case 7:
       return (reader.readString(offset)) as P;
+    case 8:
+      return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -327,6 +344,14 @@ extension MovieHistoryQueryWhereSort
   QueryBuilder<MovieHistory, MovieHistory, QAfterWhere> anyId() {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(const IdWhereClause.any());
+    });
+  }
+
+  QueryBuilder<MovieHistory, MovieHistory, QAfterWhere> anyLastWatched() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        const IndexWhereClause.any(indexName: r'lastWatched'),
+      );
     });
   }
 }
@@ -456,6 +481,109 @@ extension MovieHistoryQueryWhere
       }
     });
   }
+
+  QueryBuilder<MovieHistory, MovieHistory, QAfterWhereClause>
+  lastWatchedEqualTo(DateTime lastWatched) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.equalTo(
+          indexName: r'lastWatched',
+          value: [lastWatched],
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<MovieHistory, MovieHistory, QAfterWhereClause>
+  lastWatchedNotEqualTo(DateTime lastWatched) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'lastWatched',
+                lower: [],
+                upper: [lastWatched],
+                includeUpper: false,
+              ),
+            )
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'lastWatched',
+                lower: [lastWatched],
+                includeLower: false,
+                upper: [],
+              ),
+            );
+      } else {
+        return query
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'lastWatched',
+                lower: [lastWatched],
+                includeLower: false,
+                upper: [],
+              ),
+            )
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'lastWatched',
+                lower: [],
+                upper: [lastWatched],
+                includeUpper: false,
+              ),
+            );
+      }
+    });
+  }
+
+  QueryBuilder<MovieHistory, MovieHistory, QAfterWhereClause>
+  lastWatchedGreaterThan(DateTime lastWatched, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.between(
+          indexName: r'lastWatched',
+          lower: [lastWatched],
+          includeLower: include,
+          upper: [],
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<MovieHistory, MovieHistory, QAfterWhereClause>
+  lastWatchedLessThan(DateTime lastWatched, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.between(
+          indexName: r'lastWatched',
+          lower: [],
+          upper: [lastWatched],
+          includeUpper: include,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<MovieHistory, MovieHistory, QAfterWhereClause>
+  lastWatchedBetween(
+    DateTime lowerLastWatched,
+    DateTime upperLastWatched, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.between(
+          indexName: r'lastWatched',
+          lower: [lowerLastWatched],
+          includeLower: includeLower,
+          upper: [upperLastWatched],
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
 }
 
 extension MovieHistoryQueryFilter
@@ -521,147 +649,6 @@ extension MovieHistoryQueryFilter
         includeLower,
         upper,
         includeUpper,
-      );
-    });
-  }
-
-  QueryBuilder<MovieHistory, MovieHistory, QAfterFilterCondition>
-  episodeTotalEqualTo(String value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(
-          property: r'episodeTotal',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<MovieHistory, MovieHistory, QAfterFilterCondition>
-  episodeTotalGreaterThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(
-          include: include,
-          property: r'episodeTotal',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<MovieHistory, MovieHistory, QAfterFilterCondition>
-  episodeTotalLessThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.lessThan(
-          include: include,
-          property: r'episodeTotal',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<MovieHistory, MovieHistory, QAfterFilterCondition>
-  episodeTotalBetween(
-    String lower,
-    String upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.between(
-          property: r'episodeTotal',
-          lower: lower,
-          includeLower: includeLower,
-          upper: upper,
-          includeUpper: includeUpper,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<MovieHistory, MovieHistory, QAfterFilterCondition>
-  episodeTotalStartsWith(String value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.startsWith(
-          property: r'episodeTotal',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<MovieHistory, MovieHistory, QAfterFilterCondition>
-  episodeTotalEndsWith(String value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.endsWith(
-          property: r'episodeTotal',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<MovieHistory, MovieHistory, QAfterFilterCondition>
-  episodeTotalContains(String value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.contains(
-          property: r'episodeTotal',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<MovieHistory, MovieHistory, QAfterFilterCondition>
-  episodeTotalMatches(String pattern, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.matches(
-          property: r'episodeTotal',
-          wildcard: pattern,
-          caseSensitive: caseSensitive,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<MovieHistory, MovieHistory, QAfterFilterCondition>
-  episodeTotalIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(property: r'episodeTotal', value: ''),
-      );
-    });
-  }
-
-  QueryBuilder<MovieHistory, MovieHistory, QAfterFilterCondition>
-  episodeTotalIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(property: r'episodeTotal', value: ''),
       );
     });
   }
@@ -769,6 +756,61 @@ extension MovieHistoryQueryFilter
       return query.addFilterCondition(
         FilterCondition.between(
           property: r'id',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<MovieHistory, MovieHistory, QAfterFilterCondition>
+  lastWatchedEqualTo(DateTime value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'lastWatched', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<MovieHistory, MovieHistory, QAfterFilterCondition>
+  lastWatchedGreaterThan(DateTime value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'lastWatched',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<MovieHistory, MovieHistory, QAfterFilterCondition>
+  lastWatchedLessThan(DateTime value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'lastWatched',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<MovieHistory, MovieHistory, QAfterFilterCondition>
+  lastWatchedBetween(
+    DateTime lower,
+    DateTime upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'lastWatched',
           lower: lower,
           includeLower: includeLower,
           upper: upper,
@@ -1287,6 +1329,63 @@ extension MovieHistoryQueryFilter
       );
     });
   }
+
+  QueryBuilder<MovieHistory, MovieHistory, QAfterFilterCondition> totalEqualTo(
+    int value,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'total', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<MovieHistory, MovieHistory, QAfterFilterCondition>
+  totalGreaterThan(int value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'total',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<MovieHistory, MovieHistory, QAfterFilterCondition> totalLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'total',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<MovieHistory, MovieHistory, QAfterFilterCondition> totalBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'total',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
 }
 
 extension MovieHistoryQueryObject
@@ -1318,16 +1417,16 @@ extension MovieHistoryQueryLinks
 
 extension MovieHistoryQuerySortBy
     on QueryBuilder<MovieHistory, MovieHistory, QSortBy> {
-  QueryBuilder<MovieHistory, MovieHistory, QAfterSortBy> sortByEpisodeTotal() {
+  QueryBuilder<MovieHistory, MovieHistory, QAfterSortBy> sortByLastWatched() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'episodeTotal', Sort.asc);
+      return query.addSortBy(r'lastWatched', Sort.asc);
     });
   }
 
   QueryBuilder<MovieHistory, MovieHistory, QAfterSortBy>
-  sortByEpisodeTotalDesc() {
+  sortByLastWatchedDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'episodeTotal', Sort.desc);
+      return query.addSortBy(r'lastWatched', Sort.desc);
     });
   }
 
@@ -1378,23 +1477,22 @@ extension MovieHistoryQuerySortBy
       return query.addSortBy(r'thumbUrl', Sort.desc);
     });
   }
+
+  QueryBuilder<MovieHistory, MovieHistory, QAfterSortBy> sortByTotal() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'total', Sort.asc);
+    });
+  }
+
+  QueryBuilder<MovieHistory, MovieHistory, QAfterSortBy> sortByTotalDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'total', Sort.desc);
+    });
+  }
 }
 
 extension MovieHistoryQuerySortThenBy
     on QueryBuilder<MovieHistory, MovieHistory, QSortThenBy> {
-  QueryBuilder<MovieHistory, MovieHistory, QAfterSortBy> thenByEpisodeTotal() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'episodeTotal', Sort.asc);
-    });
-  }
-
-  QueryBuilder<MovieHistory, MovieHistory, QAfterSortBy>
-  thenByEpisodeTotalDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'episodeTotal', Sort.desc);
-    });
-  }
-
   QueryBuilder<MovieHistory, MovieHistory, QAfterSortBy> thenById() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.asc);
@@ -1404,6 +1502,19 @@ extension MovieHistoryQuerySortThenBy
   QueryBuilder<MovieHistory, MovieHistory, QAfterSortBy> thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.desc);
+    });
+  }
+
+  QueryBuilder<MovieHistory, MovieHistory, QAfterSortBy> thenByLastWatched() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastWatched', Sort.asc);
+    });
+  }
+
+  QueryBuilder<MovieHistory, MovieHistory, QAfterSortBy>
+  thenByLastWatchedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'lastWatched', Sort.desc);
     });
   }
 
@@ -1454,15 +1565,25 @@ extension MovieHistoryQuerySortThenBy
       return query.addSortBy(r'thumbUrl', Sort.desc);
     });
   }
+
+  QueryBuilder<MovieHistory, MovieHistory, QAfterSortBy> thenByTotal() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'total', Sort.asc);
+    });
+  }
+
+  QueryBuilder<MovieHistory, MovieHistory, QAfterSortBy> thenByTotalDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'total', Sort.desc);
+    });
+  }
 }
 
 extension MovieHistoryQueryWhereDistinct
     on QueryBuilder<MovieHistory, MovieHistory, QDistinct> {
-  QueryBuilder<MovieHistory, MovieHistory, QDistinct> distinctByEpisodeTotal({
-    bool caseSensitive = true,
-  }) {
+  QueryBuilder<MovieHistory, MovieHistory, QDistinct> distinctByLastWatched() {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'episodeTotal', caseSensitive: caseSensitive);
+      return query.addDistinctBy(r'lastWatched');
     });
   }
 
@@ -1495,6 +1616,12 @@ extension MovieHistoryQueryWhereDistinct
       return query.addDistinctBy(r'thumbUrl', caseSensitive: caseSensitive);
     });
   }
+
+  QueryBuilder<MovieHistory, MovieHistory, QDistinct> distinctByTotal() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'total');
+    });
+  }
 }
 
 extension MovieHistoryQueryProperty
@@ -1519,16 +1646,16 @@ extension MovieHistoryQueryProperty
     });
   }
 
-  QueryBuilder<MovieHistory, String, QQueryOperations> episodeTotalProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'episodeTotal');
-    });
-  }
-
   QueryBuilder<MovieHistory, List<EpisodeLocal>, QQueryOperations>
   episodesProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'episodes');
+    });
+  }
+
+  QueryBuilder<MovieHistory, DateTime, QQueryOperations> lastWatchedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'lastWatched');
     });
   }
 
@@ -1553,6 +1680,12 @@ extension MovieHistoryQueryProperty
   QueryBuilder<MovieHistory, String, QQueryOperations> thumbUrlProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'thumbUrl');
+    });
+  }
+
+  QueryBuilder<MovieHistory, int, QQueryOperations> totalProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'total');
     });
   }
 }

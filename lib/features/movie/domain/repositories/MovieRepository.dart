@@ -5,8 +5,8 @@ import 'package:movie_app/features/movie/domain/models/MovieDetails.dart';
 import 'package:movie_app/features/movie/domain/models/MovieDisplay.dart';
 import 'package:movie_app/features/movie/domain/models/SearchMovieDisplay.dart';
 import 'package:movie_app/features/movie/domain/models/YearModel.dart';
-
 import '../models/MovieHistoryModel.dart';
+import '../models/MovieWatched.dart';
 
 abstract class MovieRepository {
   Future<List<MovieDisplay>> getHomePageMovie();
@@ -39,4 +39,6 @@ abstract class MovieRepository {
   Future<List<YearModel>> getYears();
 
   Future<void> saveMovieHistory(MovieHistoryModel model);
+
+  Future<MovieWatched?> getLastWatchedMovie();
 }

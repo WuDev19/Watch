@@ -4,6 +4,7 @@ part 'EpisodeListLocal.g.dart';
 @embedded
 class EpisodeListLocal {
   late String name;
+  late String slug;
   late String filename;
   late String linkM3U8;
 
