@@ -18,7 +18,13 @@ class EpisodeWidget extends StatefulWidget {
 }
 
 class _EpisodeWidgetState extends State<EpisodeWidget> {
-  int _oldIndex = 0;
+  late ValueNotifier<int> _currentIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = ValueNotifier(0);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,29 +38,29 @@ class _EpisodeWidgetState extends State<EpisodeWidget> {
             child: InkWell(
               onTap: () {
                 widget.onServerName(episode);
-                if (_oldIndex != index) {
-                  setState(() {
-                    episode.isSelected = true;
-                    widget.episodes[_oldIndex].isSelected = false;
-                  });
-                  _oldIndex = index;
-                }
+                _currentIndex.value = index;
               },
-              child: Card(
-                margin: const EdgeInsets.all(0),
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadiusGeometry.all(Radius.circular(10)),
-                ),
-                color: episode.isSelected
-                    ? VColors.colorIcon
-                    : VColors.greySearch,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    episode.serverName,
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                ),
+              child: ValueListenableBuilder(valueListenable: _currentIndex,
+                builder: (context, value, child) {
+                  return Card(
+                    margin: const EdgeInsets.all(0),
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadiusGeometry.all(Radius.circular(
+                          10)),
+                    ),
+                    color: index == value
+                        ? VColors.colorIcon
+                        : VColors.greySearch,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        episode.serverName,
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  );
+                },
+
               ),
             ),
           );

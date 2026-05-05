@@ -4,17 +4,17 @@ class Constants {
   Constants._();
 
   static const String baseImageUrl = "https://img.ophim.live/uploads/movies/";
+  static const String errorImage = "Image loading error";
 
-  static double getHeightScreen(BuildContext context){
+  static double getHeightScreen(BuildContext context) {
     return MediaQuery.of(context).size.height;
   }
 
-  static double getWidthScreen(BuildContext context){
+  static double getWidthScreen(BuildContext context) {
     return MediaQuery.of(context).size.width;
   }
 
-  static double calculateFontSize(BuildContext context, double mul){
+  static double calculateFontSize(BuildContext context, double mul) {
     return getWidthScreen(context) / 100 * 4.5 * mul;
   }
-
 }

@@ -29,8 +29,6 @@ class _EpisodeItemState extends State<EpisodeItem> {
     super.initState();
     if (widget.isInWatch) {
       final index = widget.episodeList.indexOf(widget.currentEpisode!);
-      print("episode list - ${widget.currentEpisode} va $index}");
-      print("episode list - ${widget.episodeList} va $index}");
       _episodeValue = ValueNotifier(index);
     }
   }
@@ -44,36 +42,23 @@ class _EpisodeItemState extends State<EpisodeItem> {
   @override
   Widget build(BuildContext context) {
     return Wrap(
-      children: widget.episodeList
-          .map(
-            (e) => GestureDetector(
-              onTap: () {
-                widget.onWatch(e);
-                if (widget.isInWatch) {
-                  _episodeValue!.value = widget.episodeList.indexOf(e);
-                }
-              },
-              child: widget.isInWatch
-                  ? ValueListenableBuilder(
-                      valueListenable: _episodeValue!,
-                      builder: (context, value, child) {
-                        final currentIndex = widget.episodeList.indexOf(e);
-                        return Card(
-                          color: value != currentIndex
-                              ? VColors.greySearch
-                              : VColors.colorIcon,
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              "Ep ${e.name}",
-                              style: const TextStyle(color: Colors.white),
-                            ),
-                          ),
-                        );
-                      },
-                    )
-                  : Card(
-                      color: VColors.greySearch,
+      children: widget.episodeList.map((e) {
+        return GestureDetector(
+          onTap: () {
+            widget.onWatch(e);
+            if (widget.isInWatch) {
+              _episodeValue!.value = widget.episodeList.indexOf(e);
+            }
+          },
+          child: widget.isInWatch
+              ? ValueListenableBuilder(
+                  valueListenable: _episodeValue!,
+                  builder: (context, value, child) {
+                    final currentIndex = widget.episodeList.indexOf(e);
+                    return Card(
+                      color: value != currentIndex
+                          ? VColors.greySearch
+                          : VColors.colorIcon,
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
@@ -81,10 +66,21 @@ class _EpisodeItemState extends State<EpisodeItem> {
                           style: const TextStyle(color: Colors.white),
                         ),
                       ),
+                    );
+                  },
+                )
+              : Card(
+                  color: VColors.greySearch,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      "Ep ${e.name}",
+                      style: const TextStyle(color: Colors.white),
                     ),
-            ),
-          )
-          .toList(),
+                  ),
+                ),
+        );
+      }).toList(),
     );
   }
 }

@@ -22,15 +22,21 @@ class WatchMovieScreen extends StatefulWidget {
   State<WatchMovieScreen> createState() => _WatchMovieScreenState();
 }
 
-class _WatchMovieScreenState extends State<WatchMovieScreen> {
+class _WatchMovieScreenState extends State<WatchMovieScreen>
+    with WidgetsBindingObserver {
   BetterPlayerController? _betterPlayerController;
   late ValueNotifier<Map<int, List<EpisodeList>>> _paginationEpisodeValues;
   late ValueNotifier<List<EpisodeList>> _episodeListValues;
   late WatchMovieManagement _watchMovieManagement;
+  final GlobalKey _betterPlayerKey = GlobalKey();
+  bool _isInPipMode = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(
+      this,
+    ); //đăng kí lắng nghe sự kiện hệ thống
     if (widget.combineDetailAndWatch != null) {
       _watchMovieManagement = context.read<WatchMovieManagement>();
       _paginationEpisodeValues = ValueNotifier(
@@ -41,17 +47,15 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
             .first
             .paginationEpisode,
       );
-      print(
-        "episode list - ${widget.combineDetailAndWatch!.movieWatch.currentListEpisode}",
-      );
       _episodeListValues = ValueNotifier(
         widget.combineDetailAndWatch!.movieWatch.currentListEpisode,
       );
       _betterPlayerController = BetterPlayerController(
-        BetterPlayerConfiguration(
+        const BetterPlayerConfiguration(
           autoPlay: false,
           allowedScreenSleep: false,
           fit: BoxFit.cover,
+          handleLifecycle: false,
           deviceOrientationsOnFullScreen: [
             //khi fullscreen thì chỉ cho ngang
             DeviceOrientation.landscapeLeft,
@@ -60,8 +64,21 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
           deviceOrientationsAfterFullScreen: [DeviceOrientation.portraitUp],
           //khi hết phim hoặc thu nhỏ thì sẽ cho quay về dọc
           systemOverlaysAfterFullScreen: [],
+          controlsConfiguration: const BetterPlayerControlsConfiguration(
+            enablePip: true,
+            pipMenuIcon: Icons.picture_in_picture,
+          ),
         ),
       );
+
+      _betterPlayerController!.addEventsListener((event) {
+        if (event.betterPlayerEventType == BetterPlayerEventType.pipStart) {
+          _isInPipMode = true;
+        } else if (event.betterPlayerEventType ==
+            BetterPlayerEventType.pipStop) {
+          _isInPipMode = false;
+        }
+      });
 
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
         await Future.delayed(const Duration(milliseconds: 1000));
@@ -89,7 +106,26 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
     _betterPlayerController?.dispose();
     _episodeListValues.dispose();
     _paginationEpisodeValues.dispose();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.hidden) {
+      _enterPipMode();
+    } else if (state == AppLifecycleState.paused) {
+      if(_betterPlayerController?.isPlaying() == true){
+        await _betterPlayerController?.pause();
+      }
+    }
+    else if (state == AppLifecycleState.resumed){
+      if(_betterPlayerController?.isPlaying() == false){
+        await _betterPlayerController?.play();
+      }
+    }
   }
 
   @override
@@ -109,7 +145,10 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
                         bottomRight: Radius.circular(20),
                         bottomLeft: Radius.circular(20),
                       ),
-                      child: BetterPlayer(controller: _betterPlayerController!),
+                      child: BetterPlayer(
+                        key: _betterPlayerKey,
+                        controller: _betterPlayerController!,
+                      ),
                     ),
                     const SizedBox(height: 20),
                     Container(
@@ -170,6 +209,11 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
                                   .movieWatch
                                   .currentEpisode,
                               onWatch: (currentEpisode) {
+                                widget
+                                        .combineDetailAndWatch!
+                                        .movieWatch
+                                        .currentEpisode =
+                                    currentEpisode;
                                 _watchMovieManagement.saveMovieHistory(
                                   MovieHistoryModel(
                                     currentEpisode:
@@ -216,9 +260,29 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
     );
   }
 
+  void _enterPipMode() async {
+    bool isSupported =
+        await _betterPlayerController?.isPictureInPictureSupported() ?? false;
+    if (isSupported) {
+      if (_betterPlayerController!.isPlaying() == true) {
+        if (_betterPlayerController!.isFullScreen) {
+          _betterPlayerController!.exitFullScreen();
+          await Future.delayed(const Duration(seconds: 400));
+        }
+        await _betterPlayerController?.enablePictureInPicture(_betterPlayerKey);
+      }
+    }
+  }
+
   Future<void> _changeEpisode(EpisodeList currentEpisode) async {
+    if (_isInPipMode) {
+      await _betterPlayerController?.disablePictureInPicture();
+      await Future.delayed(
+        const Duration(milliseconds: 600),
+      ); //đợi một chút sau khi đóng pip
+    }
+    await _betterPlayerController?.pause(); //dừng video cũ để tránh lỗi
     BetterPlayerDataSource dataSource = BetterPlayerDataSource.network(
-      // lấy nguôn khác set vào controller hiện tại
       currentEpisode.linkM3U8,
       cacheConfiguration: BetterPlayerCacheConfiguration(
         useCache: true,
