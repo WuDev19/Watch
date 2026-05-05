@@ -40,6 +40,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
   late MovieDetailManagement _movieDetailManagement;
   late ValueNotifier<Map<int, List<EpisodeList>>> _paginationEpisodeValues;
   late ValueNotifier<List<EpisodeList>> _episodeListValues;
+  late ValueNotifier<bool> _addToFavoriteValues;
   String? _categorySlug;
   bool _isLoading = false;
   Map<String, dynamic> dynamicCategory = {
@@ -55,9 +56,11 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
     _relatedMovieController.addListener(_onLoadMore);
     _paginationEpisodeValues = ValueNotifier({});
     _episodeListValues = ValueNotifier([]);
+    _addToFavoriteValues = ValueNotifier(false);
     _movieDetailManagement = context.read<MovieDetailManagement>();
     _movieDetailManagement.getMovieDetailsInfo(widget._movieSlug);
     _movieDetailManagement.getMovieActors(widget._movieSlug);
+    //thêm cái call từ local xem có trong local chưa
   }
 
   @override
@@ -626,6 +629,12 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
         const SizedBox(width: 10),
         Text(movieDetail.country, style: TextStyle(color: Colors.white)),
         const SizedBox(width: 10),
+        GestureDetector(
+          onTap: () {
+
+          },
+          child: const Icon(Icons.favorite_border, color: VColors.colorIcon),
+        ),
       ],
     );
   }
