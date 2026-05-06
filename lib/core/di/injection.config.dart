@@ -156,7 +156,12 @@ extension GetItInjectableX on _i174.GetIt {
       ),
     );
     gh.factory<_i816.WatchMovieManagement>(
-      () => _i816.WatchMovieManagement(gh<_i749.SaveMovieHistoryUseCase>()),
+      () => _i816.WatchMovieManagement(
+        gh<_i749.SaveMovieHistoryUseCase>(),
+        gh<_i35.CheckFavoriteMovieUseCase>(),
+        gh<_i582.SaveFavoriteMovieUseCase>(),
+        gh<_i380.DeleteFavoriteUseCase>(),
+      ),
     );
     return this;
   }

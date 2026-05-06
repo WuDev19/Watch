@@ -71,27 +71,30 @@ class TitleMovieItem extends StatelessWidget {
                 color: Colors.grey.withAlpha(50),
                 borderRadius: BorderRadiusGeometry.all(Radius.circular(20)),
               ),
-              child: Wrap(
-                crossAxisAlignment: WrapCrossAlignment.center,
-                alignment: WrapAlignment.spaceEvenly,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Icon(Icons.play_circle, color: VColors.colorIcon),
                   const SizedBox(width: 20),
-                  Column(
-                    children: [
-                      const Text(
-                        "Continue Watching",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        _movieWatched.name,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                  Expanded(
+                    child: Column(
+                      children: [
+                        const Text(
+                          "Continue Watching",
+                          style: TextStyle(color: Colors.white),
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 10),
+                        Text(
+                          _movieWatched.name,
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(width: 10),
                 ],
