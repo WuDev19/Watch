@@ -1,12 +1,17 @@
+import 'package:movie_app/features/movie/data/datasources/local/entity/CategoryLocal.dart';
 import 'package:movie_app/features/movie/data/datasources/local/entity/CountryLocal.dart';
 import 'package:movie_app/features/movie/data/datasources/local/entity/EpisodeListLocal.dart';
 import 'package:movie_app/features/movie/data/datasources/local/entity/EpisodeLocal.dart';
+import 'package:movie_app/features/movie/data/datasources/local/entity/FavoriteMovie.dart';
 import 'package:movie_app/features/movie/data/datasources/local/entity/MovieHistory.dart';
 import 'package:movie_app/features/movie/data/datasources/local/entity/PageEpisodeLocal.dart';
 import 'package:movie_app/features/movie/data/datasources/local/entity/YearLocal.dart';
+import 'package:movie_app/features/movie/data/datasources/remote/dto/CategoryOrCountryDTO.dart';
+import 'package:movie_app/features/movie/domain/models/CategoryModel.dart';
 import 'package:movie_app/features/movie/domain/models/CountryModel.dart';
 import 'package:movie_app/features/movie/domain/models/Episode.dart';
 import 'package:movie_app/features/movie/domain/models/EpisodeList.dart';
+import 'package:movie_app/features/movie/domain/models/FavoriteMovieModel.dart';
 import 'package:movie_app/features/movie/domain/models/MovieWatched.dart';
 import 'package:movie_app/features/movie/domain/models/YearModel.dart';
 import 'package:movie_app/utils/constants.dart';
@@ -20,6 +25,16 @@ abstract class MovieLocalMapper {
   static YearModel mapToYearModel(YearLocal local) {
     return YearModel(local.year);
   }
+
+  static CategoryLocal mapToCategoryLocal(CategoryOrCountryDTO model) {
+    return CategoryLocal(model.id, model.name, model.slug);
+  }
+
+  static CategoryModel mapToCategoryModel(CategoryLocal local) => CategoryModel(
+    id: local.categoryId,
+    category: local.categoryName,
+    categorySlug: local.categorySlug,
+  );
 
   static MovieHistory mapToMovieHistory(MovieHistoryModel model) {
     final episodes = model.combineDetailAndWatch.movieWatch.episodes
@@ -132,4 +147,12 @@ abstract class MovieLocalMapper {
       total: history.total,
     );
   }
+
+  static FavoriteMovie mapToFavoriteMovie(FavoriteMovieModel model) =>
+      FavoriteMovie(
+        movieName: model.movieName,
+        movieSlug: model.movieSlug,
+        thumbUrl: model.thumbUrl,
+        createdAt: DateTime.now(),
+      );
 }

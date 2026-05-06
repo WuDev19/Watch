@@ -2,6 +2,7 @@ import 'package:injectable/injectable.dart';
 import 'package:isar_community/isar.dart';
 import 'package:movie_app/features/movie/data/datasources/local/entity/CategoryLocal.dart';
 import 'package:movie_app/features/movie/data/datasources/local/entity/CountryLocal.dart';
+import 'package:movie_app/features/movie/data/datasources/local/entity/FavoriteMovie.dart';
 import 'package:movie_app/features/movie/data/datasources/local/entity/MovieHistory.dart';
 import 'package:movie_app/features/movie/data/datasources/local/entity/YearLocal.dart';
 import 'package:movie_app/features/movie/data/datasources/local/mapper/MovieLocalMapper.dart';
@@ -10,6 +11,7 @@ import 'package:movie_app/features/movie/data/datasources/remote/helper/NetworkH
 import 'package:movie_app/features/movie/data/datasources/remote/mapper/MovieMapper.dart';
 import 'package:movie_app/features/movie/domain/models/CategoryModel.dart';
 import 'package:movie_app/features/movie/domain/models/CountryModel.dart';
+import 'package:movie_app/features/movie/domain/models/FavoriteMovieModel.dart';
 import 'package:movie_app/features/movie/domain/models/MovieActors.dart';
 import 'package:movie_app/features/movie/domain/models/MovieDetails.dart';
 import 'package:movie_app/features/movie/domain/models/MovieDisplay.dart';
@@ -54,18 +56,13 @@ class MovieRepositoryImpl implements MovieRepository {
     if (check > 0) {
       final categories = await _isar.categoryLocals.where().findAll();
       return categories
-          .map(
-            (e) => CategoryModel(
-              category: e.categoryName,
-              categorySlug: e.categorySlug,
-            ),
-          )
+          .map((e) => MovieLocalMapper.mapToCategoryModel(e))
           .toList();
     } else {
       final categoriesDto = await _movieApi.getCategory();
       await _isar.writeTxn(() async {
         final categoriesLocal = categoriesDto.data.items
-            .map((e) => CategoryLocal(e.id, e.name, e.slug))
+            .map((e) => MovieLocalMapper.mapToCategoryLocal(e))
             .toList();
         _isar.categoryLocals.putAll(categoriesLocal);
       });
@@ -202,7 +199,36 @@ class MovieRepositoryImpl implements MovieRepository {
         .sortByLastWatchedDesc()
         .limit(1)
         .findFirst();
-    if(movieHistory == null) return null;
+    if (movieHistory == null) return null;
     return MovieLocalMapper.mapToMovieWatched(movieHistory);
+  }
+
+  @override
+  Future<bool> checkFavoriteMovie(String slug) async {
+    final result = await _isar.favoriteMovies
+        .where()
+        .movieSlugEqualTo(slug)
+        .count();
+    return result > 0;
+  }
+
+  @override
+  Future<void> saveFavoriteMovie(FavoriteMovieModel model) async {
+    final favoriteMovie = MovieLocalMapper.mapToFavoriteMovie(model);
+    await _isar.writeTxn(() async {
+      await _isar.favoriteMovies.put(favoriteMovie);
+    });
+  }
+
+  @override
+  Future<void> deleteFavoriteMovie(String slug) async {
+    final favoriteMovie = await _isar.favoriteMovies.where()
+        .movieSlugEqualTo(slug)
+        .findFirst();
+    if(favoriteMovie != null){
+      await _isar.writeTxn(() async{
+        await _isar.favoriteMovies.deleteByMovieSlug(slug);
+      },);
+    }
   }
 }

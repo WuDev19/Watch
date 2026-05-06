@@ -18,7 +18,13 @@ class TitleMovieItem extends StatelessWidget {
     return Stack(
       children: [
         Container(
-          margin: const EdgeInsets.only(left: 20, right: 20),
+          decoration: const BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(20)),
+            boxShadow: [
+              BoxShadow(color: Colors.grey, spreadRadius: 5, blurRadius: 5),
+            ],
+          ),
+          margin: const EdgeInsets.only(top: 20, left: 20, right: 20),
           child: ClipRRect(
             borderRadius: const BorderRadiusGeometry.all(Radius.circular(20)),
             child: GestureDetector(

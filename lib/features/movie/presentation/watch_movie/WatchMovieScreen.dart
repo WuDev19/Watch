@@ -117,12 +117,11 @@ class _WatchMovieScreenState extends State<WatchMovieScreen>
         state == AppLifecycleState.hidden) {
       _enterPipMode();
     } else if (state == AppLifecycleState.paused) {
-      if(_betterPlayerController?.isPlaying() == true){
+      if (_betterPlayerController?.isPlaying() == true) {
         await _betterPlayerController?.pause();
       }
-    }
-    else if (state == AppLifecycleState.resumed){
-      if(_betterPlayerController?.isPlaying() == false){
+    } else if (state == AppLifecycleState.resumed) {
+      if (_betterPlayerController?.isPlaying() == false) {
         await _betterPlayerController?.play();
       }
     }

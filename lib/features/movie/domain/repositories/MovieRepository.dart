@@ -1,4 +1,5 @@
 import 'package:movie_app/features/movie/domain/models/CountryModel.dart';
+import 'package:movie_app/features/movie/domain/models/FavoriteMovieModel.dart';
 import 'package:movie_app/features/movie/domain/models/MovieActors.dart';
 import 'package:movie_app/features/movie/domain/models/CategoryModel.dart';
 import 'package:movie_app/features/movie/domain/models/MovieDetails.dart';
@@ -41,4 +42,10 @@ abstract class MovieRepository {
   Future<void> saveMovieHistory(MovieHistoryModel model);
 
   Future<MovieWatched?> getLastWatchedMovie();
+
+  Future<bool> checkFavoriteMovie(String slug);
+
+  Future<void> saveFavoriteMovie(FavoriteMovieModel model);
+
+  Future<void> deleteFavoriteMovie(String slug);
 }

@@ -2,6 +2,7 @@ import 'package:injectable/injectable.dart';
 import 'package:isar_community/isar.dart';
 import 'package:movie_app/features/movie/data/datasources/local/entity/CategoryLocal.dart';
 import 'package:movie_app/features/movie/data/datasources/local/entity/CountryLocal.dart';
+import 'package:movie_app/features/movie/data/datasources/local/entity/FavoriteMovie.dart';
 import 'package:movie_app/features/movie/data/datasources/local/entity/HistorySearchEntity.dart';
 import 'package:movie_app/features/movie/data/datasources/local/entity/MovieHistory.dart';
 import 'package:movie_app/features/movie/data/datasources/local/entity/YearLocal.dart';
@@ -20,6 +21,7 @@ abstract class IsarModule {
         CountryLocalSchema,
         YearLocalSchema,
         MovieHistorySchema,
+        FavoriteMovieSchema
       ],
       directory: dir.path,
       name: "movie_app",

@@ -52,11 +52,19 @@ class MovieMapper {
   static CategoryModel mapFromCategorySearchToCategoryModel(
     CategoryOrCountryDTO item,
   ) {
-    return CategoryModel(category: item.name, categorySlug: item.slug);
+    return CategoryModel(
+      id: item.id,
+      category: item.name,
+      categorySlug: item.slug,
+    );
   }
 
   static CategoryModel mapFromCategoryDtoToCategoryModel(CategoryDTO item) {
-    return CategoryModel(category: item.name, categorySlug: item.slug);
+    return CategoryModel(
+      id: item.id,
+      category: item.name,
+      categorySlug: item.slug,
+    );
   }
 
   static Future<Episode> mapToEpisodeModel(
@@ -161,7 +169,7 @@ class MovieMapper {
       country: country,
       episodes: episodes,
       alternativeNames: movieDetails.alternativeNames,
-      total: total ?? 1
+      total: total ?? 1,
     );
   }
 

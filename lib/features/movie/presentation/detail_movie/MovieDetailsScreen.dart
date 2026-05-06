@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:movie_app/core/colors/VColors.dart';
 import 'package:movie_app/features/movie/domain/models/CombineDetailAndWatch.dart';
 import 'package:movie_app/features/movie/domain/models/EpisodeList.dart';
+import 'package:movie_app/features/movie/domain/models/FavoriteMovieModel.dart';
 import 'package:movie_app/features/movie/domain/models/MovieActors.dart';
 import 'package:movie_app/features/movie/domain/models/MovieDetails.dart';
 import 'package:movie_app/features/movie/domain/models/MovieHistoryModel.dart';
@@ -43,6 +44,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
   late ValueNotifier<bool> _addToFavoriteValues;
   String? _categorySlug;
   bool _isLoading = false;
+  bool _isFavorite = false;
   Map<String, dynamic> dynamicCategory = {
     "sort_field": "year",
     "sort_type": "desc",
@@ -60,6 +62,10 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
     _movieDetailManagement = context.read<MovieDetailManagement>();
     _movieDetailManagement.getMovieDetailsInfo(widget._movieSlug);
     _movieDetailManagement.getMovieActors(widget._movieSlug);
+    _movieDetailManagement.checkFavoriteMovie(widget._movieSlug).then((value) {
+      _addToFavoriteValues.value = value;
+      _isFavorite = value;
+    });
     //thêm cái call từ local xem có trong local chưa
   }
 
@@ -631,9 +637,28 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
         const SizedBox(width: 10),
         GestureDetector(
           onTap: () {
-
+            if (_isFavorite) {
+              _movieDetailManagement.deleteFavoriteMovie(movieDetail.slug);
+            } else {
+              _movieDetailManagement.saveFavoriteMovie(
+                FavoriteMovieModel(
+                  movieName: movieDetail.name,
+                  movieSlug: movieDetail.slug,
+                  thumbUrl: Constants.baseImageUrl + movieDetail.thumbUrl,
+                ),
+              );
+            }
+            _isFavorite = !_isFavorite;
+            _addToFavoriteValues.value = _isFavorite;
           },
-          child: const Icon(Icons.favorite_border, color: VColors.colorIcon),
+          child: ValueListenableBuilder(
+            valueListenable: _addToFavoriteValues,
+            builder: (context, value, child) {
+              return value == true
+                  ? Icon(Icons.favorite, color: VColors.colorIcon)
+                  : Icon(Icons.favorite_border, color: VColors.colorIcon);
+            },
+          ),
         ),
       ],
     );
