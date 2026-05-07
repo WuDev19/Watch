@@ -77,6 +77,19 @@ const MovieHistorySchema = CollectionSchema(
         ),
       ],
     ),
+    r'progress': IndexSchema(
+      id: -3178071926120475027,
+      name: r'progress',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'progress',
+          type: IndexType.value,
+          caseSensitive: false,
+        ),
+      ],
+    ),
     r'lastWatched': IndexSchema(
       id: -3939082614237404951,
       name: r'lastWatched',
@@ -347,6 +360,14 @@ extension MovieHistoryQueryWhereSort
     });
   }
 
+  QueryBuilder<MovieHistory, MovieHistory, QAfterWhere> anyProgress() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        const IndexWhereClause.any(indexName: r'progress'),
+      );
+    });
+  }
+
   QueryBuilder<MovieHistory, MovieHistory, QAfterWhere> anyLastWatched() {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
@@ -479,6 +500,108 @@ extension MovieHistoryQueryWhere
               ),
             );
       }
+    });
+  }
+
+  QueryBuilder<MovieHistory, MovieHistory, QAfterWhereClause> progressEqualTo(
+    double progress,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.equalTo(indexName: r'progress', value: [progress]),
+      );
+    });
+  }
+
+  QueryBuilder<MovieHistory, MovieHistory, QAfterWhereClause>
+  progressNotEqualTo(double progress) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'progress',
+                lower: [],
+                upper: [progress],
+                includeUpper: false,
+              ),
+            )
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'progress',
+                lower: [progress],
+                includeLower: false,
+                upper: [],
+              ),
+            );
+      } else {
+        return query
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'progress',
+                lower: [progress],
+                includeLower: false,
+                upper: [],
+              ),
+            )
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'progress',
+                lower: [],
+                upper: [progress],
+                includeUpper: false,
+              ),
+            );
+      }
+    });
+  }
+
+  QueryBuilder<MovieHistory, MovieHistory, QAfterWhereClause>
+  progressGreaterThan(double progress, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.between(
+          indexName: r'progress',
+          lower: [progress],
+          includeLower: include,
+          upper: [],
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<MovieHistory, MovieHistory, QAfterWhereClause> progressLessThan(
+    double progress, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.between(
+          indexName: r'progress',
+          lower: [],
+          upper: [progress],
+          includeUpper: include,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<MovieHistory, MovieHistory, QAfterWhereClause> progressBetween(
+    double lowerProgress,
+    double upperProgress, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.between(
+          indexName: r'progress',
+          lower: [lowerProgress],
+          includeLower: includeLower,
+          upper: [upperProgress],
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 

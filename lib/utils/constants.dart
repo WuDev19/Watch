@@ -5,7 +5,10 @@ class Constants {
 
   static const String baseImageUrl = "https://img.ophim.live/uploads/movies/";
   static const String errorImage = "Image loading error";
-
+  static const String favoriteMovie = "Favorite Movie";
+  static const String watchingMovie = "Watching Movie";
+  static const String watchedMovie = "Watched Movie";
+  static const String retry = "Retry";
   static double getHeightScreen(BuildContext context) {
     return MediaQuery.of(context).size.height;
   }
@@ -16,5 +19,13 @@ class Constants {
 
   static double calculateFontSize(BuildContext context, double mul) {
     return getWidthScreen(context) / 100 * 4.5 * mul;
+  }
+
+  static double getImageWidth(BuildContext context) {
+    return (getWidthScreen(context) - 32) / 3;
+  }
+
+  static double getImageHeight(BuildContext context) {
+    return getImageWidth(context) * 1.5 + 40;
   }
 }

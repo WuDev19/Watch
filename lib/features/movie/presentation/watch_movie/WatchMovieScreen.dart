@@ -193,7 +193,6 @@ class _WatchMovieScreenState extends State<WatchMovieScreen>
                                   movieSlug:
                                       widget.combineDetailAndWatch!.movieSlug,
                                   thumbUrl:
-                                      Constants.baseImageUrl +
                                       widget.combineDetailAndWatch!.moviePoster,
                                 ),
                               );

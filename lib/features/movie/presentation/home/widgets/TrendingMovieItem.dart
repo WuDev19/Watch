@@ -27,34 +27,43 @@ class TrendingMovieItem extends StatelessWidget {
       children: [
         GestureDetector(
           onTap: () => _onDetail(_movieSlug),
-          child: ClipRRect(
-            borderRadius: BorderRadiusGeometry.all(Radius.circular(20)),
-            child: Image.network(
-              width: double.infinity,
-              _moviePoster,
-              fit: BoxFit.cover,
-              cacheWidth: 500,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  color: Colors.black,
-                  child: Text(
-                    "Internet issues",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                );
-              },
-              loadingBuilder: (context, child, loadingProgress) {
-                if (loadingProgress == null) return child;
-                final value =
-                    loadingProgress.cumulativeBytesLoaded /
-                    loadingProgress.expectedTotalBytes!;
-                return Center(
-                  child: CircularProgressIndicator(
-                    value: value,
-                    color: VColors.colorIcon,
-                  ),
-                );
-              },
+          child: Container(
+            margin: const EdgeInsets.only(top: 10, bottom: 10),
+            decoration: const BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(20)),
+              boxShadow: [
+                BoxShadow(color: Colors.grey, spreadRadius: 5, blurRadius: 5),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadiusGeometry.all(Radius.circular(20)),
+              child: Image.network(
+                width: double.infinity,
+                _moviePoster,
+                fit: BoxFit.cover,
+                cacheWidth: 500,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    color: Colors.black,
+                    child: Text(
+                      "Internet issues",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  );
+                },
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  final value =
+                      loadingProgress.cumulativeBytesLoaded /
+                      loadingProgress.expectedTotalBytes!;
+                  return Center(
+                    child: CircularProgressIndicator(
+                      value: value,
+                      color: VColors.colorIcon,
+                    ),
+                  );
+                },
+              ),
             ),
           ),
         ),

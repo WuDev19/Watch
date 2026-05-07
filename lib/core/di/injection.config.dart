@@ -33,6 +33,8 @@ import '../../features/movie/domain/usecases/GetMovieActorsUseCase.dart'
     as _i392;
 import '../../features/movie/domain/usecases/GetMovieDetailsInfoUseCase.dart'
     as _i244;
+import '../../features/movie/domain/usecases/GetMyFavoriteMovieUseCase.dart'
+    as _i357;
 import '../../features/movie/domain/usecases/HomePageMovieUseCase.dart'
     as _i755;
 import '../../features/movie/domain/usecases/SaveFavoriteMovieUseCase.dart'
@@ -54,6 +56,8 @@ import '../../features/movie/presentation/home/state_management/ScalePageBloc.da
     as _i673;
 import '../../features/movie/presentation/search/state_management/SearchPageManagement.dart'
     as _i964;
+import '../../features/movie/presentation/setting/state_managment/SettingScreenManagement.dart'
+    as _i874;
 import '../../features/movie/presentation/watch_movie/state_management/WatchMovieManagement.dart'
     as _i816;
 import 'IsarModule.dart' as _i448;
@@ -127,6 +131,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i380.DeleteFavoriteUseCase>(
       () => _i380.DeleteFavoriteUseCase(gh<_i503.MovieRepository>()),
     );
+    gh.lazySingleton<_i357.GetMyFavoriteMovieUseCase>(
+      () => _i357.GetMyFavoriteMovieUseCase(gh<_i503.MovieRepository>()),
+    );
     gh.factory<_i862.MovieDetailManagement>(
       () => _i862.MovieDetailManagement(
         gh<_i244.GetMovieDetailsInfoUseCase>(),
@@ -154,6 +161,10 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i755.HomePageMovieUseCase>(),
         gh<_i663.GetLastWatchedMovieUseCase>(),
       ),
+    );
+    gh.factory<_i874.SettingScreenManagement>(
+      () =>
+          _i874.SettingScreenManagement(gh<_i357.GetMyFavoriteMovieUseCase>()),
     );
     gh.factory<_i816.WatchMovieManagement>(
       () => _i816.WatchMovieManagement(

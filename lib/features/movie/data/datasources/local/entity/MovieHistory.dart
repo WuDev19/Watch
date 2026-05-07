@@ -12,6 +12,7 @@ class MovieHistory {
   @Index(unique: true, replace: true)
   String slug;
   String thumbUrl;
+  @Index()
   double progress;
   int total;
   EpisodeListLocal currentEpisode;

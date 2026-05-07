@@ -102,8 +102,8 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
     final heightImage = 0.4 * _screenHeight;
     final marginContent = 0.65 * _screenHeight / _screenHeight;
     final secondaryTitle = Constants.calculateFontSize(context, 1.1);
-    final double itemWidth = (_screenWidth - 32) / 3;
-    final double itemHeight = itemWidth * 1.5 + 40;
+    final double itemWidth = Constants.getImageWidth(context);
+    final double itemHeight = Constants.getImageHeight(context);
     return Scaffold(
       body: // detail movie
       BlocSelector<MovieDetailManagement, MovieDetailState, (MovieDetails?, bool, String?)>(
@@ -506,6 +506,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                           ),
                           SizedBox(
                             height: itemHeight - 40,
+                            // do ko lấy thêm chữ nên trừ đi khoảng 40
                             child:
                                 BlocSelector<
                                   MovieDetailManagement,
@@ -539,7 +540,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                                                 );
                                           },
                                           child: Text(
-                                            "Retry",
+                                            Constants.retry,
                                             style: TextStyle(
                                               color: Colors.white,
                                             ),

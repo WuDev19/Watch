@@ -5,6 +5,7 @@ import 'package:movie_app/features/movie/domain/models/CombineDetailAndWatch.dar
 import 'package:movie_app/features/movie/presentation/detail_movie/MovieDetailsScreen.dart';
 import 'package:movie_app/features/movie/presentation/home/HomePage.dart';
 import 'package:movie_app/features/movie/presentation/search/SearchPage.dart';
+import 'package:movie_app/features/movie/presentation/setting/SettingScreen.dart';
 import 'package:movie_app/features/movie/presentation/watch_movie/WatchMovieScreen.dart';
 
 class AppRoutes {
@@ -17,6 +18,14 @@ class AppRoutes {
         builder: (context, state, navigationShell) {
           return Scaffold(
             appBar: AppBar(
+              actions: navigationShell.currentIndex == 2
+                  ? [
+                      Container(
+                        margin: const EdgeInsets.only(right: 10),
+                        child: Icon(Icons.settings, color: Colors.grey),
+                      ),
+                    ]
+                  : null,
               title: const Text(
                 "Watch",
                 style: TextStyle(
@@ -53,6 +62,15 @@ class AppRoutes {
                     color: VColors.colorIcon,
                   ),
                 ),
+                NavigationDestination(
+                  icon: const Icon(Icons.person, size: 50),
+                  label: "",
+                  selectedIcon: const Icon(
+                    Icons.person,
+                    size: 50,
+                    color: VColors.colorIcon,
+                  ),
+                ),
               ],
             ),
           );
@@ -74,6 +92,16 @@ class AppRoutes {
                 path: "/search",
                 builder: (context, state) {
                   return const SearchPage();
+                },
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: "/setting",
+                builder: (context, state) {
+                  return const SettingScreen();
                 },
               ),
             ],

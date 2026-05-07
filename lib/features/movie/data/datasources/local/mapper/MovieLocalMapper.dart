@@ -155,4 +155,11 @@ abstract class MovieLocalMapper {
         thumbUrl: model.thumbUrl,
         createdAt: DateTime.now(),
       );
+
+  static FavoriteMovieModel mapToFavoriteMovieModel(FavoriteMovie movie) =>
+      FavoriteMovieModel(
+        movieName: movie.movieName,
+        movieSlug: movie.movieSlug,
+        thumbUrl: movie.thumbUrl,
+      );
 }

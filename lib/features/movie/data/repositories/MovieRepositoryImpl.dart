@@ -196,6 +196,7 @@ class MovieRepositoryImpl implements MovieRepository {
   Future<MovieWatched?> getLastWatchedMovie() async {
     final movieHistory = await _isar.movieHistorys
         .where()
+        .progressNotEqualTo(1)
         .sortByLastWatchedDesc()
         .limit(1)
         .findFirst();
@@ -222,13 +223,22 @@ class MovieRepositoryImpl implements MovieRepository {
 
   @override
   Future<void> deleteFavoriteMovie(String slug) async {
-    final favoriteMovie = await _isar.favoriteMovies.where()
+    final favoriteMovie = await _isar.favoriteMovies
+        .where()
         .movieSlugEqualTo(slug)
         .findFirst();
-    if(favoriteMovie != null){
-      await _isar.writeTxn(() async{
+    if (favoriteMovie != null) {
+      await _isar.writeTxn(() async {
         await _isar.favoriteMovies.deleteByMovieSlug(slug);
-      },);
+      });
     }
+  }
+
+  @override
+  Future<List<FavoriteMovieModel>> getMyFavoriteMovie() async {
+    final result = await _isar.favoriteMovies.where().anyCreatedAt().findAll();
+    return result
+        .map((e) => MovieLocalMapper.mapToFavoriteMovieModel(e))
+        .toList();
   }
 }

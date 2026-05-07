@@ -48,4 +48,6 @@ abstract class MovieRepository {
   Future<void> saveFavoriteMovie(FavoriteMovieModel model);
 
   Future<void> deleteFavoriteMovie(String slug);
+
+  Future<List<FavoriteMovieModel>> getMyFavoriteMovie();
 }
