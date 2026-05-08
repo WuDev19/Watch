@@ -17,6 +17,7 @@ import 'package:movie_app/features/movie/domain/models/MovieDetails.dart';
 import 'package:movie_app/features/movie/domain/models/MovieDisplay.dart';
 import 'package:movie_app/features/movie/domain/models/MovieHistoryModel.dart';
 import 'package:movie_app/features/movie/domain/models/MovieWatched.dart';
+import 'package:movie_app/features/movie/domain/models/MovieWatching.dart';
 import 'package:movie_app/features/movie/domain/models/SearchMovieDisplay.dart';
 import 'package:movie_app/features/movie/domain/models/YearModel.dart';
 import 'package:movie_app/features/movie/domain/repositories/MovieRepository.dart';
@@ -240,5 +241,15 @@ class MovieRepositoryImpl implements MovieRepository {
     return result
         .map((e) => MovieLocalMapper.mapToFavoriteMovieModel(e))
         .toList();
+  }
+
+  @override
+  Future<List<MovieWatching>> getWatchingMovie() async {
+    final result = await _isar.movieHistorys
+        .where()
+        .progressLessThan(1)
+        .sortByLastWatchedDesc()
+        .findAll();
+    return result.map((e) => MovieLocalMapper.mapToMovieWatching(e)).toList();
   }
 }

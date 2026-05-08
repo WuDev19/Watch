@@ -4,6 +4,7 @@ import 'package:movie_app/features/movie/domain/models/MovieActors.dart';
 import 'package:movie_app/features/movie/domain/models/CategoryModel.dart';
 import 'package:movie_app/features/movie/domain/models/MovieDetails.dart';
 import 'package:movie_app/features/movie/domain/models/MovieDisplay.dart';
+import 'package:movie_app/features/movie/domain/models/MovieWatching.dart';
 import 'package:movie_app/features/movie/domain/models/SearchMovieDisplay.dart';
 import 'package:movie_app/features/movie/domain/models/YearModel.dart';
 import '../models/MovieHistoryModel.dart';
@@ -50,4 +51,6 @@ abstract class MovieRepository {
   Future<void> deleteFavoriteMovie(String slug);
 
   Future<List<FavoriteMovieModel>> getMyFavoriteMovie();
+
+  Future<List<MovieWatching>> getWatchingMovie();
 }

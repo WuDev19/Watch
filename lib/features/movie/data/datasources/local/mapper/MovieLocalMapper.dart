@@ -8,11 +8,14 @@ import 'package:movie_app/features/movie/data/datasources/local/entity/PageEpiso
 import 'package:movie_app/features/movie/data/datasources/local/entity/YearLocal.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/dto/CategoryOrCountryDTO.dart';
 import 'package:movie_app/features/movie/domain/models/CategoryModel.dart';
+import 'package:movie_app/features/movie/domain/models/CombineDetailAndWatch.dart';
 import 'package:movie_app/features/movie/domain/models/CountryModel.dart';
 import 'package:movie_app/features/movie/domain/models/Episode.dart';
 import 'package:movie_app/features/movie/domain/models/EpisodeList.dart';
 import 'package:movie_app/features/movie/domain/models/FavoriteMovieModel.dart';
+import 'package:movie_app/features/movie/domain/models/MovieWatch.dart';
 import 'package:movie_app/features/movie/domain/models/MovieWatched.dart';
+import 'package:movie_app/features/movie/domain/models/MovieWatching.dart';
 import 'package:movie_app/features/movie/domain/models/YearModel.dart';
 import 'package:movie_app/utils/constants.dart';
 import '../../../../domain/models/MovieHistoryModel.dart';
@@ -62,6 +65,32 @@ abstract class MovieLocalMapper {
       episodes: episodes,
       currentListEpisode: currentListEpisode,
       lastWatched: DateTime.now(),
+    );
+  }
+
+  static MovieWatching mapToMovieWatching(MovieHistory history) {
+    final episodes = <Episode>[];
+    for (int i = 0; i < history.episodes.length; i++) {
+      episodes.add(mapToEpisode(history.episodes[i], i));
+    }
+    final currentListEpisode = history.currentListEpisode
+        .map((e) => mapToEpisodeList(e))
+        .toList();
+    final movieWatch = MovieWatch(
+      movieName: history.name,
+      currentEpisode: mapToEpisodeList(history.currentEpisode),
+      episodes: episodes,
+      currentListEpisode: currentListEpisode,
+    );
+    final combineDetailAndWatch = CombineDetailAndWatch(
+      movieSlug: history.slug,
+      moviePoster: history.thumbUrl,
+      total: history.total,
+      movieWatch: movieWatch,
+    );
+    return MovieWatching(
+      combineDetailAndWatch: combineDetailAndWatch,
+      progress: history.progress,
     );
   }
 

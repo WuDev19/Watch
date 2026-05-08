@@ -5,49 +5,56 @@ import '../../../../../core/colors/VColors.dart';
 
 class FavoriteMovieWidget extends StatelessWidget {
   final FavoriteMovieModel _favoriteMovie;
+  final Function(String movieSlug) onChoose;
 
   const FavoriteMovieWidget({
     super.key,
     required FavoriteMovieModel favoriteMovie,
+    required this.onChoose,
   }) : _favoriteMovie = favoriteMovie;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(8),
-      child: Column(
-        children: [
-          ClipRRect(
-            borderRadius: const BorderRadiusGeometry.all(Radius.circular(20)),
-            child: AspectRatio(
-              aspectRatio: 2 / 3,
-              child: Image.network(
-                _favoriteMovie.thumbUrl,
-                fit: BoxFit.cover,
-                errorBuilder: (context, url, error) =>
-                    const Icon(Icons.error, color: VColors.colorIcon),
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  final value =
-                      loadingProgress.cumulativeBytesLoaded /
-                      loadingProgress.expectedTotalBytes!;
-                  return Center(
-                    child: CircularProgressIndicator(
-                      value: value,
-                      color: VColors.colorIcon,
-                    ),
-                  );
-                },
+    return GestureDetector(
+      onTap: () {
+        onChoose(_favoriteMovie.movieSlug);
+      },
+      child: Container(
+        margin: const EdgeInsets.all(8),
+        child: Column(
+          children: [
+            ClipRRect(
+              borderRadius: const BorderRadiusGeometry.all(Radius.circular(20)),
+              child: AspectRatio(
+                aspectRatio: 2 / 3,
+                child: Image.network(
+                  _favoriteMovie.thumbUrl,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, url, error) =>
+                      const Icon(Icons.error, color: VColors.colorIcon),
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    final value =
+                        loadingProgress.cumulativeBytesLoaded /
+                        loadingProgress.expectedTotalBytes!;
+                    return Center(
+                      child: CircularProgressIndicator(
+                        value: value,
+                        color: VColors.colorIcon,
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
-          ),
-          Text(
-            _favoriteMovie.movieName,
-            style: TextStyle(color: Colors.white),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
+            Text(
+              _favoriteMovie.movieName,
+              style: TextStyle(color: Colors.white),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
       ),
     );
   }
