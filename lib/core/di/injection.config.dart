@@ -37,6 +37,8 @@ import '../../features/movie/domain/usecases/GetMovieWatchingUseCase.dart'
     as _i332;
 import '../../features/movie/domain/usecases/GetMyFavoriteMovieUseCase.dart'
     as _i357;
+import '../../features/movie/domain/usecases/GetWatchedMovieUseCase.dart'
+    as _i673;
 import '../../features/movie/domain/usecases/HomePageMovieUseCase.dart'
     as _i755;
 import '../../features/movie/domain/usecases/SaveFavoriteMovieUseCase.dart'
@@ -139,10 +141,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i332.GetMovieWatchingUseCase>(
       () => _i332.GetMovieWatchingUseCase(gh<_i503.MovieRepository>()),
     );
+    gh.lazySingleton<_i673.GetWatchedMovieUseCase>(
+      () => _i673.GetWatchedMovieUseCase(gh<_i503.MovieRepository>()),
+    );
     gh.factory<_i874.SettingScreenManagement>(
       () => _i874.SettingScreenManagement(
         gh<_i357.GetMyFavoriteMovieUseCase>(),
         gh<_i332.GetMovieWatchingUseCase>(),
+        gh<_i673.GetWatchedMovieUseCase>(),
       ),
     );
     gh.factory<_i862.MovieDetailManagement>(

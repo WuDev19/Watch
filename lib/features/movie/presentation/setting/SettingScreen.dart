@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:movie_app/core/colors/VColors.dart';
 import 'package:movie_app/features/movie/domain/models/FavoriteMovieModel.dart';
+import 'package:movie_app/features/movie/domain/models/MovieWatching.dart';
+import 'package:movie_app/features/movie/presentation/common_widgets/ErrorHandleWidget.dart';
+import 'package:movie_app/features/movie/presentation/common_widgets/LoadingHandleWidget.dart';
 import 'package:movie_app/features/movie/presentation/setting/state/SettingState.dart';
 import 'package:movie_app/features/movie/presentation/setting/state_managment/SettingScreenManagement.dart';
 import 'package:movie_app/features/movie/presentation/setting/widgets/FavoriteMovieWidget.dart';
+import 'package:movie_app/features/movie/presentation/setting/widgets/WatchedMovieWidget.dart';
+import 'package:movie_app/features/movie/presentation/setting/widgets/WatchingMovieWidget.dart';
 import 'package:movie_app/utils/constants.dart';
 
 class SettingScreen extends StatefulWidget {
@@ -26,6 +32,8 @@ class _SettingScreenState extends State<SettingScreen> {
     super.initState();
     _settingScreenManagement = context.read<SettingScreenManagement>();
     _settingScreenManagement.getMyFavoriteMovie();
+    _settingScreenManagement.getWatchingMovie();
+    _settingScreenManagement.getWatchedMovie();
   }
 
   @override
@@ -76,27 +84,13 @@ class _SettingScreenState extends State<SettingScreen> {
                     ),
                     builder: (context, state) {
                       if (state.$3 != null) {
-                        return Center(
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: VColors.colorIcon,
-                            ),
-                            onPressed: () {
-                              _settingScreenManagement.getMyFavoriteMovie();
-                            },
-                            child: Text(
-                              Constants.retry,
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ),
+                        return ErrorHandleWidget(
+                          onTap: () =>
+                              _settingScreenManagement.getMyFavoriteMovie(),
                         );
                       }
                       if (state.$2) {
-                        return const Center(
-                          child: CircularProgressIndicator(
-                            color: VColors.colorIcon,
-                          ),
-                        );
+                        return const LoadingHandleWidget();
                       }
                       final favoriteMovies = state.$1;
                       return ListView.builder(
@@ -109,6 +103,9 @@ class _SettingScreenState extends State<SettingScreen> {
                               movieSlug: favorMovie.movieSlug,
                               thumbUrl: favorMovie.thumbUrl,
                             ),
+                            onChoose: (movieSlug) {
+                              context.push("/movie-details/$movieSlug");
+                            },
                           );
                         },
                         itemCount: favoriteMovies.length,
@@ -129,16 +126,42 @@ class _SettingScreenState extends State<SettingScreen> {
             const SizedBox(height: 10),
             SizedBox(
               height: _imageHeight,
-              child: ListView.builder(
-                itemBuilder: (context, index) => Container(
-                  height: 100,
-                  width: 100,
-                  color: Colors.cyan,
-                  margin: const EdgeInsets.all(10),
-                ),
-                itemCount: 20,
-                scrollDirection: Axis.horizontal,
-              ),
+              child:
+                  BlocSelector<
+                    SettingScreenManagement,
+                    SettingState,
+                    (List<MovieWatching>, bool, String?)
+                  >(
+                    selector: (state) => (
+                      state.watchingMovies,
+                      state.watchingLoading,
+                      state.watchingError,
+                    ),
+                    builder: (context, state) {
+                      if (state.$3 != null) {
+                        return ErrorHandleWidget(
+                          onTap: () =>
+                              _settingScreenManagement.getWatchingMovie(),
+                        );
+                      }
+                      if (state.$2) {
+                        return const LoadingHandleWidget();
+                      }
+                      final watchingMovies = state.$1;
+                      return ListView.builder(
+                        itemExtent: _imageWidth,
+                        itemBuilder: (context, index) {
+                          final movieWatching = watchingMovies[index];
+                          return WatchingMovieWidget(
+                            movieWatching: movieWatching,
+                            onChoose: (combine) {},
+                          );
+                        },
+                        itemCount: watchingMovies.length,
+                        scrollDirection: Axis.horizontal,
+                      );
+                    },
+                  ),
             ),
             const SizedBox(height: 20),
             Text(
@@ -152,16 +175,42 @@ class _SettingScreenState extends State<SettingScreen> {
             const SizedBox(height: 10),
             SizedBox(
               height: _imageHeight,
-              child: ListView.builder(
-                itemBuilder: (context, index) => Container(
-                  height: 100,
-                  width: 100,
-                  color: Colors.cyan,
-                  margin: const EdgeInsets.all(10),
-                ),
-                itemCount: 20,
-                scrollDirection: Axis.horizontal,
-              ),
+              child:
+                  BlocSelector<
+                    SettingScreenManagement,
+                    SettingState,
+                    (List<MovieWatching>, bool, String?)
+                  >(
+                    selector: (state) => (
+                      state.watchedMovies,
+                      state.watchedLoading,
+                      state.watchedError,
+                    ),
+                    builder: (context, state) {
+                      if (state.$3 != null) {
+                        return ErrorHandleWidget(
+                          onTap: () =>
+                              _settingScreenManagement.getWatchedMovie(),
+                        );
+                      }
+                      if (state.$2) {
+                        return const LoadingHandleWidget();
+                      }
+                      final watchedMovies = state.$1;
+                      return ListView.builder(
+                        itemExtent: _imageWidth,
+                        itemBuilder: (context, index) {
+                          final movieWatched = watchedMovies[index];
+                          return WatchedMovieWidget(
+                            movieWatching: movieWatched,
+                            onChoose: (combine) {},
+                          );
+                        },
+                        itemCount: watchedMovies.length,
+                        scrollDirection: Axis.horizontal,
+                      );
+                    },
+                  ),
             ),
           ],
         ),

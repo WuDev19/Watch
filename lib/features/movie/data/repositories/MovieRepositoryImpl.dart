@@ -252,4 +252,14 @@ class MovieRepositoryImpl implements MovieRepository {
         .findAll();
     return result.map((e) => MovieLocalMapper.mapToMovieWatching(e)).toList();
   }
+
+  @override
+  Future<List<MovieWatching>> getWatchedMovie() async {
+    final result = await _isar.movieHistorys
+        .where()
+        .progressEqualTo(1)
+        .sortByLastWatchedDesc()
+        .findAll();
+    return result.map((e) => MovieLocalMapper.mapToMovieWatching(e)).toList();
+  }
 }

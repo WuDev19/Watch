@@ -9,6 +9,9 @@ class SettingState extends Equatable {
   final List<MovieWatching> watchingMovies;
   final bool watchingLoading;
   final String? watchingError;
+  final List<MovieWatching> watchedMovies;
+  final bool watchedLoading;
+  final String? watchedError;
 
   const SettingState({
     this.favoriteMovies = const [],
@@ -17,6 +20,9 @@ class SettingState extends Equatable {
     this.watchingMovies = const [],
     this.watchingLoading = false,
     this.watchingError,
+    this.watchedMovies = const [],
+    this.watchedLoading = false,
+    this.watchedError,
   });
 
   SettingState copyWith({
@@ -26,6 +32,9 @@ class SettingState extends Equatable {
     List<MovieWatching>? watchingMovies,
     bool? watchingLoading,
     String? watchingError,
+    List<MovieWatching>? watchedMovies,
+    bool? watchedLoading,
+    String? watchedError,
   }) {
     return SettingState(
       favoriteMovies: favoriteMovies ?? this.favoriteMovies,
@@ -34,6 +43,9 @@ class SettingState extends Equatable {
       watchingMovies: watchingMovies ?? this.watchingMovies,
       watchingLoading: watchingLoading ?? this.watchingLoading,
       watchingError: watchingError,
+      watchedMovies: watchedMovies ?? this.watchedMovies,
+      watchedLoading: watchedLoading ?? this.watchedLoading,
+      watchedError: watchedError,
     );
   }
 
@@ -45,5 +57,8 @@ class SettingState extends Equatable {
     watchingMovies,
     watchingLoading,
     watchingError,
+    watchedMovies,
+    watchedLoading,
+    watchedError,
   ];
 }

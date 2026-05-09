@@ -53,4 +53,6 @@ abstract class MovieRepository {
   Future<List<FavoriteMovieModel>> getMyFavoriteMovie();
 
   Future<List<MovieWatching>> getWatchingMovie();
+
+  Future<List<MovieWatching>> getWatchedMovie();
 }
