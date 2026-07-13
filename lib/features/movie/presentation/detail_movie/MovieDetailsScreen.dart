@@ -470,7 +470,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                                     if (state.$1.isEmpty) {
                                       return Center(
                                         child: Text(
-                                          "Nothing to show",
+                                          Constants.nothing,
                                           style: TextStyle(color: Colors.white),
                                         ),
                                       );

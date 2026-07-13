@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:movie_app/core/colors/VColors.dart';
 import 'package:movie_app/features/movie/domain/models/FavoriteMovieModel.dart';
 import 'package:movie_app/features/movie/domain/models/MovieWatching.dart';
+import 'package:movie_app/features/movie/presentation/common_widgets/EmptyDataWidget.dart';
 import 'package:movie_app/features/movie/presentation/common_widgets/ErrorHandleWidget.dart';
 import 'package:movie_app/features/movie/presentation/common_widgets/LoadingHandleWidget.dart';
 import 'package:movie_app/features/movie/presentation/setting/state/SettingState.dart';
@@ -92,6 +93,9 @@ class _SettingScreenState extends State<SettingScreen> {
                       if (state.$2) {
                         return const LoadingHandleWidget();
                       }
+                      if (state.$1.isEmpty) {
+                        return const EmptyDataWidget();
+                      }
                       final favoriteMovies = state.$1;
                       return ListView.builder(
                         itemExtent: _imageWidth,
@@ -147,6 +151,9 @@ class _SettingScreenState extends State<SettingScreen> {
                       if (state.$2) {
                         return const LoadingHandleWidget();
                       }
+                      if (state.$1.isEmpty) {
+                        return const EmptyDataWidget();
+                      }
                       final watchingMovies = state.$1;
                       return ListView.builder(
                         itemExtent: _imageWidth,
@@ -154,7 +161,9 @@ class _SettingScreenState extends State<SettingScreen> {
                           final movieWatching = watchingMovies[index];
                           return WatchingMovieWidget(
                             movieWatching: movieWatching,
-                            onChoose: (combine) {},
+                            onChoose: (combine) {
+                              context.push("/watch-movie", extra: combine);
+                            },
                           );
                         },
                         itemCount: watchingMovies.length,
@@ -196,6 +205,9 @@ class _SettingScreenState extends State<SettingScreen> {
                       if (state.$2) {
                         return const LoadingHandleWidget();
                       }
+                      if (state.$1.isEmpty) {
+                        return const EmptyDataWidget();
+                      }
                       final watchedMovies = state.$1;
                       return ListView.builder(
                         itemExtent: _imageWidth,
@@ -203,7 +215,9 @@ class _SettingScreenState extends State<SettingScreen> {
                           final movieWatched = watchedMovies[index];
                           return WatchedMovieWidget(
                             movieWatching: movieWatched,
-                            onChoose: (combine) {},
+                            onChoose: (combine) {
+                              context.push("/watch-movie", extra: combine);
+                            },
                           );
                         },
                         itemCount: watchedMovies.length,

@@ -9,6 +9,7 @@ class Constants {
   static const String watchingMovie = "Watching Movie";
   static const String watchedMovie = "Watched Movie";
   static const String retry = "Retry";
+  static const String nothing = "Nothing to show";
   static double getHeightScreen(BuildContext context) {
     return MediaQuery.of(context).size.height;
   }
