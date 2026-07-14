@@ -274,4 +274,11 @@ class MovieRepositoryImpl implements MovieRepository {
         .where((element) => element.progress >= 1)
         .toList();
   }
+
+  @override
+  Future<void> deleteListFavoriteMovie(List<String> slug) async {
+    await _isar.writeTxn(() async {
+      await _isar.favoriteMovies.deleteAllByMovieSlug(slug);
+    });
+  }
 }

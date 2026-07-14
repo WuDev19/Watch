@@ -27,10 +27,14 @@ class _SettingScreenState extends State<SettingScreen> {
   late final double _imageHeight;
   late final double _imageWidth;
   late final SettingScreenManagement _settingScreenManagement;
+  late final ValueNotifier<Set<int>> _selectedFavorite;
+  late final ValueNotifier<bool> _isSelectedFavToDelete;
 
   @override
   void initState() {
     super.initState();
+    _selectedFavorite = ValueNotifier({});
+    _isSelectedFavToDelete = ValueNotifier(false);
     _settingScreenManagement = context.read<SettingScreenManagement>();
     _settingScreenManagement.getMyFavoriteMovie();
     _settingScreenManagement.getWatchingMovie();
@@ -48,11 +52,14 @@ class _SettingScreenState extends State<SettingScreen> {
 
   @override
   void dispose() {
+    _selectedFavorite.dispose();
+    _isSelectedFavToDelete.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final preDeleteFav = <String>{};
     return Container(
       color: VColors.blackBackground,
       padding: const EdgeInsets.all(10),
@@ -69,12 +76,39 @@ class _SettingScreenState extends State<SettingScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 20),
-              Text(
-                Constants.favoriteMovie,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: _secondaryTitle,
+              SizedBox(
+                width: _screenWidth,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      Constants.favoriteMovie,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: _secondaryTitle,
+                      ),
+                    ),
+                    ValueListenableBuilder(
+                      valueListenable: _isSelectedFavToDelete,
+                      builder: (context, value, child) {
+                        return value == true
+                            ? InkWell(
+                                onTap: () async {
+                                  _selectedFavorite.value = {};
+                                  _isSelectedFavToDelete.value = false;
+                                  await _settingScreenManagement
+                                      .deleteFavoriteMovie(
+                                        preDeleteFav.toList(),
+                                      );
+                                  _settingScreenManagement.getMyFavoriteMovie();
+                                },
+                                child: Icon(Icons.delete, color: Colors.red),
+                              )
+                            : SizedBox();
+                      },
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 10),
@@ -109,14 +143,72 @@ class _SettingScreenState extends State<SettingScreen> {
                           itemExtent: _imageWidth,
                           itemBuilder: (context, index) {
                             final favorMovie = favoriteMovies[index];
-                            return FavoriteMovieWidget(
-                              favoriteMovie: FavoriteMovieModel(
-                                movieName: favorMovie.movieName,
-                                movieSlug: favorMovie.movieSlug,
-                                thumbUrl: favorMovie.thumbUrl,
-                              ),
-                              onChoose: (movieSlug) {
-                                context.push("/movie-details/$movieSlug");
+                            return ValueListenableBuilder(
+                              valueListenable: _isSelectedFavToDelete,
+                              builder: (context, isDelete, child) {
+                                return InkWell(
+                                  onLongPress: () {
+                                    _selectedFavorite.value = {index};
+                                    _isSelectedFavToDelete.value = true;
+                                    preDeleteFav.add(favorMovie.movieSlug);
+                                  },
+                                  child: ValueListenableBuilder(
+                                    valueListenable: _selectedFavorite,
+                                    builder: (context, selectedPositions, child) {
+                                      final isThisSelected = selectedPositions
+                                          .contains(index);
+                                      return isDelete
+                                          ? AnimatedScale(
+                                              scale: isThisSelected ? 0.9 : 1.0,
+                                              duration: const Duration(
+                                                milliseconds: 500,
+                                              ),
+                                              child: FavoriteMovieWidget(
+                                                favoriteMovie:
+                                                    FavoriteMovieModel(
+                                                      movieName:
+                                                          favorMovie.movieName,
+                                                      movieSlug:
+                                                          favorMovie.movieSlug,
+                                                      thumbUrl:
+                                                          favorMovie.thumbUrl,
+                                                    ),
+                                                onChoose: (movieSlug) {
+                                                  if (isThisSelected) {
+                                                    selectedPositions.remove(
+                                                      index,
+                                                    );
+                                                    preDeleteFav.remove(
+                                                      favorMovie.movieSlug,
+                                                    );
+                                                  } else {
+                                                    selectedPositions.add(
+                                                      index,
+                                                    );
+                                                    preDeleteFav.add(
+                                                      favorMovie.movieSlug,
+                                                    );
+                                                  }
+                                                  _selectedFavorite.value =
+                                                      Set.of(selectedPositions);
+                                                },
+                                              ),
+                                            )
+                                          : FavoriteMovieWidget(
+                                              favoriteMovie: FavoriteMovieModel(
+                                                movieName: favorMovie.movieName,
+                                                movieSlug: favorMovie.movieSlug,
+                                                thumbUrl: favorMovie.thumbUrl,
+                                              ),
+                                              onChoose: (movieSlug) {
+                                                context.push(
+                                                  "/movie-details/$movieSlug",
+                                                );
+                                              },
+                                            );
+                                    },
+                                  ),
+                                );
                               },
                             );
                           },
