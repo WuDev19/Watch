@@ -7,6 +7,7 @@ import 'package:movie_app/features/movie/domain/models/CombineDetailAndWatch.dar
 import 'package:movie_app/features/movie/domain/models/MovieHistoryModel.dart';
 import 'package:movie_app/features/movie/presentation/watch_movie/state_management/WatchMovieManagement.dart';
 import 'package:movie_app/utils/MethodHelperUtils.dart';
+
 import '../../../../utils/constants.dart';
 import '../../domain/models/EpisodeList.dart';
 import '../../domain/models/FavoriteMovieModel.dart';
@@ -193,6 +194,7 @@ class _WatchMovieScreenState extends State<WatchMovieScreen>
                                   movieSlug:
                                       widget.combineDetailAndWatch!.movieSlug,
                                   thumbUrl:
+                                      Constants.baseImageUrl +
                                       widget.combineDetailAndWatch!.moviePoster,
                                 ),
                               );
