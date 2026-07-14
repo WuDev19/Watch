@@ -18,6 +18,7 @@ import 'package:movie_app/features/movie/domain/models/MovieWatched.dart';
 import 'package:movie_app/features/movie/domain/models/MovieWatching.dart';
 import 'package:movie_app/features/movie/domain/models/YearModel.dart';
 import 'package:movie_app/utils/constants.dart';
+
 import '../../../../domain/models/MovieHistoryModel.dart';
 
 abstract class MovieLocalMapper {
@@ -39,7 +40,10 @@ abstract class MovieLocalMapper {
     categorySlug: local.categorySlug,
   );
 
-  static MovieHistory mapToMovieHistory(MovieHistoryModel model) {
+  static MovieHistory mapToMovieHistory(
+    MovieHistoryModel model,
+    Set<int> watchedEpisode,
+  ) {
     final episodes = model.combineDetailAndWatch.movieWatch.episodes
         .map((e) => mapToEpisodeLocal(e))
         .toList();
@@ -49,15 +53,12 @@ abstract class MovieLocalMapper {
         .currentListEpisode
         .map((e) => mapToEpisodeListLocal(e))
         .toList();
-    final progress =
-        (model.currentEpisode / model.combineDetailAndWatch.total * 100)
-            .roundToDouble() /
-        100;
+
     return MovieHistory(
       name: model.combineDetailAndWatch.movieWatch.movieName,
       slug: model.combineDetailAndWatch.movieSlug,
       thumbUrl: model.combineDetailAndWatch.moviePoster,
-      progress: progress,
+      watchedEpisode: watchedEpisode.toList(),
       total: model.combineDetailAndWatch.total,
       currentEpisode: mapToEpisodeListLocal(
         model.combineDetailAndWatch.movieWatch.currentEpisode,
@@ -88,9 +89,39 @@ abstract class MovieLocalMapper {
       total: history.total,
       movieWatch: movieWatch,
     );
+    final totalEpisodes = history.total > 0 ? history.total : 1;
+    final progress = (history.watchedEpisode.toSet().length / totalEpisodes)
+        .toDouble()
+        .clamp(0.0, 1.0);
+
     return MovieWatching(
       combineDetailAndWatch: combineDetailAndWatch,
-      progress: history.progress,
+      progress: progress,
+    );
+  }
+
+  static MovieWatched mapToMovieWatched(MovieHistory history) {
+    final episodes = <Episode>[];
+    for (int i = 0; i < history.episodes.length; i++) {
+      episodes.add(mapToEpisode(history.episodes[i], i));
+    }
+    final currentListEpisode = history.currentListEpisode
+        .map((e) => mapToEpisodeList(e))
+        .toList();
+    final totalEpisodes = history.total > 0 ? history.total : 1;
+    final progress = (history.watchedEpisode.toSet().length / totalEpisodes)
+        .toDouble()
+        .clamp(0.0, 1.0);
+    return MovieWatched(
+      id: history.id,
+      name: history.name,
+      slug: history.slug,
+      thumbUrl: Constants.baseImageUrl + history.thumbUrl,
+      progress: progress,
+      currentEpisode: mapToEpisodeList(history.currentEpisode),
+      episodes: episodes,
+      currentListEpisode: currentListEpisode,
+      total: history.total,
     );
   }
 
@@ -154,27 +185,6 @@ abstract class MovieLocalMapper {
             paginationEpisode: pagination,
             isSelected: false,
           );
-  }
-
-  static MovieWatched mapToMovieWatched(MovieHistory history) {
-    final episodes = <Episode>[];
-    for (int i = 0; i < history.episodes.length; i++) {
-      episodes.add(mapToEpisode(history.episodes[i], i));
-    }
-    final currentListEpisode = history.currentListEpisode
-        .map((e) => mapToEpisodeList(e))
-        .toList();
-    return MovieWatched(
-      id: history.id,
-      name: history.name,
-      slug: history.slug,
-      thumbUrl: Constants.baseImageUrl + history.thumbUrl,
-      progress: history.progress,
-      currentEpisode: mapToEpisodeList(history.currentEpisode),
-      episodes: episodes,
-      currentListEpisode: currentListEpisode,
-      total: history.total,
-    );
   }
 
   static FavoriteMovie mapToFavoriteMovie(FavoriteMovieModel model) =>

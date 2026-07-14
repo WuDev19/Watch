@@ -44,18 +44,18 @@ const MovieHistorySchema = CollectionSchema(
       type: IsarType.dateTime,
     ),
     r'name': PropertySchema(id: 4, name: r'name', type: IsarType.string),
-    r'progress': PropertySchema(
-      id: 5,
-      name: r'progress',
-      type: IsarType.double,
-    ),
-    r'slug': PropertySchema(id: 6, name: r'slug', type: IsarType.string),
+    r'slug': PropertySchema(id: 5, name: r'slug', type: IsarType.string),
     r'thumbUrl': PropertySchema(
-      id: 7,
+      id: 6,
       name: r'thumbUrl',
       type: IsarType.string,
     ),
-    r'total': PropertySchema(id: 8, name: r'total', type: IsarType.long),
+    r'total': PropertySchema(id: 7, name: r'total', type: IsarType.long),
+    r'watchedEpisode': PropertySchema(
+      id: 8,
+      name: r'watchedEpisode',
+      type: IsarType.longList,
+    ),
   },
 
   estimateSize: _movieHistoryEstimateSize,
@@ -74,19 +74,6 @@ const MovieHistorySchema = CollectionSchema(
           name: r'slug',
           type: IndexType.hash,
           caseSensitive: true,
-        ),
-      ],
-    ),
-    r'progress': IndexSchema(
-      id: -3178071926120475027,
-      name: r'progress',
-      unique: false,
-      replace: false,
-      properties: [
-        IndexPropertySchema(
-          name: r'progress',
-          type: IndexType.value,
-          caseSensitive: false,
         ),
       ],
     ),
@@ -153,6 +140,7 @@ int _movieHistoryEstimateSize(
   bytesCount += 3 + object.name.length * 3;
   bytesCount += 3 + object.slug.length * 3;
   bytesCount += 3 + object.thumbUrl.length * 3;
+  bytesCount += 3 + object.watchedEpisode.length * 8;
   return bytesCount;
 }
 
@@ -182,10 +170,10 @@ void _movieHistorySerialize(
   );
   writer.writeDateTime(offsets[3], object.lastWatched);
   writer.writeString(offsets[4], object.name);
-  writer.writeDouble(offsets[5], object.progress);
-  writer.writeString(offsets[6], object.slug);
-  writer.writeString(offsets[7], object.thumbUrl);
-  writer.writeLong(offsets[8], object.total);
+  writer.writeString(offsets[5], object.slug);
+  writer.writeString(offsets[6], object.thumbUrl);
+  writer.writeLong(offsets[7], object.total);
+  writer.writeLongList(offsets[8], object.watchedEpisode);
 }
 
 MovieHistory _movieHistoryDeserialize(
@@ -220,10 +208,10 @@ MovieHistory _movieHistoryDeserialize(
         [],
     lastWatched: reader.readDateTime(offsets[3]),
     name: reader.readString(offsets[4]),
-    progress: reader.readDouble(offsets[5]),
-    slug: reader.readString(offsets[6]),
-    thumbUrl: reader.readString(offsets[7]),
-    total: reader.readLong(offsets[8]),
+    slug: reader.readString(offsets[5]),
+    thumbUrl: reader.readString(offsets[6]),
+    total: reader.readLong(offsets[7]),
+    watchedEpisode: reader.readLongList(offsets[8]) ?? [],
   );
   object.id = id;
   return object;
@@ -267,13 +255,13 @@ P _movieHistoryDeserializeProp<P>(
     case 4:
       return (reader.readString(offset)) as P;
     case 5:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 6:
       return (reader.readString(offset)) as P;
     case 7:
-      return (reader.readString(offset)) as P;
-    case 8:
       return (reader.readLong(offset)) as P;
+    case 8:
+      return (reader.readLongList(offset) ?? []) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -357,14 +345,6 @@ extension MovieHistoryQueryWhereSort
   QueryBuilder<MovieHistory, MovieHistory, QAfterWhere> anyId() {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(const IdWhereClause.any());
-    });
-  }
-
-  QueryBuilder<MovieHistory, MovieHistory, QAfterWhere> anyProgress() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(
-        const IndexWhereClause.any(indexName: r'progress'),
-      );
     });
   }
 
@@ -500,108 +480,6 @@ extension MovieHistoryQueryWhere
               ),
             );
       }
-    });
-  }
-
-  QueryBuilder<MovieHistory, MovieHistory, QAfterWhereClause> progressEqualTo(
-    double progress,
-  ) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(
-        IndexWhereClause.equalTo(indexName: r'progress', value: [progress]),
-      );
-    });
-  }
-
-  QueryBuilder<MovieHistory, MovieHistory, QAfterWhereClause>
-  progressNotEqualTo(double progress) {
-    return QueryBuilder.apply(this, (query) {
-      if (query.whereSort == Sort.asc) {
-        return query
-            .addWhereClause(
-              IndexWhereClause.between(
-                indexName: r'progress',
-                lower: [],
-                upper: [progress],
-                includeUpper: false,
-              ),
-            )
-            .addWhereClause(
-              IndexWhereClause.between(
-                indexName: r'progress',
-                lower: [progress],
-                includeLower: false,
-                upper: [],
-              ),
-            );
-      } else {
-        return query
-            .addWhereClause(
-              IndexWhereClause.between(
-                indexName: r'progress',
-                lower: [progress],
-                includeLower: false,
-                upper: [],
-              ),
-            )
-            .addWhereClause(
-              IndexWhereClause.between(
-                indexName: r'progress',
-                lower: [],
-                upper: [progress],
-                includeUpper: false,
-              ),
-            );
-      }
-    });
-  }
-
-  QueryBuilder<MovieHistory, MovieHistory, QAfterWhereClause>
-  progressGreaterThan(double progress, {bool include = false}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(
-        IndexWhereClause.between(
-          indexName: r'progress',
-          lower: [progress],
-          includeLower: include,
-          upper: [],
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<MovieHistory, MovieHistory, QAfterWhereClause> progressLessThan(
-    double progress, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(
-        IndexWhereClause.between(
-          indexName: r'progress',
-          lower: [],
-          upper: [progress],
-          includeUpper: include,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<MovieHistory, MovieHistory, QAfterWhereClause> progressBetween(
-    double lowerProgress,
-    double upperProgress, {
-    bool includeLower = true,
-    bool includeUpper = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(
-        IndexWhereClause.between(
-          indexName: r'progress',
-          lower: [lowerProgress],
-          includeLower: includeLower,
-          upper: [upperProgress],
-          includeUpper: includeUpper,
-        ),
-      );
     });
   }
 
@@ -1090,81 +968,6 @@ extension MovieHistoryQueryFilter
     });
   }
 
-  QueryBuilder<MovieHistory, MovieHistory, QAfterFilterCondition>
-  progressEqualTo(double value, {double epsilon = Query.epsilon}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(
-          property: r'progress',
-          value: value,
-
-          epsilon: epsilon,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<MovieHistory, MovieHistory, QAfterFilterCondition>
-  progressGreaterThan(
-    double value, {
-    bool include = false,
-    double epsilon = Query.epsilon,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(
-          include: include,
-          property: r'progress',
-          value: value,
-
-          epsilon: epsilon,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<MovieHistory, MovieHistory, QAfterFilterCondition>
-  progressLessThan(
-    double value, {
-    bool include = false,
-    double epsilon = Query.epsilon,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.lessThan(
-          include: include,
-          property: r'progress',
-          value: value,
-
-          epsilon: epsilon,
-        ),
-      );
-    });
-  }
-
-  QueryBuilder<MovieHistory, MovieHistory, QAfterFilterCondition>
-  progressBetween(
-    double lower,
-    double upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-    double epsilon = Query.epsilon,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.between(
-          property: r'progress',
-          lower: lower,
-          includeLower: includeLower,
-          upper: upper,
-          includeUpper: includeUpper,
-
-          epsilon: epsilon,
-        ),
-      );
-    });
-  }
-
   QueryBuilder<MovieHistory, MovieHistory, QAfterFilterCondition> slugEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -1509,6 +1312,114 @@ extension MovieHistoryQueryFilter
       );
     });
   }
+
+  QueryBuilder<MovieHistory, MovieHistory, QAfterFilterCondition>
+  watchedEpisodeElementEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'watchedEpisode', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<MovieHistory, MovieHistory, QAfterFilterCondition>
+  watchedEpisodeElementGreaterThan(int value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'watchedEpisode',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<MovieHistory, MovieHistory, QAfterFilterCondition>
+  watchedEpisodeElementLessThan(int value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'watchedEpisode',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<MovieHistory, MovieHistory, QAfterFilterCondition>
+  watchedEpisodeElementBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'watchedEpisode',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<MovieHistory, MovieHistory, QAfterFilterCondition>
+  watchedEpisodeLengthEqualTo(int length) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(r'watchedEpisode', length, true, length, true);
+    });
+  }
+
+  QueryBuilder<MovieHistory, MovieHistory, QAfterFilterCondition>
+  watchedEpisodeIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(r'watchedEpisode', 0, true, 0, true);
+    });
+  }
+
+  QueryBuilder<MovieHistory, MovieHistory, QAfterFilterCondition>
+  watchedEpisodeIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(r'watchedEpisode', 0, false, 999999, true);
+    });
+  }
+
+  QueryBuilder<MovieHistory, MovieHistory, QAfterFilterCondition>
+  watchedEpisodeLengthLessThan(int length, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(r'watchedEpisode', 0, true, length, include);
+    });
+  }
+
+  QueryBuilder<MovieHistory, MovieHistory, QAfterFilterCondition>
+  watchedEpisodeLengthGreaterThan(int length, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(r'watchedEpisode', length, include, 999999, true);
+    });
+  }
+
+  QueryBuilder<MovieHistory, MovieHistory, QAfterFilterCondition>
+  watchedEpisodeLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'watchedEpisode',
+        lower,
+        includeLower,
+        upper,
+        includeUpper,
+      );
+    });
+  }
 }
 
 extension MovieHistoryQueryObject
@@ -1562,18 +1473,6 @@ extension MovieHistoryQuerySortBy
   QueryBuilder<MovieHistory, MovieHistory, QAfterSortBy> sortByNameDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'name', Sort.desc);
-    });
-  }
-
-  QueryBuilder<MovieHistory, MovieHistory, QAfterSortBy> sortByProgress() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'progress', Sort.asc);
-    });
-  }
-
-  QueryBuilder<MovieHistory, MovieHistory, QAfterSortBy> sortByProgressDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'progress', Sort.desc);
     });
   }
 
@@ -1653,18 +1552,6 @@ extension MovieHistoryQuerySortThenBy
     });
   }
 
-  QueryBuilder<MovieHistory, MovieHistory, QAfterSortBy> thenByProgress() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'progress', Sort.asc);
-    });
-  }
-
-  QueryBuilder<MovieHistory, MovieHistory, QAfterSortBy> thenByProgressDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'progress', Sort.desc);
-    });
-  }
-
   QueryBuilder<MovieHistory, MovieHistory, QAfterSortBy> thenBySlug() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'slug', Sort.asc);
@@ -1718,12 +1605,6 @@ extension MovieHistoryQueryWhereDistinct
     });
   }
 
-  QueryBuilder<MovieHistory, MovieHistory, QDistinct> distinctByProgress() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'progress');
-    });
-  }
-
   QueryBuilder<MovieHistory, MovieHistory, QDistinct> distinctBySlug({
     bool caseSensitive = true,
   }) {
@@ -1743,6 +1624,13 @@ extension MovieHistoryQueryWhereDistinct
   QueryBuilder<MovieHistory, MovieHistory, QDistinct> distinctByTotal() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'total');
+    });
+  }
+
+  QueryBuilder<MovieHistory, MovieHistory, QDistinct>
+  distinctByWatchedEpisode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'watchedEpisode');
     });
   }
 }
@@ -1788,12 +1676,6 @@ extension MovieHistoryQueryProperty
     });
   }
 
-  QueryBuilder<MovieHistory, double, QQueryOperations> progressProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'progress');
-    });
-  }
-
   QueryBuilder<MovieHistory, String, QQueryOperations> slugProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'slug');
@@ -1809,6 +1691,13 @@ extension MovieHistoryQueryProperty
   QueryBuilder<MovieHistory, int, QQueryOperations> totalProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'total');
+    });
+  }
+
+  QueryBuilder<MovieHistory, List<int>, QQueryOperations>
+  watchedEpisodeProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'watchedEpisode');
     });
   }
 }

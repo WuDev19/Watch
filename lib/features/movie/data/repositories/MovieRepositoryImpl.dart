@@ -184,9 +184,18 @@ class MovieRepositoryImpl implements MovieRepository {
 
   @override
   Future<void> saveMovieHistory(MovieHistoryModel model) async {
-    final movieHistory = MovieLocalMapper.mapToMovieHistory(model);
+    //phải await ko là chưa kịp mở transaction thì hàm đã chạy xong
     await _isar.writeTxn(() async {
-      //phải await ko là chưa kịp mở transaction thì hàm đã chạy xong
+      final tmpMovieHistory = await _isar.movieHistorys
+          .where()
+          .slugEqualTo(model.combineDetailAndWatch.movieSlug)
+          .findFirst();
+      final watchedEpisode = tmpMovieHistory?.watchedEpisode.toSet() ?? {};
+      watchedEpisode.add(model.currentEpisode);
+      final movieHistory = MovieLocalMapper.mapToMovieHistory(
+        model,
+        watchedEpisode,
+      );
       await _isar.movieHistorys.put(
         movieHistory,
       ); //phải await ko là chưa kịp put thì transaction đã đóng
@@ -197,7 +206,6 @@ class MovieRepositoryImpl implements MovieRepository {
   Future<MovieWatched?> getLastWatchedMovie() async {
     final movieHistory = await _isar.movieHistorys
         .where()
-        .progressNotEqualTo(1)
         .sortByLastWatchedDesc()
         .limit(1)
         .findFirst();
@@ -247,19 +255,23 @@ class MovieRepositoryImpl implements MovieRepository {
   Future<List<MovieWatching>> getWatchingMovie() async {
     final result = await _isar.movieHistorys
         .where()
-        .progressLessThan(1)
         .sortByLastWatchedDesc()
         .findAll();
-    return result.map((e) => MovieLocalMapper.mapToMovieWatching(e)).toList();
+    return result
+        .map((e) => MovieLocalMapper.mapToMovieWatching(e))
+        .where((element) => element.progress < 1)
+        .toList();
   }
 
   @override
   Future<List<MovieWatching>> getWatchedMovie() async {
     final result = await _isar.movieHistorys
         .where()
-        .progressEqualTo(1)
         .sortByLastWatchedDesc()
         .findAll();
-    return result.map((e) => MovieLocalMapper.mapToMovieWatching(e)).toList();
+    return result
+        .map((e) => MovieLocalMapper.mapToMovieWatching(e))
+        .where((element) => element.progress >= 1)
+        .toList();
   }
 }
