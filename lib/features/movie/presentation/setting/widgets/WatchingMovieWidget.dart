@@ -7,13 +7,16 @@ import '../../../../../core/colors/VColors.dart';
 
 class WatchingMovieWidget extends StatelessWidget {
   final MovieWatching _movieWatching;
+  final bool _isSelected;
   final Function(CombineDetailAndWatch combine) _onChoose;
 
   const WatchingMovieWidget({
     super.key,
     required MovieWatching movieWatching,
+    required bool isSelected,
     required Function(CombineDetailAndWatch combine) onChoose,
   }) : _movieWatching = movieWatching,
+       _isSelected = isSelected,
        _onChoose = onChoose;
 
   @override
@@ -28,30 +31,40 @@ class WatchingMovieWidget extends StatelessWidget {
           children: [
             Stack(
               children: [
-                ClipRRect(
-                  borderRadius: const BorderRadiusGeometry.all(
-                    Radius.circular(20),
-                  ),
-                  child: AspectRatio(
-                    aspectRatio: 2 / 3,
-                    child: Image.network(
-                      Constants.baseImageUrl +
-                          _movieWatching.combineDetailAndWatch.moviePoster,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, url, error) =>
-                          const Icon(Icons.error, color: VColors.colorIcon),
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        final value =
-                            loadingProgress.cumulativeBytesLoaded /
-                            loadingProgress.expectedTotalBytes!;
-                        return Center(
-                          child: CircularProgressIndicator(
-                            value: value,
-                            color: VColors.colorIcon,
+                Container(
+                  decoration: _isSelected
+                      ? BoxDecoration(
+                          borderRadius: const BorderRadiusGeometry.all(
+                            Radius.circular(20),
                           ),
-                        );
-                      },
+                          border: BoxBorder.all(width: 2, color: Colors.red),
+                        )
+                      : null,
+                  child: ClipRRect(
+                    borderRadius: const BorderRadiusGeometry.all(
+                      Radius.circular(20),
+                    ),
+                    child: AspectRatio(
+                      aspectRatio: 2 / 3,
+                      child: Image.network(
+                        Constants.baseImageUrl +
+                            _movieWatching.combineDetailAndWatch.moviePoster,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, url, error) =>
+                            const Icon(Icons.error, color: VColors.colorIcon),
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          final value =
+                              loadingProgress.cumulativeBytesLoaded /
+                              loadingProgress.expectedTotalBytes!;
+                          return Center(
+                            child: CircularProgressIndicator(
+                              value: value,
+                              color: VColors.colorIcon,
+                            ),
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ),

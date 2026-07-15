@@ -25,6 +25,8 @@ import '../../features/movie/domain/usecases/DeleteFavoriteUseCase.dart'
     as _i380;
 import '../../features/movie/domain/usecases/DeleteListFavoriteMovieUseCase.dart'
     as _i193;
+import '../../features/movie/domain/usecases/DeleteMovieHistoryUseCase.dart'
+    as _i559;
 import '../../features/movie/domain/usecases/GetAllYearUseCase.dart' as _i414;
 import '../../features/movie/domain/usecases/GetCategoriesUseCase.dart'
     as _i716;
@@ -149,6 +151,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i193.DeleteListFavoriteMovieUseCase>(
       () => _i193.DeleteListFavoriteMovieUseCase(gh<_i503.MovieRepository>()),
     );
+    gh.lazySingleton<_i559.DeleteMovieHistoryUseCase>(
+      () => _i559.DeleteMovieHistoryUseCase(gh<_i503.MovieRepository>()),
+    );
     gh.factory<_i862.MovieDetailManagement>(
       () => _i862.MovieDetailManagement(
         gh<_i244.GetMovieDetailsInfoUseCase>(),
@@ -183,6 +188,7 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i332.GetMovieWatchingUseCase>(),
         gh<_i673.GetWatchedMovieUseCase>(),
         gh<_i193.DeleteListFavoriteMovieUseCase>(),
+        gh<_i559.DeleteMovieHistoryUseCase>(),
       ),
     );
     gh.factory<_i816.WatchMovieManagement>(

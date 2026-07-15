@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:movie_app/features/movie/domain/usecases/DeleteListFavoriteMovieUseCase.dart';
+import 'package:movie_app/features/movie/domain/usecases/DeleteMovieHistoryUseCase.dart';
 import 'package:movie_app/features/movie/domain/usecases/GetMovieWatchingUseCase.dart';
 import 'package:movie_app/features/movie/domain/usecases/GetMyFavoriteMovieUseCase.dart';
 import 'package:movie_app/features/movie/domain/usecases/GetWatchedMovieUseCase.dart';
@@ -12,12 +13,14 @@ class SettingScreenManagement extends Cubit<SettingState> {
   final GetMovieWatchingUseCase _getMovieWatchingUseCase;
   final GetWatchedMovieUseCase _getWatchedMovieUseCase;
   final DeleteListFavoriteMovieUseCase _deleteListFavoriteMovieUseCase;
+  final DeleteMovieHistoryUseCase _deleteMovieHistoryUseCase;
 
   SettingScreenManagement(
     this._getMyFavoriteMovieUseCase,
     this._getMovieWatchingUseCase,
     this._getWatchedMovieUseCase,
     this._deleteListFavoriteMovieUseCase,
+    this._deleteMovieHistoryUseCase,
   ) : super(SettingState());
 
   void getMyFavoriteMovie() async {
@@ -52,4 +55,7 @@ class SettingScreenManagement extends Cubit<SettingState> {
 
   Future<void> deleteFavoriteMovie(List<String> slug) =>
       _deleteListFavoriteMovieUseCase.execute(slug);
+
+  Future<void> deleteHistoryMovie(List<String> slug) =>
+      _deleteMovieHistoryUseCase.execute(slug);
 }

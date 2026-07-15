@@ -281,4 +281,11 @@ class MovieRepositoryImpl implements MovieRepository {
       await _isar.favoriteMovies.deleteAllByMovieSlug(slug);
     });
   }
+
+  @override
+  Future<void> deleteHistoryMovie(List<String> slug) async {
+    await _isar.writeTxn(() async {
+      await _isar.movieHistorys.deleteAllBySlug(slug);
+    });
+  }
 }
