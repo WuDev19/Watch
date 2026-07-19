@@ -69,32 +69,31 @@ class _SettingScreenState extends State<SettingScreen> {
     super.dispose();
   }
 
+  bool get _isAnySelected =>
+      _isSelectedFavToDelete.value ||
+      _isSelectedWatchingToDelete.value ||
+      _isSelectedWatchedToDelete.value;
+
   @override
   Widget build(BuildContext context) {
     final preDeleteFav = <String>{};
     final preDeleteWatching = <String>{};
     final preDeleteWatched = <String>{};
     return PopScope(
-      canPop: false, // để tự xử lý
+      canPop: !_isAnySelected,
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) return;
-        if (_isSelectedFavToDelete.value ||
-            _isSelectedWatchingToDelete.value ||
-            _isSelectedWatchedToDelete.value) {
-          if (_isSelectedFavToDelete.value) {
-            _isSelectedFavToDelete.value = false;
-            _selectedFavorite.value = {};
-          }
-          if (_isSelectedWatchingToDelete.value) {
-            _isSelectedWatchingToDelete.value = false;
-            _selectedWatching.value = {};
-          }
-          if (_isSelectedWatchedToDelete.value) {
-            _isSelectedWatchedToDelete.value = false;
-            _selectedWatched.value = {};
-          }
-        } else {
-          Navigator.of(context).pop();
+        if (_isSelectedFavToDelete.value) {
+          _isSelectedFavToDelete.value = false;
+          _selectedFavorite.value = {};
+        }
+        if (_isSelectedWatchingToDelete.value) {
+          _isSelectedWatchingToDelete.value = false;
+          _selectedWatching.value = {};
+        }
+        if (_isSelectedWatchedToDelete.value) {
+          _isSelectedWatchedToDelete.value = false;
+          _selectedWatched.value = {};
         }
       },
       child: Container(
@@ -344,7 +343,7 @@ class _SettingScreenState extends State<SettingScreen> {
                                             return isDelete
                                                 ? AnimatedScale(
                                                     scale: isThisSelected
-                                                        ? 0.9
+                                                        ? 0.8
                                                         : 1.0,
                                                     duration: const Duration(
                                                       milliseconds: 100,
@@ -521,10 +520,10 @@ class _SettingScreenState extends State<SettingScreen> {
                                                             combine.movieSlug,
                                                           );
                                                         }
-                                                        _selectedWatched
-                                                            .value = Set.of(
-                                                          selectedPositions,
-                                                        );
+                                                        _selectedWatched.value =
+                                                            Set.of(
+                                                              selectedPositions,
+                                                            );
                                                       },
                                                     ),
                                                   )
