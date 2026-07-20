@@ -69,273 +69,296 @@ class _SettingScreenState extends State<SettingScreen> {
     super.dispose();
   }
 
-  bool get _isAnySelected =>
-      _isSelectedFavToDelete.value ||
-      _isSelectedWatchingToDelete.value ||
-      _isSelectedWatchedToDelete.value;
-
   @override
   Widget build(BuildContext context) {
     final preDeleteFav = <String>{};
     final preDeleteWatching = <String>{};
     final preDeleteWatched = <String>{};
-    return PopScope(
-      canPop: !_isAnySelected,
-      onPopInvokedWithResult: (didPop, result) {
-        if (didPop) return;
-        if (_isSelectedFavToDelete.value) {
-          _isSelectedFavToDelete.value = false;
-          _selectedFavorite.value = {};
-        }
-        if (_isSelectedWatchingToDelete.value) {
-          _isSelectedWatchingToDelete.value = false;
-          _selectedWatching.value = {};
-        }
-        if (_isSelectedWatchedToDelete.value) {
-          _isSelectedWatchedToDelete.value = false;
-          _selectedWatched.value = {};
-        }
-      },
-      child: Container(
-        color: VColors.blackBackground,
-        padding: const EdgeInsets.all(10),
-        child: RefreshIndicator(
-          onRefresh: () async {
-            _settingScreenManagement.getMyFavoriteMovie();
-            _settingScreenManagement.getWatchingMovie();
-            _settingScreenManagement.getWatchedMovie();
+    return AnimatedBuilder(
+      animation: Listenable.merge([
+        _isSelectedFavToDelete,
+        _isSelectedWatchingToDelete,
+        _isSelectedWatchedToDelete,
+      ]),
+      builder: (BuildContext context, Widget? child) {
+        final isSelecting =
+            _isSelectedFavToDelete.value ||
+            _isSelectedWatchingToDelete.value ||
+            _isSelectedWatchedToDelete.value;
+        return PopScope(
+          canPop: !isSelecting,
+          onPopInvokedWithResult: (didPop, result) {
+            if (didPop) return;
+            if (_isSelectedFavToDelete.value ||
+                _isSelectedWatchingToDelete.value ||
+                _isSelectedWatchedToDelete.value) {
+              if (_isSelectedWatchedToDelete.value) {
+                _isSelectedWatchedToDelete.value = false;
+                _selectedWatched.value = {};
+              }
+              if (_isSelectedWatchingToDelete.value) {
+                _isSelectedWatchingToDelete.value = false;
+                _selectedWatching.value = {};
+              }
+              if (_isSelectedFavToDelete.value) {
+                _isSelectedFavToDelete.value = false;
+                _selectedFavorite.value = {};
+              }
+            }
           },
-          color: VColors.white,
-          backgroundColor: VColors.colorIcon,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: _screenWidth,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        Constants.favoriteMovie,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: _secondaryTitle,
-                        ),
+          child: Container(
+            color: VColors.blackBackground,
+            padding: const EdgeInsets.all(10),
+            child: RefreshIndicator(
+              onRefresh: () async {
+                _settingScreenManagement.getMyFavoriteMovie();
+                _settingScreenManagement.getWatchingMovie();
+                _settingScreenManagement.getWatchedMovie();
+              },
+              color: VColors.white,
+              backgroundColor: VColors.colorIcon,
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 20),
+                    SizedBox(
+                      width: _screenWidth,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            Constants.favoriteMovie,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: _secondaryTitle,
+                            ),
+                          ),
+                          ValueListenableBuilder(
+                            valueListenable: _isSelectedFavToDelete,
+                            builder: (context, value, child) {
+                              return value == true
+                                  ? InkWell(
+                                      onTap: () async {
+                                        _selectedFavorite.value = {};
+                                        _isSelectedFavToDelete.value = false;
+                                        await _settingScreenManagement
+                                            .deleteFavoriteMovie(
+                                              preDeleteFav.toList(),
+                                            );
+                                        _settingScreenManagement
+                                            .getMyFavoriteMovie();
+                                        preDeleteFav.clear();
+                                      },
+                                      child: Icon(
+                                        Icons.delete,
+                                        color: Colors.red,
+                                      ),
+                                    )
+                                  : SizedBox();
+                            },
+                          ),
+                        ],
                       ),
-                      ValueListenableBuilder(
-                        valueListenable: _isSelectedFavToDelete,
-                        builder: (context, value, child) {
-                          return value == true
-                              ? InkWell(
-                                  onTap: () async {
-                                    _selectedFavorite.value = {};
-                                    _isSelectedFavToDelete.value = false;
-                                    await _settingScreenManagement
-                                        .deleteFavoriteMovie(
-                                          preDeleteFav.toList(),
-                                        );
-                                    _settingScreenManagement
-                                        .getMyFavoriteMovie();
-                                    preDeleteFav.clear();
-                                  },
-                                  child: Icon(Icons.delete, color: Colors.red),
-                                )
-                              : SizedBox();
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 10),
-                SizedBox(
-                  height: _imageHeight,
-                  child:
-                      BlocSelector<
-                        SettingScreenManagement,
-                        SettingState,
-                        (List<FavoriteMovieModel>, bool, String?)
-                      >(
-                        selector: (state) => (
-                          state.favoriteMovies,
-                          state.favoriteLoading,
-                          state.favoriteError,
-                        ),
-                        builder: (context, state) {
-                          if (state.$3 != null) {
-                            return ErrorHandleWidget(
-                              onTap: () =>
-                                  _settingScreenManagement.getMyFavoriteMovie(),
-                            );
-                          }
-                          if (state.$2) {
-                            return const LoadingHandleWidget();
-                          }
-                          if (state.$1.isEmpty) {
-                            return const EmptyDataWidget();
-                          }
-                          final favoriteMovies = state.$1;
-                          return ListView.builder(
-                            itemExtent: _imageWidth,
-                            itemBuilder: (context, index) {
-                              final favorMovie = favoriteMovies[index];
-                              return ValueListenableBuilder(
-                                valueListenable: _isSelectedFavToDelete,
-                                builder: (context, isDelete, child) {
-                                  return InkWell(
-                                    onLongPress: () {
-                                      _selectedFavorite.value = {index};
-                                      _isSelectedFavToDelete.value = true;
-                                      preDeleteFav.add(favorMovie.movieSlug);
-                                    },
-                                    child: ValueListenableBuilder(
-                                      valueListenable: _selectedFavorite,
-                                      builder: (context, selectedPositions, child) {
-                                        final isThisSelected = selectedPositions
-                                            .contains(index);
-                                        return isDelete
-                                            ? AnimatedScale(
-                                                scale: isThisSelected
-                                                    ? 0.9
-                                                    : 1.0,
-                                                duration: const Duration(
-                                                  milliseconds: 100,
-                                                ),
-                                                child: FavoriteMovieWidget(
-                                                  isSelected: isThisSelected,
-                                                  favoriteMovie: favorMovie,
-                                                  onChoose: (movieSlug) {
-                                                    if (isThisSelected) {
-                                                      selectedPositions.remove(
-                                                        index,
-                                                      );
-                                                      preDeleteFav.remove(
-                                                        movieSlug,
-                                                      );
-                                                    } else {
-                                                      selectedPositions.add(
-                                                        index,
-                                                      );
-                                                      preDeleteFav.add(
-                                                        movieSlug,
-                                                      );
-                                                    }
-                                                    _selectedFavorite.value =
-                                                        Set.of(
+                    ),
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      height: _imageHeight,
+                      child:
+                          BlocSelector<
+                            SettingScreenManagement,
+                            SettingState,
+                            (List<FavoriteMovieModel>, bool, String?)
+                          >(
+                            selector: (state) => (
+                              state.favoriteMovies,
+                              state.favoriteLoading,
+                              state.favoriteError,
+                            ),
+                            builder: (context, state) {
+                              if (state.$3 != null) {
+                                return ErrorHandleWidget(
+                                  onTap: () => _settingScreenManagement
+                                      .getMyFavoriteMovie(),
+                                );
+                              }
+                              if (state.$2) {
+                                return const LoadingHandleWidget();
+                              }
+                              if (state.$1.isEmpty) {
+                                return const EmptyDataWidget();
+                              }
+                              final favoriteMovies = state.$1;
+                              return ListView.builder(
+                                itemExtent: _imageWidth,
+                                itemBuilder: (context, index) {
+                                  final favorMovie = favoriteMovies[index];
+                                  return ValueListenableBuilder(
+                                    valueListenable: _isSelectedFavToDelete,
+                                    builder: (context, isDelete, child) {
+                                      return InkWell(
+                                        onLongPress: () {
+                                          _selectedFavorite.value = {index};
+                                          _isSelectedFavToDelete.value = true;
+                                          preDeleteFav.add(
+                                            favorMovie.movieSlug,
+                                          );
+                                        },
+                                        child: ValueListenableBuilder(
+                                          valueListenable: _selectedFavorite,
+                                          builder: (context, selectedPositions, child) {
+                                            final isThisSelected =
+                                                selectedPositions.contains(
+                                                  index,
+                                                );
+                                            return isDelete
+                                                ? AnimatedScale(
+                                                    scale: isThisSelected
+                                                        ? 0.9
+                                                        : 1.0,
+                                                    duration: const Duration(
+                                                      milliseconds: 100,
+                                                    ),
+                                                    child: FavoriteMovieWidget(
+                                                      isSelected:
+                                                          isThisSelected,
+                                                      favoriteMovie: favorMovie,
+                                                      onChoose: (movieSlug) {
+                                                        if (isThisSelected) {
+                                                          selectedPositions
+                                                              .remove(index);
+                                                          preDeleteFav.remove(
+                                                            movieSlug,
+                                                          );
+                                                        } else {
+                                                          selectedPositions.add(
+                                                            index,
+                                                          );
+                                                          preDeleteFav.add(
+                                                            movieSlug,
+                                                          );
+                                                        }
+                                                        _selectedFavorite
+                                                            .value = Set.of(
                                                           selectedPositions,
                                                         );
-                                                  },
-                                                ),
-                                              )
-                                            : FavoriteMovieWidget(
-                                                isSelected: false,
-                                                favoriteMovie: favorMovie,
-                                                onChoose: (movieSlug) {
-                                                  context.push(
-                                                    "/movie-details/$movieSlug",
+                                                      },
+                                                    ),
+                                                  )
+                                                : FavoriteMovieWidget(
+                                                    isSelected: false,
+                                                    favoriteMovie: favorMovie,
+                                                    onChoose: (movieSlug) {
+                                                      context.push(
+                                                        "/movie-details/$movieSlug",
+                                                      );
+                                                    },
                                                   );
-                                                },
-                                              );
-                                      },
-                                    ),
-                                  );
-                                },
-                              );
-                            },
-                            itemCount: favoriteMovies.length,
-                            scrollDirection: Axis.horizontal,
-                          );
-                        },
-                      ),
-                ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: _screenWidth,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        Constants.watchingMovie,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: _secondaryTitle,
-                        ),
-                      ),
-                      ValueListenableBuilder(
-                        valueListenable: _isSelectedWatchingToDelete,
-                        builder: (context, value, child) {
-                          return value == true
-                              ? InkWell(
-                                  onTap: () async {
-                                    _selectedWatching.value = {};
-                                    _isSelectedWatchingToDelete.value = false;
-                                    await _settingScreenManagement
-                                        .deleteHistoryMovie(
-                                          preDeleteWatching.toList(),
-                                        );
-                                    _settingScreenManagement.getWatchingMovie();
-                                    preDeleteWatching.clear();
-                                  },
-                                  child: Icon(Icons.delete, color: Colors.red),
-                                )
-                              : SizedBox();
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 10),
-                SizedBox(
-                  height: _imageHeight,
-                  child:
-                      BlocSelector<
-                        SettingScreenManagement,
-                        SettingState,
-                        (List<MovieWatching>, bool, String?)
-                      >(
-                        selector: (state) => (
-                          state.watchingMovies,
-                          state.watchingLoading,
-                          state.watchingError,
-                        ),
-                        builder: (context, state) {
-                          if (state.$3 != null) {
-                            return ErrorHandleWidget(
-                              onTap: () =>
-                                  _settingScreenManagement.getWatchingMovie(),
-                            );
-                          }
-                          if (state.$2) {
-                            return const LoadingHandleWidget();
-                          }
-                          if (state.$1.isEmpty) {
-                            return const EmptyDataWidget();
-                          }
-                          final watchingMovies = state.$1;
-                          return ListView.builder(
-                            itemExtent: _imageWidth,
-                            itemBuilder: (context, index) {
-                              final movieWatching = watchingMovies[index];
-                              return ValueListenableBuilder(
-                                valueListenable: _isSelectedWatchingToDelete,
-                                builder: (context, isDelete, child) {
-                                  return InkWell(
-                                    onLongPress: () {
-                                      _selectedWatching.value = {index};
-                                      _isSelectedWatchingToDelete.value = true;
-                                      preDeleteWatching.add(
-                                        movieWatching
-                                            .combineDetailAndWatch
-                                            .movieSlug,
+                                          },
+                                        ),
                                       );
                                     },
-                                    child: ValueListenableBuilder(
-                                      valueListenable: _selectedWatching,
-                                      builder:
-                                          (context, selectedPositions, child) {
+                                  );
+                                },
+                                itemCount: favoriteMovies.length,
+                                scrollDirection: Axis.horizontal,
+                              );
+                            },
+                          ),
+                    ),
+                    const SizedBox(height: 20),
+                    SizedBox(
+                      width: _screenWidth,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            Constants.watchingMovie,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: _secondaryTitle,
+                            ),
+                          ),
+                          ValueListenableBuilder(
+                            valueListenable: _isSelectedWatchingToDelete,
+                            builder: (context, value, child) {
+                              return value == true
+                                  ? InkWell(
+                                      onTap: () async {
+                                        _selectedWatching.value = {};
+                                        _isSelectedWatchingToDelete.value =
+                                            false;
+                                        await _settingScreenManagement
+                                            .deleteHistoryMovie(
+                                              preDeleteWatching.toList(),
+                                            );
+                                        _settingScreenManagement
+                                            .getWatchingMovie();
+                                        preDeleteWatching.clear();
+                                      },
+                                      child: Icon(
+                                        Icons.delete,
+                                        color: Colors.red,
+                                      ),
+                                    )
+                                  : SizedBox();
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      height: _imageHeight,
+                      child:
+                          BlocSelector<
+                            SettingScreenManagement,
+                            SettingState,
+                            (List<MovieWatching>, bool, String?)
+                          >(
+                            selector: (state) => (
+                              state.watchingMovies,
+                              state.watchingLoading,
+                              state.watchingError,
+                            ),
+                            builder: (context, state) {
+                              if (state.$3 != null) {
+                                return ErrorHandleWidget(
+                                  onTap: () => _settingScreenManagement
+                                      .getWatchingMovie(),
+                                );
+                              }
+                              if (state.$2) {
+                                return const LoadingHandleWidget();
+                              }
+                              if (state.$1.isEmpty) {
+                                return const EmptyDataWidget();
+                              }
+                              final watchingMovies = state.$1;
+                              return ListView.builder(
+                                itemExtent: _imageWidth,
+                                itemBuilder: (context, index) {
+                                  final movieWatching = watchingMovies[index];
+                                  return ValueListenableBuilder(
+                                    valueListenable:
+                                        _isSelectedWatchingToDelete,
+                                    builder: (context, isDelete, child) {
+                                      return InkWell(
+                                        onLongPress: () {
+                                          _selectedWatching.value = {index};
+                                          _isSelectedWatchingToDelete.value =
+                                              true;
+                                          preDeleteWatching.add(
+                                            movieWatching
+                                                .combineDetailAndWatch
+                                                .movieSlug,
+                                          );
+                                        },
+                                        child: ValueListenableBuilder(
+                                          valueListenable: _selectedWatching,
+                                          builder: (context, selectedPositions, child) {
                                             final isThisSelected =
                                                 selectedPositions.contains(
                                                   index,
@@ -389,103 +412,108 @@ class _SettingScreenState extends State<SettingScreen> {
                                                     },
                                                   );
                                           },
-                                    ),
-                                  );
-                                },
-                              );
-                            },
-                            itemCount: watchingMovies.length,
-                            scrollDirection: Axis.horizontal,
-                          );
-                        },
-                      ),
-                ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: _screenWidth,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        Constants.watchedMovie,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: _secondaryTitle,
-                        ),
-                      ),
-                      ValueListenableBuilder(
-                        valueListenable: _isSelectedWatchedToDelete,
-                        builder: (context, value, child) {
-                          return value == true
-                              ? InkWell(
-                                  onTap: () async {
-                                    _selectedWatched.value = {};
-                                    _isSelectedWatchedToDelete.value = false;
-                                    await _settingScreenManagement
-                                        .deleteHistoryMovie(
-                                          preDeleteWatched.toList(),
-                                        );
-                                    _settingScreenManagement.getWatchedMovie();
-                                    preDeleteWatched.clear();
-                                  },
-                                  child: Icon(Icons.delete, color: Colors.red),
-                                )
-                              : SizedBox();
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 10),
-                SizedBox(
-                  height: _imageHeight,
-                  child:
-                      BlocSelector<
-                        SettingScreenManagement,
-                        SettingState,
-                        (List<MovieWatching>, bool, String?)
-                      >(
-                        selector: (state) => (
-                          state.watchedMovies,
-                          state.watchedLoading,
-                          state.watchedError,
-                        ),
-                        builder: (context, state) {
-                          if (state.$3 != null) {
-                            return ErrorHandleWidget(
-                              onTap: () =>
-                                  _settingScreenManagement.getWatchedMovie(),
-                            );
-                          }
-                          if (state.$2) {
-                            return const LoadingHandleWidget();
-                          }
-                          if (state.$1.isEmpty) {
-                            return const EmptyDataWidget();
-                          }
-                          final watchedMovies = state.$1;
-                          return ListView.builder(
-                            itemExtent: _imageWidth,
-                            itemBuilder: (context, index) {
-                              final movieWatched = watchedMovies[index];
-                              return ValueListenableBuilder(
-                                valueListenable: _isSelectedWatchedToDelete,
-                                builder: (context, isDelete, child) {
-                                  return InkWell(
-                                    onLongPress: () {
-                                      _selectedWatched.value = {index};
-                                      _isSelectedWatchedToDelete.value = true;
-                                      preDeleteWatched.add(
-                                        movieWatched
-                                            .combineDetailAndWatch
-                                            .movieSlug,
+                                        ),
                                       );
                                     },
-                                    child: ValueListenableBuilder(
-                                      valueListenable: _selectedWatched,
-                                      builder:
-                                          (context, selectedPositions, child) {
+                                  );
+                                },
+                                itemCount: watchingMovies.length,
+                                scrollDirection: Axis.horizontal,
+                              );
+                            },
+                          ),
+                    ),
+                    const SizedBox(height: 20),
+                    SizedBox(
+                      width: _screenWidth,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            Constants.watchedMovie,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: _secondaryTitle,
+                            ),
+                          ),
+                          ValueListenableBuilder(
+                            valueListenable: _isSelectedWatchedToDelete,
+                            builder: (context, value, child) {
+                              return value == true
+                                  ? InkWell(
+                                      onTap: () async {
+                                        _selectedWatched.value = {};
+                                        _isSelectedWatchedToDelete.value =
+                                            false;
+                                        await _settingScreenManagement
+                                            .deleteHistoryMovie(
+                                              preDeleteWatched.toList(),
+                                            );
+                                        _settingScreenManagement
+                                            .getWatchedMovie();
+                                        preDeleteWatched.clear();
+                                      },
+                                      child: Icon(
+                                        Icons.delete,
+                                        color: Colors.red,
+                                      ),
+                                    )
+                                  : SizedBox();
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      height: _imageHeight,
+                      child:
+                          BlocSelector<
+                            SettingScreenManagement,
+                            SettingState,
+                            (List<MovieWatching>, bool, String?)
+                          >(
+                            selector: (state) => (
+                              state.watchedMovies,
+                              state.watchedLoading,
+                              state.watchedError,
+                            ),
+                            builder: (context, state) {
+                              if (state.$3 != null) {
+                                return ErrorHandleWidget(
+                                  onTap: () => _settingScreenManagement
+                                      .getWatchedMovie(),
+                                );
+                              }
+                              if (state.$2) {
+                                return const LoadingHandleWidget();
+                              }
+                              if (state.$1.isEmpty) {
+                                return const EmptyDataWidget();
+                              }
+                              final watchedMovies = state.$1;
+                              return ListView.builder(
+                                itemExtent: _imageWidth,
+                                itemBuilder: (context, index) {
+                                  final movieWatched = watchedMovies[index];
+                                  return ValueListenableBuilder(
+                                    valueListenable: _isSelectedWatchedToDelete,
+                                    builder: (context, isDelete, child) {
+                                      return InkWell(
+                                        onLongPress: () {
+                                          _selectedWatched.value = {index};
+                                          _isSelectedWatchedToDelete.value =
+                                              true;
+                                          preDeleteWatched.add(
+                                            movieWatched
+                                                .combineDetailAndWatch
+                                                .movieSlug,
+                                          );
+                                        },
+                                        child: ValueListenableBuilder(
+                                          valueListenable: _selectedWatched,
+                                          builder: (context, selectedPositions, child) {
                                             final isThisSelected =
                                                 selectedPositions.contains(
                                                   index,
@@ -538,22 +566,24 @@ class _SettingScreenState extends State<SettingScreen> {
                                                     },
                                                   );
                                           },
-                                    ),
+                                        ),
+                                      );
+                                    },
                                   );
                                 },
+                                itemCount: watchedMovies.length,
+                                scrollDirection: Axis.horizontal,
                               );
                             },
-                            itemCount: watchedMovies.length,
-                            scrollDirection: Axis.horizontal,
-                          );
-                        },
-                      ),
+                          ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
