@@ -19,6 +19,14 @@ import '../../features/movie/data/datasources/remote/api/MovieApi.dart'
 import '../../features/movie/data/repositories/MovieRepositoryImpl.dart'
     as _i709;
 import '../../features/movie/domain/repositories/MovieRepository.dart' as _i503;
+import '../../features/movie/domain/usecases/CheckFavoriteMovieUseCase.dart'
+    as _i35;
+import '../../features/movie/domain/usecases/DeleteFavoriteUseCase.dart'
+    as _i380;
+import '../../features/movie/domain/usecases/DeleteListFavoriteMovieUseCase.dart'
+    as _i193;
+import '../../features/movie/domain/usecases/DeleteMovieHistoryUseCase.dart'
+    as _i559;
 import '../../features/movie/domain/usecases/GetAllYearUseCase.dart' as _i414;
 import '../../features/movie/domain/usecases/GetCategoriesUseCase.dart'
     as _i716;
@@ -29,8 +37,16 @@ import '../../features/movie/domain/usecases/GetMovieActorsUseCase.dart'
     as _i392;
 import '../../features/movie/domain/usecases/GetMovieDetailsInfoUseCase.dart'
     as _i244;
+import '../../features/movie/domain/usecases/GetMovieWatchingUseCase.dart'
+    as _i332;
+import '../../features/movie/domain/usecases/GetMyFavoriteMovieUseCase.dart'
+    as _i357;
+import '../../features/movie/domain/usecases/GetWatchedMovieUseCase.dart'
+    as _i673;
 import '../../features/movie/domain/usecases/HomePageMovieUseCase.dart'
     as _i755;
+import '../../features/movie/domain/usecases/SaveFavoriteMovieUseCase.dart'
+    as _i582;
 import '../../features/movie/domain/usecases/SaveMovieHistoryUseCase.dart'
     as _i749;
 import '../../features/movie/domain/usecases/SearchMovieAccordingToCategoryUseCase.dart'
@@ -48,6 +64,8 @@ import '../../features/movie/presentation/home/state_management/ScalePageBloc.da
     as _i673;
 import '../../features/movie/presentation/search/state_management/SearchPageManagement.dart'
     as _i964;
+import '../../features/movie/presentation/setting/state_managment/SettingScreenManagement.dart'
+    as _i874;
 import '../../features/movie/presentation/watch_movie/state_management/WatchMovieManagement.dart'
     as _i816;
 import 'IsarModule.dart' as _i448;
@@ -112,12 +130,39 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i749.SaveMovieHistoryUseCase>(
       () => _i749.SaveMovieHistoryUseCase(gh<_i503.MovieRepository>()),
     );
+    gh.lazySingleton<_i35.CheckFavoriteMovieUseCase>(
+      () => _i35.CheckFavoriteMovieUseCase(gh<_i503.MovieRepository>()),
+    );
+    gh.lazySingleton<_i582.SaveFavoriteMovieUseCase>(
+      () => _i582.SaveFavoriteMovieUseCase(gh<_i503.MovieRepository>()),
+    );
+    gh.lazySingleton<_i380.DeleteFavoriteUseCase>(
+      () => _i380.DeleteFavoriteUseCase(gh<_i503.MovieRepository>()),
+    );
+    gh.lazySingleton<_i357.GetMyFavoriteMovieUseCase>(
+      () => _i357.GetMyFavoriteMovieUseCase(gh<_i503.MovieRepository>()),
+    );
+    gh.lazySingleton<_i332.GetMovieWatchingUseCase>(
+      () => _i332.GetMovieWatchingUseCase(gh<_i503.MovieRepository>()),
+    );
+    gh.lazySingleton<_i673.GetWatchedMovieUseCase>(
+      () => _i673.GetWatchedMovieUseCase(gh<_i503.MovieRepository>()),
+    );
+    gh.lazySingleton<_i193.DeleteListFavoriteMovieUseCase>(
+      () => _i193.DeleteListFavoriteMovieUseCase(gh<_i503.MovieRepository>()),
+    );
+    gh.lazySingleton<_i559.DeleteMovieHistoryUseCase>(
+      () => _i559.DeleteMovieHistoryUseCase(gh<_i503.MovieRepository>()),
+    );
     gh.factory<_i862.MovieDetailManagement>(
       () => _i862.MovieDetailManagement(
         gh<_i244.GetMovieDetailsInfoUseCase>(),
         gh<_i392.GetMovieActorsUseCase>(),
         gh<_i63.SearchMovieAccordingToCategoryUseCase>(),
         gh<_i749.SaveMovieHistoryUseCase>(),
+        gh<_i35.CheckFavoriteMovieUseCase>(),
+        gh<_i582.SaveFavoriteMovieUseCase>(),
+        gh<_i380.DeleteFavoriteUseCase>(),
       ),
     );
     gh.factory<_i964.SearchPageManagement>(
@@ -137,8 +182,22 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i663.GetLastWatchedMovieUseCase>(),
       ),
     );
+    gh.factory<_i874.SettingScreenManagement>(
+      () => _i874.SettingScreenManagement(
+        gh<_i357.GetMyFavoriteMovieUseCase>(),
+        gh<_i332.GetMovieWatchingUseCase>(),
+        gh<_i673.GetWatchedMovieUseCase>(),
+        gh<_i193.DeleteListFavoriteMovieUseCase>(),
+        gh<_i559.DeleteMovieHistoryUseCase>(),
+      ),
+    );
     gh.factory<_i816.WatchMovieManagement>(
-      () => _i816.WatchMovieManagement(gh<_i749.SaveMovieHistoryUseCase>()),
+      () => _i816.WatchMovieManagement(
+        gh<_i749.SaveMovieHistoryUseCase>(),
+        gh<_i35.CheckFavoriteMovieUseCase>(),
+        gh<_i582.SaveFavoriteMovieUseCase>(),
+        gh<_i380.DeleteFavoriteUseCase>(),
+      ),
     );
     return this;
   }

@@ -18,7 +18,13 @@ class TitleMovieItem extends StatelessWidget {
     return Stack(
       children: [
         Container(
-          margin: const EdgeInsets.only(left: 20, right: 20),
+          decoration: const BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(20)),
+            boxShadow: [
+              BoxShadow(color: Colors.grey, spreadRadius: 5, blurRadius: 5),
+            ],
+          ),
+          margin: const EdgeInsets.only(top: 20, left: 20, right: 20),
           child: ClipRRect(
             borderRadius: const BorderRadiusGeometry.all(Radius.circular(20)),
             child: GestureDetector(
@@ -65,27 +71,30 @@ class TitleMovieItem extends StatelessWidget {
                 color: Colors.grey.withAlpha(50),
                 borderRadius: BorderRadiusGeometry.all(Radius.circular(20)),
               ),
-              child: Wrap(
-                crossAxisAlignment: WrapCrossAlignment.center,
-                alignment: WrapAlignment.spaceEvenly,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Icon(Icons.play_circle, color: VColors.colorIcon),
                   const SizedBox(width: 20),
-                  Column(
-                    children: [
-                      const Text(
-                        "Continue Watching",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        _movieWatched.name,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                  Expanded(
+                    child: Column(
+                      children: [
+                        const Text(
+                          "Continue Watching",
+                          style: TextStyle(color: Colors.white),
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 10),
+                        Text(
+                          _movieWatched.name,
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(width: 10),
                 ],

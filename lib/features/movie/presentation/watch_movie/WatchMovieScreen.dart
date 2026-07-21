@@ -7,8 +7,10 @@ import 'package:movie_app/features/movie/domain/models/CombineDetailAndWatch.dar
 import 'package:movie_app/features/movie/domain/models/MovieHistoryModel.dart';
 import 'package:movie_app/features/movie/presentation/watch_movie/state_management/WatchMovieManagement.dart';
 import 'package:movie_app/utils/MethodHelperUtils.dart';
+
 import '../../../../utils/constants.dart';
 import '../../domain/models/EpisodeList.dart';
+import '../../domain/models/FavoriteMovieModel.dart';
 import '../detail_movie/widgets/EpisodeItem.dart';
 import '../detail_movie/widgets/EpisodeWidget.dart';
 import '../detail_movie/widgets/PageWidget.dart';
@@ -27,9 +29,11 @@ class _WatchMovieScreenState extends State<WatchMovieScreen>
   BetterPlayerController? _betterPlayerController;
   late ValueNotifier<Map<int, List<EpisodeList>>> _paginationEpisodeValues;
   late ValueNotifier<List<EpisodeList>> _episodeListValues;
+  late ValueNotifier<bool> _addToFavoriteValues;
   late WatchMovieManagement _watchMovieManagement;
   final GlobalKey _betterPlayerKey = GlobalKey();
   bool _isInPipMode = false;
+  bool _isFavorite = false;
 
   @override
   void initState() {
@@ -50,6 +54,7 @@ class _WatchMovieScreenState extends State<WatchMovieScreen>
       _episodeListValues = ValueNotifier(
         widget.combineDetailAndWatch!.movieWatch.currentListEpisode,
       );
+      _addToFavoriteValues = ValueNotifier(false);
       _betterPlayerController = BetterPlayerController(
         const BetterPlayerConfiguration(
           autoPlay: false,
@@ -95,6 +100,13 @@ class _WatchMovieScreenState extends State<WatchMovieScreen>
         _betterPlayerController!.enterFullScreen();
         _betterPlayerController!.play();
       });
+
+      _watchMovieManagement
+          .checkFavoriteMovie(widget.combineDetailAndWatch!.movieSlug)
+          .then((value) {
+            _addToFavoriteValues.value = value;
+            _isFavorite = value;
+          });
     }
   }
 
@@ -117,12 +129,11 @@ class _WatchMovieScreenState extends State<WatchMovieScreen>
         state == AppLifecycleState.hidden) {
       _enterPipMode();
     } else if (state == AppLifecycleState.paused) {
-      if(_betterPlayerController?.isPlaying() == true){
+      if (_betterPlayerController?.isPlaying() == true) {
         await _betterPlayerController?.pause();
       }
-    }
-    else if (state == AppLifecycleState.resumed){
-      if(_betterPlayerController?.isPlaying() == false){
+    } else if (state == AppLifecycleState.resumed) {
+      if (_betterPlayerController?.isPlaying() == false) {
         await _betterPlayerController?.play();
       }
     }
@@ -151,16 +162,63 @@ class _WatchMovieScreenState extends State<WatchMovieScreen>
                       ),
                     ),
                     const SizedBox(height: 20),
-                    Container(
-                      margin: const EdgeInsets.only(left: 10),
-                      child: Text(
-                        widget.combineDetailAndWatch!.movieWatch.movieName,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            "Watching: ${widget.combineDetailAndWatch!.movieWatch.movieName}",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: secondaryTitle,
+                            ),
+                            textAlign: TextAlign.start,
+                          ),
                         ),
-                        textAlign: TextAlign.center,
-                      ),
+                        const SizedBox(width: 10),
+                        GestureDetector(
+                          onTap: () {
+                            if (_isFavorite) {
+                              _watchMovieManagement.deleteFavoriteMovie(
+                                widget.combineDetailAndWatch!.movieSlug,
+                              );
+                            } else {
+                              _watchMovieManagement.saveFavoriteMovie(
+                                FavoriteMovieModel(
+                                  movieName: widget
+                                      .combineDetailAndWatch!
+                                      .movieWatch
+                                      .movieName,
+                                  movieSlug:
+                                      widget.combineDetailAndWatch!.movieSlug,
+                                  thumbUrl:
+                                      Constants.baseImageUrl +
+                                      widget.combineDetailAndWatch!.moviePoster,
+                                ),
+                              );
+                            }
+                            _isFavorite = !_isFavorite;
+                            _addToFavoriteValues.value = _isFavorite;
+                          },
+                          child: ValueListenableBuilder(
+                            valueListenable: _addToFavoriteValues,
+                            builder: (context, value, child) {
+                              return value == true
+                                  ? Icon(
+                                      Icons.favorite,
+                                      color: VColors.colorIcon,
+                                    )
+                                  : Icon(
+                                      Icons.favorite_border,
+                                      color: VColors.colorIcon,
+                                    );
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                      ],
                     ),
                     const SizedBox(height: 10),
                     Container(

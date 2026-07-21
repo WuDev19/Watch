@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:movie_app/core/colors/VColors.dart';
 import 'package:movie_app/features/movie/domain/models/CombineDetailAndWatch.dart';
 import 'package:movie_app/features/movie/domain/models/EpisodeList.dart';
+import 'package:movie_app/features/movie/domain/models/FavoriteMovieModel.dart';
 import 'package:movie_app/features/movie/domain/models/MovieActors.dart';
 import 'package:movie_app/features/movie/domain/models/MovieDetails.dart';
 import 'package:movie_app/features/movie/domain/models/MovieHistoryModel.dart';
@@ -40,8 +41,10 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
   late MovieDetailManagement _movieDetailManagement;
   late ValueNotifier<Map<int, List<EpisodeList>>> _paginationEpisodeValues;
   late ValueNotifier<List<EpisodeList>> _episodeListValues;
+  late ValueNotifier<bool> _addToFavoriteValues;
   String? _categorySlug;
   bool _isLoading = false;
+  bool _isFavorite = false;
   Map<String, dynamic> dynamicCategory = {
     "sort_field": "year",
     "sort_type": "desc",
@@ -55,9 +58,15 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
     _relatedMovieController.addListener(_onLoadMore);
     _paginationEpisodeValues = ValueNotifier({});
     _episodeListValues = ValueNotifier([]);
+    _addToFavoriteValues = ValueNotifier(false);
     _movieDetailManagement = context.read<MovieDetailManagement>();
     _movieDetailManagement.getMovieDetailsInfo(widget._movieSlug);
     _movieDetailManagement.getMovieActors(widget._movieSlug);
+    _movieDetailManagement.checkFavoriteMovie(widget._movieSlug).then((value) {
+      _addToFavoriteValues.value = value;
+      _isFavorite = value;
+    });
+    //thêm cái call từ local xem có trong local chưa
   }
 
   @override
@@ -93,8 +102,8 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
     final heightImage = 0.4 * _screenHeight;
     final marginContent = 0.65 * _screenHeight / _screenHeight;
     final secondaryTitle = Constants.calculateFontSize(context, 1.1);
-    final double itemWidth = (_screenWidth - 32) / 3;
-    final double itemHeight = itemWidth * 1.5 + 40;
+    final double itemWidth = Constants.getImageWidth(context);
+    final double itemHeight = Constants.getImageHeight(context);
     return Scaffold(
       body: // detail movie
       BlocSelector<MovieDetailManagement, MovieDetailState, (MovieDetails?, bool, String?)>(
@@ -461,7 +470,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                                     if (state.$1.isEmpty) {
                                       return Center(
                                         child: Text(
-                                          "Nothing to show",
+                                          Constants.nothing,
                                           style: TextStyle(color: Colors.white),
                                         ),
                                       );
@@ -497,6 +506,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                           ),
                           SizedBox(
                             height: itemHeight - 40,
+                            // do ko lấy thêm chữ nên trừ đi khoảng 40
                             child:
                                 BlocSelector<
                                   MovieDetailManagement,
@@ -530,7 +540,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                                                 );
                                           },
                                           child: Text(
-                                            "Retry",
+                                            Constants.retry,
                                             style: TextStyle(
                                               color: Colors.white,
                                             ),
@@ -626,6 +636,31 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
         const SizedBox(width: 10),
         Text(movieDetail.country, style: TextStyle(color: Colors.white)),
         const SizedBox(width: 10),
+        GestureDetector(
+          onTap: () {
+            if (_isFavorite) {
+              _movieDetailManagement.deleteFavoriteMovie(movieDetail.slug);
+            } else {
+              _movieDetailManagement.saveFavoriteMovie(
+                FavoriteMovieModel(
+                  movieName: movieDetail.name,
+                  movieSlug: movieDetail.slug,
+                  thumbUrl: Constants.baseImageUrl + movieDetail.thumbUrl,
+                ),
+              );
+            }
+            _isFavorite = !_isFavorite;
+            _addToFavoriteValues.value = _isFavorite;
+          },
+          child: ValueListenableBuilder(
+            valueListenable: _addToFavoriteValues,
+            builder: (context, value, child) {
+              return value == true
+                  ? Icon(Icons.favorite, color: VColors.colorIcon)
+                  : Icon(Icons.favorite_border, color: VColors.colorIcon);
+            },
+          ),
+        ),
       ],
     );
   }

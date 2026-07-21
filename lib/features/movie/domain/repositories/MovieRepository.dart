@@ -1,8 +1,10 @@
 import 'package:movie_app/features/movie/domain/models/CountryModel.dart';
+import 'package:movie_app/features/movie/domain/models/FavoriteMovieModel.dart';
 import 'package:movie_app/features/movie/domain/models/MovieActors.dart';
 import 'package:movie_app/features/movie/domain/models/CategoryModel.dart';
 import 'package:movie_app/features/movie/domain/models/MovieDetails.dart';
 import 'package:movie_app/features/movie/domain/models/MovieDisplay.dart';
+import 'package:movie_app/features/movie/domain/models/MovieWatching.dart';
 import 'package:movie_app/features/movie/domain/models/SearchMovieDisplay.dart';
 import 'package:movie_app/features/movie/domain/models/YearModel.dart';
 import '../models/MovieHistoryModel.dart';
@@ -41,4 +43,20 @@ abstract class MovieRepository {
   Future<void> saveMovieHistory(MovieHistoryModel model);
 
   Future<MovieWatched?> getLastWatchedMovie();
+
+  Future<bool> checkFavoriteMovie(String slug);
+
+  Future<void> saveFavoriteMovie(FavoriteMovieModel model);
+
+  Future<void> deleteFavoriteMovie(String slug);
+
+  Future<List<FavoriteMovieModel>> getMyFavoriteMovie();
+
+  Future<List<MovieWatching>> getWatchingMovie();
+
+  Future<List<MovieWatching>> getWatchedMovie();
+
+  Future<void> deleteListFavoriteMovie(List<String> slug);
+
+  Future<void> deleteHistoryMovie(List<String> slug);
 }

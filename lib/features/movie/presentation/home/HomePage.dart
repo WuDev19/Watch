@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:movie_app/core/colors/VColors.dart';
 import 'package:movie_app/features/movie/domain/models/MovieDisplay.dart';
 import 'package:movie_app/features/movie/domain/models/MovieWatched.dart';
+import 'package:movie_app/features/movie/presentation/common_widgets/EmptyDataWidget.dart';
 import 'package:movie_app/features/movie/presentation/home/state_management/HomeBloc.dart';
 import 'package:movie_app/features/movie/presentation/home/state/HomeState.dart';
 import 'package:movie_app/features/movie/presentation/home/state_management/ScalePageBloc.dart';
@@ -67,7 +68,11 @@ class _HomePageState extends State<HomePage>
                   ),
                   builder: (context, state) {
                     if (state.$2) {
-                      return const Center(child: CircularProgressIndicator());
+                      return Center(
+                        child: CircularProgressIndicator(
+                          color: VColors.colorIcon,
+                        ),
+                      );
                     }
                     if (state.$3 != null) {
                       return Center(
@@ -78,7 +83,7 @@ class _HomePageState extends State<HomePage>
                       );
                     }
                     if (state.$1 == null) {
-                      return const Center(child: CircularProgressIndicator());
+                      return const EmptyDataWidget();
                     }
                     return TitleMovieItem(state.$1!);
                   },

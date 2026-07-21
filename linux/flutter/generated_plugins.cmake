@@ -4,6 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   isar_community_flutter_libs
+  rive_native
   url_launcher_linux
 )
 

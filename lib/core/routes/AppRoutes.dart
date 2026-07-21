@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:movie_app/core/colors/VColors.dart';
 import 'package:movie_app/features/movie/domain/models/CombineDetailAndWatch.dart';
+import 'package:movie_app/features/movie/presentation/auth/LoginScreen.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/MovieDetailsScreen.dart';
 import 'package:movie_app/features/movie/presentation/home/HomePage.dart';
 import 'package:movie_app/features/movie/presentation/search/SearchPage.dart';
+import 'package:movie_app/features/movie/presentation/setting/SettingScreen.dart';
 import 'package:movie_app/features/movie/presentation/watch_movie/WatchMovieScreen.dart';
 
 class AppRoutes {
@@ -17,6 +19,14 @@ class AppRoutes {
         builder: (context, state, navigationShell) {
           return Scaffold(
             appBar: AppBar(
+              actions: navigationShell.currentIndex == 2
+                  ? [
+                      Container(
+                        margin: const EdgeInsets.only(right: 10),
+                        child: Icon(Icons.settings, color: Colors.grey),
+                      ),
+                    ]
+                  : null,
               title: const Text(
                 "Watch",
                 style: TextStyle(
@@ -53,6 +63,15 @@ class AppRoutes {
                     color: VColors.colorIcon,
                   ),
                 ),
+                NavigationDestination(
+                  icon: const Icon(Icons.person, size: 50),
+                  label: "",
+                  selectedIcon: const Icon(
+                    Icons.person,
+                    size: 50,
+                    color: VColors.colorIcon,
+                  ),
+                ),
               ],
             ),
           );
@@ -74,6 +93,16 @@ class AppRoutes {
                 path: "/search",
                 builder: (context, state) {
                   return const SearchPage();
+                },
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: "/setting",
+                builder: (context, state) {
+                  return const SettingScreen();
                 },
               ),
             ],
@@ -123,6 +152,31 @@ class AppRoutes {
                   );
                   return ScaleTransition(
                     scale: curved,
+                    child: ClipRRect(
+                      borderRadius: BorderRadiusGeometry.all(
+                        Radius.circular(20),
+                      ),
+                      child: child,
+                    ),
+                  );
+                },
+          );
+        },
+      ),
+      GoRoute(
+        path: "/login",
+        pageBuilder: (context, state) {
+          return CustomTransitionPage(
+            child: const LoginScreen(),
+            transitionDuration: const Duration(milliseconds: 500),
+            reverseTransitionDuration: const Duration(milliseconds: 500),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+                  return SlideTransition(
+                    position: Tween(
+                      begin: const Offset(0, 1),
+                      end: Offset.zero,
+                    ).animate(animation),
                     child: ClipRRect(
                       borderRadius: BorderRadiusGeometry.all(
                         Radius.circular(20),

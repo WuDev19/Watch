@@ -1,8 +1,12 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
+import 'package:movie_app/features/movie/domain/models/FavoriteMovieModel.dart';
 import 'package:movie_app/features/movie/domain/models/MovieHistoryModel.dart';
+import 'package:movie_app/features/movie/domain/usecases/CheckFavoriteMovieUseCase.dart';
+import 'package:movie_app/features/movie/domain/usecases/DeleteFavoriteUseCase.dart';
 import 'package:movie_app/features/movie/domain/usecases/GetMovieActorsUseCase.dart';
 import 'package:movie_app/features/movie/domain/usecases/GetMovieDetailsInfoUseCase.dart';
+import 'package:movie_app/features/movie/domain/usecases/SaveFavoriteMovieUseCase.dart';
 import 'package:movie_app/features/movie/domain/usecases/SaveMovieHistoryUseCase.dart';
 import 'package:movie_app/features/movie/domain/usecases/SearchMovieAccordingToCategoryUseCase.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/state/MovieDetailState.dart';
@@ -14,12 +18,18 @@ class MovieDetailManagement extends Cubit<MovieDetailState> {
   final SearchMovieAccordingToCategoryUseCase
   _searchMovieAccordingToCategoryUseCase;
   final SaveMovieHistoryUseCase _saveMovieHistoryUseCase;
+  final CheckFavoriteMovieUseCase _checkFavoriteMovieUseCase;
+  final SaveFavoriteMovieUseCase _saveFavoriteMovieUseCase;
+  final DeleteFavoriteUseCase _deleteFavoriteUseCase;
 
   MovieDetailManagement(
     this._getMovieDetailsInfoUseCase,
     this._getMovieActorsUseCase,
     this._searchMovieAccordingToCategoryUseCase,
     this._saveMovieHistoryUseCase,
+    this._checkFavoriteMovieUseCase,
+    this._saveFavoriteMovieUseCase,
+    this._deleteFavoriteUseCase,
   ) : super(MovieDetailState());
 
   void getMovieDetailsInfo(String slug) async {
@@ -123,4 +133,14 @@ class MovieDetailManagement extends Cubit<MovieDetailState> {
     await _saveMovieHistoryUseCase.execute(model);
   }
 
+  void saveFavoriteMovie(FavoriteMovieModel model) async {
+    await _saveFavoriteMovieUseCase.execute(model);
+  }
+
+  void deleteFavoriteMovie(String slug) async {
+    await _deleteFavoriteUseCase.execute(slug);
+  }
+
+  Future<bool> checkFavoriteMovie(String slug) =>
+      _checkFavoriteMovieUseCase.execute(slug);
 }
