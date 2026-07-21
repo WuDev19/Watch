@@ -372,8 +372,6 @@ class _SettingScreenState extends State<SettingScreen> {
                                                       milliseconds: 100,
                                                     ),
                                                     child: WatchingMovieWidget(
-                                                      isSelected:
-                                                          isThisSelected,
                                                       movieWatching:
                                                           movieWatching,
                                                       onChoose: (combine) {
@@ -401,7 +399,6 @@ class _SettingScreenState extends State<SettingScreen> {
                                                     ),
                                                   )
                                                 : WatchingMovieWidget(
-                                                    isSelected: false,
                                                     movieWatching:
                                                         movieWatching,
                                                     onChoose: (combine) {
@@ -576,6 +573,30 @@ class _SettingScreenState extends State<SettingScreen> {
                               );
                             },
                           ),
+                    ),
+                    const SizedBox(height: 20),
+                    Align(
+                      alignment: AlignmentGeometry.topCenter,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          context.push("/login");
+                        },
+                        style: ElevatedButton.styleFrom(
+                          elevation: 8,
+                          backgroundColor: VColors.colorIcon,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadiusGeometry.circular(10),
+                            side: BorderSide(width: 2, color: VColors.white),
+                          ),
+                        ),
+                        child: Text(
+                          "Đăng nhập",
+                          style: TextStyle(
+                            color: VColors.white,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),

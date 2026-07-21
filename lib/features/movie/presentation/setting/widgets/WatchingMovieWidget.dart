@@ -8,16 +8,13 @@ import '../../../../../core/colors/VColors.dart';
 
 class WatchingMovieWidget extends StatelessWidget {
   final MovieWatching _movieWatching;
-  final bool _isSelected;
   final Function(CombineDetailAndWatch combine) _onChoose;
 
   const WatchingMovieWidget({
     super.key,
     required MovieWatching movieWatching,
-    required bool isSelected,
     required Function(CombineDetailAndWatch combine) onChoose,
   }) : _movieWatching = movieWatching,
-       _isSelected = isSelected,
        _onChoose = onChoose;
 
   @override

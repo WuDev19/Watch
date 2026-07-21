@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:movie_app/core/colors/VColors.dart';
 import 'package:movie_app/features/movie/domain/models/CombineDetailAndWatch.dart';
+import 'package:movie_app/features/movie/presentation/auth/LoginScreen.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/MovieDetailsScreen.dart';
 import 'package:movie_app/features/movie/presentation/home/HomePage.dart';
 import 'package:movie_app/features/movie/presentation/search/SearchPage.dart';
@@ -151,6 +152,31 @@ class AppRoutes {
                   );
                   return ScaleTransition(
                     scale: curved,
+                    child: ClipRRect(
+                      borderRadius: BorderRadiusGeometry.all(
+                        Radius.circular(20),
+                      ),
+                      child: child,
+                    ),
+                  );
+                },
+          );
+        },
+      ),
+      GoRoute(
+        path: "/login",
+        pageBuilder: (context, state) {
+          return CustomTransitionPage(
+            child: const LoginScreen(),
+            transitionDuration: const Duration(milliseconds: 500),
+            reverseTransitionDuration: const Duration(milliseconds: 500),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+                  return SlideTransition(
+                    position: Tween(
+                      begin: const Offset(0, 1),
+                      end: Offset.zero,
+                    ).animate(animation),
                     child: ClipRRect(
                       borderRadius: BorderRadiusGeometry.all(
                         Radius.circular(20),

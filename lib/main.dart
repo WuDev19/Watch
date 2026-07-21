@@ -7,6 +7,7 @@ import 'package:movie_app/features/movie/presentation/home/state_management/Home
 import 'package:movie_app/features/movie/presentation/search/state_management/SearchPageManagement.dart';
 import 'package:movie_app/features/movie/presentation/setting/state_managment/SettingScreenManagement.dart';
 import 'package:movie_app/features/movie/presentation/watch_movie/state_management/WatchMovieManagement.dart';
+import 'package:rive/rive.dart';
 
 import 'features/movie/presentation/detail_movie/state_management/MovieDetailManagement.dart';
 import 'features/movie/presentation/home/state_management/ScalePageBloc.dart';
@@ -14,6 +15,7 @@ import 'features/movie/presentation/home/state_management/ScalePageBloc.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await configurationDependencies(Environment.dev);
+  await RiveNative.init();
   runApp(const MyApp());
 }
 
