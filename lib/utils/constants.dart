@@ -10,6 +10,8 @@ class Constants {
   static const String watchedMovie = "Watched Movie";
   static const String retry = "Retry";
   static const String nothing = "Nothing to show";
+  static const String forgotPassword = "Forgot password?";
+  static const String appName = "Watch";
   static double getHeightScreen(BuildContext context) {
     return MediaQuery.of(context).size.height;
   }

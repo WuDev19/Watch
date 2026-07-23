@@ -1,14 +1,17 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:movie_app/features/movie/domain/usecases/LoginUseCase.dart';
+import 'package:movie_app/features/movie/domain/usecases/SendEmailResetPasswordUseCase.dart';
 
 import '../state/AuthState.dart';
 
 @injectable
 class LoginCubit extends Cubit<AuthState> {
   final LoginUseCase _loginUseCase;
+  final SendEmailResetPasswordUseCase _sendEmailResetPasswordUseCase;
 
-  LoginCubit(this._loginUseCase) : super(Initial());
+  LoginCubit(this._loginUseCase, this._sendEmailResetPasswordUseCase)
+    : super(Initial());
 
   void login(String email, String password) async {
     try {
@@ -20,4 +23,6 @@ class LoginCubit extends Cubit<AuthState> {
     }
   }
 
+  Future<void> sendEmailResetPassword(String email) =>
+      _sendEmailResetPasswordUseCase.execute(email);
 }

@@ -10,4 +10,6 @@ abstract class AuthRemoteDataSource {
   Future<UserCredential> signInEmailPassword(String email, String password);
 
   Future<bool> signOut();
+
+  Future<void> sendEmailResetPassword(String email);
 }

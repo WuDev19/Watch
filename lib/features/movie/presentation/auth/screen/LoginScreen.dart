@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:movie_app/features/movie/presentation/auth/state/AuthState.dart';
 import 'package:movie_app/features/movie/presentation/auth/state_management/LoginCubit.dart';
+import 'package:movie_app/features/movie/presentation/auth/widgets/ForgotPassword.dart';
 import 'package:rive/rive.dart';
 
 import '../../../../../core/colors/VColors.dart';
@@ -166,7 +167,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             style: TextStyle(color: VColors.white),
                             decoration: InputDecoration(
                               prefixIcon: const Icon(
-                                Icons.password,
+                                Icons.lock_outline,
                                 color: VColors.white,
                               ),
                               suffixIcon: GestureDetector(
@@ -211,11 +212,43 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(height: 10),
                       Align(
                         alignment: AlignmentGeometry.centerRight,
-                        child: Text(
-                          "Forgot password?",
-                          style: TextStyle(
-                            color: VColors.white,
-                            fontStyle: FontStyle.italic,
+                        child: InkWell(
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return ForgotPassword(
+                                  onSend: (email) {
+                                    _loginCubit
+                                        .sendEmailResetPassword(email)
+                                        .then((value) {
+                                          if (!context.mounted) return;
+                                          context.pop(email);
+                                          _showSnackBar(
+                                            context,
+                                            "Vui lòng kiểm tra email để đặt lại mật khẩu",
+                                          );
+                                        })
+                                        .catchError((e) {
+                                          if (!context.mounted) return;
+                                          _showSnackBar(
+                                            context,
+                                            "Gửi email reset không thành công, "
+                                            "hãy đảm bảo rằng bạn nhập email đã đăng ký tài khoản trước đó "
+                                            "hoặc kiểm tra lại kết nối mạng",
+                                          );
+                                        });
+                                  },
+                                );
+                              },
+                            );
+                          },
+                          child: Text(
+                            Constants.forgotPassword,
+                            style: TextStyle(
+                              color: VColors.white,
+                              fontStyle: FontStyle.italic,
+                            ),
                           ),
                         ),
                       ),
@@ -245,12 +278,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         break;
                       case Error():
                         context.pop();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              "Đăng nhập không thành công, xem lại thông tin hoặc kết nối mạng",
-                            ),
-                          ),
+                        _showSnackBar(
+                          context,
+                          "Đăng nhập không thành công, xem lại thông tin hoặc kết nối mạng",
                         );
                         break;
                     }
@@ -311,5 +341,11 @@ class _LoginScreenState extends State<LoginScreen> {
         ],
       ),
     );
+  }
+
+  void _showSnackBar(BuildContext context, String content) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(content)));
   }
 }

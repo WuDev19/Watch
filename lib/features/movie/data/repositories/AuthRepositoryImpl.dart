@@ -32,4 +32,9 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<void> signIn(String email, String password) {
     return _authRemoteDataSource.signInEmailPassword(email, password);
   }
+
+  @override
+  Future<void> sendEmailResetPassword(String email) {
+    return _authRemoteDataSource.sendEmailResetPassword(email);
+  }
 }

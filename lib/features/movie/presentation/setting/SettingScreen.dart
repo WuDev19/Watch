@@ -128,10 +128,17 @@ class _SettingScreenState extends State<SettingScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      alignment: AlignmentGeometry.topRight,
-                      margin: const EdgeInsets.only(right: 10),
-                      child: Icon(Icons.settings, color: Colors.grey),
+                    ValueListenableBuilder(
+                      valueListenable: _isLogout,
+                      builder: (context, isLogout, child) {
+                        return !isLogout
+                            ? SizedBox()
+                            : Container(
+                                alignment: AlignmentGeometry.topRight,
+                                margin: const EdgeInsets.only(right: 10),
+                                child: Icon(Icons.settings, color: Colors.grey),
+                              );
+                      },
                     ),
                     const SizedBox(height: 20),
                     SizedBox(
@@ -604,6 +611,7 @@ class _SettingScreenState extends State<SettingScreen> {
                                   final result = await _settingScreenManagement
                                       .logout();
                                   _isLogout.value = !result;
+                                  if (!context.mounted) return;
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text("Đăng xuất thành công"),

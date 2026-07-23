@@ -10,6 +10,8 @@ import 'package:movie_app/features/movie/presentation/search/SearchPage.dart';
 import 'package:movie_app/features/movie/presentation/setting/SettingScreen.dart';
 import 'package:movie_app/features/movie/presentation/watch_movie/WatchMovieScreen.dart';
 
+import '../../utils/constants.dart';
+
 class AppRoutes {
   AppRoutes._();
 
@@ -21,7 +23,7 @@ class AppRoutes {
           return Scaffold(
             appBar: AppBar(
               title: const Text(
-                "Watch",
+                Constants.appName,
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,

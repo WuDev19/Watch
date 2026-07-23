@@ -8,4 +8,6 @@ abstract class AuthRepository {
   Future<bool> signOut();
 
   Future<bool> checkLogin();
+
+  Future<void> sendEmailResetPassword(String email);
 }
