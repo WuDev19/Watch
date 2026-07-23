@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:movie_app/core/colors/VColors.dart';
 import 'package:movie_app/features/movie/domain/models/CombineDetailAndWatch.dart';
-import 'package:movie_app/features/movie/presentation/auth/LoginScreen.dart';
+import 'package:movie_app/features/movie/presentation/auth/screen/LoginScreen.dart';
+import 'package:movie_app/features/movie/presentation/auth/screen/SignUpScreen.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/MovieDetailsScreen.dart';
 import 'package:movie_app/features/movie/presentation/home/HomePage.dart';
 import 'package:movie_app/features/movie/presentation/search/SearchPage.dart';
@@ -173,6 +174,12 @@ class AppRoutes {
                   );
                 },
           );
+        },
+      ),
+      GoRoute(
+        path: "/sign-up",
+        builder: (context, state) {
+          return const SignUpScreen();
         },
       ),
     ],

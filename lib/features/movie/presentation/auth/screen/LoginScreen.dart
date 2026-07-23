@@ -5,8 +5,8 @@ import 'package:movie_app/features/movie/presentation/auth/state/AuthState.dart'
 import 'package:movie_app/features/movie/presentation/auth/state_management/LoginCubit.dart';
 import 'package:rive/rive.dart';
 
-import '../../../../core/colors/VColors.dart';
-import '../../../../utils/constants.dart';
+import '../../../../../core/colors/VColors.dart';
+import '../../../../../utils/constants.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -110,7 +110,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                 controller: _riveController!,
                                 fit: Fit.cover,
                               )
-                            : const Center(child: CircularProgressIndicator()),
+                            : const Center(
+                                child: CircularProgressIndicator(
+                                  color: VColors.colorIcon,
+                                ),
+                              ),
                       ),
                     ),
                   ),
@@ -126,21 +130,25 @@ class _LoginScreenState extends State<LoginScreen> {
                           .toDouble();
                     },
                     keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(
-                      prefixIcon: Icon(Icons.email),
+                    style: TextStyle(color: VColors.white),
+                    decoration: InputDecoration(
+                      prefixIcon: Icon(Icons.email, color: VColors.white),
                       focusedBorder: OutlineInputBorder(
                         borderSide: BorderSide(
                           width: 2,
                           color: VColors.colorIcon,
                         ),
-                        borderRadius: BorderRadius.all(Radius.circular(20)),
+                        borderRadius: BorderRadius.all(Radius.circular(16)),
                       ),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(20)),
+                        borderRadius: BorderRadius.all(Radius.circular(16)),
                       ),
-                      fillColor: Colors.white,
+                      fillColor: Colors.grey[800],
                       filled: true,
-                      hintText: "Enter email",
+                      labelText: "Enter email",
+                      labelStyle: TextStyle(
+                        color: VColors.white.withAlpha(190),
+                      ),
                     ),
                   ),
                 ),
@@ -155,8 +163,12 @@ class _LoginScreenState extends State<LoginScreen> {
                           return TextField(
                             controller: _passwordController,
                             focusNode: password,
+                            style: TextStyle(color: VColors.white),
                             decoration: InputDecoration(
-                              prefixIcon: const Icon(Icons.password),
+                              prefixIcon: const Icon(
+                                Icons.password,
+                                color: VColors.white,
+                              ),
                               suffixIcon: GestureDetector(
                                 onTap: () {
                                   _isShowPassword.value =
@@ -164,28 +176,33 @@ class _LoginScreenState extends State<LoginScreen> {
                                   _stateMachine?.boolean('isHandsUp')?.value =
                                       !_isShowPassword.value;
                                 },
-                                child: isShow
-                                    ? const Icon(Icons.visibility_off)
-                                    : const Icon(Icons.visibility),
+                                child: Icon(
+                                  isShow
+                                      ? Icons.visibility_off
+                                      : Icons.visibility,
+                                  color: VColors.white,
+                                ),
                               ),
-
                               focusedBorder: const OutlineInputBorder(
                                 borderSide: BorderSide(
                                   width: 2,
                                   color: VColors.colorIcon,
                                 ),
                                 borderRadius: BorderRadius.all(
-                                  Radius.circular(20),
+                                  Radius.circular(16),
                                 ),
                               ),
-                              fillColor: Colors.white,
+                              fillColor: Colors.grey[800],
                               filled: true,
                               border: const OutlineInputBorder(
                                 borderRadius: BorderRadius.all(
-                                  Radius.circular(20),
+                                  Radius.circular(16),
                                 ),
                               ),
-                              hintText: "Enter password",
+                              labelText: "Enter password",
+                              labelStyle: TextStyle(
+                                color: VColors.white.withAlpha(190),
+                              ),
                             ),
                             obscureText: !isShow,
                           );
@@ -261,21 +278,31 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(
-                        text: "Don't have an account? ",
-                        style: TextStyle(color: VColors.white),
-                      ),
-                      TextSpan(
-                        text: "Register now",
-                        style: TextStyle(
-                          color: VColors.colorIcon,
-                          fontWeight: FontWeight.bold,
+                GestureDetector(
+                  onTap: () async {
+                    final result = await context.push("/sign-up") as String?;
+                    if (result != null) {
+                      final data = result.split("_");
+                      _emailController.text = data[0];
+                      _passwordController.text = data[1];
+                    }
+                  },
+                  child: Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: "Don't have an account? ",
+                          style: TextStyle(color: VColors.white),
                         ),
-                      ),
-                    ],
+                        TextSpan(
+                          text: "Register now",
+                          style: TextStyle(
+                            color: VColors.colorIcon,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],

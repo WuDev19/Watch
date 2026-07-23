@@ -68,8 +68,11 @@ import '../../features/movie/domain/usecases/SearchMovieAccordingToCountryUseCas
 import '../../features/movie/domain/usecases/SearchMovieAccordingToYearUseCase.dart'
     as _i2;
 import '../../features/movie/domain/usecases/SearchMovieUseCase.dart' as _i68;
+import '../../features/movie/domain/usecases/SignUpUseCase.dart' as _i204;
 import '../../features/movie/presentation/auth/state_management/LoginCubit.dart'
     as _i837;
+import '../../features/movie/presentation/auth/state_management/SignUpCubit.dart'
+    as _i736;
 import '../../features/movie/presentation/detail_movie/state_management/MovieDetailManagement.dart'
     as _i862;
 import '../../features/movie/presentation/home/state_management/HomeBloc.dart'
@@ -194,6 +197,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i671.LogoutUseCase>(
       () => _i671.LogoutUseCase(gh<_i337.AuthRepository>()),
     );
+    gh.lazySingleton<_i204.SignUpUseCase>(
+      () => _i204.SignUpUseCase(gh<_i337.AuthRepository>()),
+    );
     gh.factory<_i862.MovieDetailManagement>(
       () => _i862.MovieDetailManagement(
         gh<_i244.GetMovieDetailsInfoUseCase>(),
@@ -235,6 +241,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i837.LoginCubit>(
       () => _i837.LoginCubit(gh<_i681.LoginUseCase>()),
+    );
+    gh.factory<_i736.SignUpCubit>(
+      () => _i736.SignUpCubit(gh<_i204.SignUpUseCase>()),
     );
     gh.factory<_i816.WatchMovieManagement>(
       () => _i816.WatchMovieManagement(

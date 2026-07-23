@@ -90,6 +90,7 @@ flutter:
     - assets/lottie/loading.json
     - assets/images/try.png
     - assets/images/movie_bg.jpg
+    - assets/images/movie_sign_up.png
     - assets/rive/teddy.riv
   #   - images/a_dot_ham.jpeg
 
