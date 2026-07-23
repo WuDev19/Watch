@@ -17,7 +17,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<void> signOut() {
+  Future<bool> signOut() {
     return _authRemoteDataSource.signOut();
   }
 

@@ -224,7 +224,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         break;
                       case Success():
                         context.pop();
-                        context.pop();
+                        context.pop(true);
                         break;
                       case Error():
                         context.pop();

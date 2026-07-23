@@ -10,6 +10,7 @@ import 'package:movie_app/features/movie/presentation/common_widgets/LoadingHand
 import 'package:movie_app/features/movie/presentation/setting/state/SettingState.dart';
 import 'package:movie_app/features/movie/presentation/setting/state_managment/SettingScreenManagement.dart';
 import 'package:movie_app/features/movie/presentation/setting/widgets/FavoriteMovieWidget.dart';
+import 'package:movie_app/features/movie/presentation/setting/widgets/LogInOutButton.dart';
 import 'package:movie_app/features/movie/presentation/setting/widgets/WatchedMovieWidget.dart';
 import 'package:movie_app/features/movie/presentation/setting/widgets/WatchingMovieWidget.dart';
 import 'package:movie_app/utils/constants.dart';
@@ -33,6 +34,7 @@ class _SettingScreenState extends State<SettingScreen> {
   late final ValueNotifier<bool> _isSelectedWatchingToDelete;
   late final ValueNotifier<Set<int>> _selectedWatched;
   late final ValueNotifier<bool> _isSelectedWatchedToDelete;
+  late final ValueNotifier<bool> _isLogout;
 
   @override
   void initState() {
@@ -43,10 +45,14 @@ class _SettingScreenState extends State<SettingScreen> {
     _isSelectedWatchingToDelete = ValueNotifier(false);
     _selectedWatched = ValueNotifier({});
     _isSelectedWatchedToDelete = ValueNotifier(false);
+    _isLogout = ValueNotifier(true);
     _settingScreenManagement = context.read<SettingScreenManagement>();
     _settingScreenManagement.getMyFavoriteMovie();
     _settingScreenManagement.getWatchingMovie();
     _settingScreenManagement.getWatchedMovie();
+    _settingScreenManagement.checkLogin().then(
+      (value) => _isLogout.value = value,
+    );
   }
 
   @override
@@ -66,6 +72,7 @@ class _SettingScreenState extends State<SettingScreen> {
     _isSelectedWatchingToDelete.dispose();
     _selectedWatched.dispose();
     _isSelectedWatchedToDelete.dispose();
+    _isLogout.dispose();
     super.dispose();
   }
 
@@ -121,6 +128,11 @@ class _SettingScreenState extends State<SettingScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Container(
+                      alignment: AlignmentGeometry.topRight,
+                      margin: const EdgeInsets.only(right: 10),
+                      child: Icon(Icons.settings, color: Colors.grey),
+                    ),
                     const SizedBox(height: 20),
                     SizedBox(
                       width: _screenWidth,
@@ -575,27 +587,32 @@ class _SettingScreenState extends State<SettingScreen> {
                           ),
                     ),
                     const SizedBox(height: 20),
-                    Align(
-                      alignment: AlignmentGeometry.topCenter,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          context.push("/login");
-                        },
-                        style: ElevatedButton.styleFrom(
-                          elevation: 8,
-                          backgroundColor: VColors.colorIcon,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadiusGeometry.circular(10),
-                            side: BorderSide(width: 2, color: VColors.white),
-                          ),
-                        ),
-                        child: Text(
-                          "Đăng nhập",
-                          style: TextStyle(
-                            color: VColors.white,
-                          ),
-                        ),
-                      ),
+                    ValueListenableBuilder(
+                      valueListenable: _isLogout,
+                      builder: (context, isLogout, child) {
+                        return !isLogout
+                            ? LogInOutButton(
+                                onDo: () async {
+                                  final result =
+                                      await context.push("/login") as bool;
+                                  _isLogout.value = result;
+                                },
+                                text: "Đăng nhập",
+                              )
+                            : LogInOutButton(
+                                onDo: () async {
+                                  final result = await _settingScreenManagement
+                                      .logout();
+                                  _isLogout.value = !result;
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text("Đăng xuất thành công"),
+                                    ),
+                                  );
+                                },
+                                text: "Đăng xuất",
+                              );
+                      },
                     ),
                   ],
                 ),

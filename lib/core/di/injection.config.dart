@@ -30,6 +30,7 @@ import '../../features/movie/domain/repositories/AuthRepository.dart' as _i337;
 import '../../features/movie/domain/repositories/MovieRepository.dart' as _i503;
 import '../../features/movie/domain/usecases/CheckFavoriteMovieUseCase.dart'
     as _i35;
+import '../../features/movie/domain/usecases/CheckLoginUseCase.dart' as _i475;
 import '../../features/movie/domain/usecases/DeleteFavoriteUseCase.dart'
     as _i380;
 import '../../features/movie/domain/usecases/DeleteListFavoriteMovieUseCase.dart'
@@ -55,6 +56,7 @@ import '../../features/movie/domain/usecases/GetWatchedMovieUseCase.dart'
 import '../../features/movie/domain/usecases/HomePageMovieUseCase.dart'
     as _i755;
 import '../../features/movie/domain/usecases/LoginUseCase.dart' as _i681;
+import '../../features/movie/domain/usecases/LogoutUseCase.dart' as _i671;
 import '../../features/movie/domain/usecases/SaveFavoriteMovieUseCase.dart'
     as _i582;
 import '../../features/movie/domain/usecases/SaveMovieHistoryUseCase.dart'
@@ -186,6 +188,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i681.LoginUseCase>(
       () => _i681.LoginUseCase(gh<_i337.AuthRepository>()),
     );
+    gh.lazySingleton<_i475.CheckLoginUseCase>(
+      () => _i475.CheckLoginUseCase(gh<_i337.AuthRepository>()),
+    );
+    gh.lazySingleton<_i671.LogoutUseCase>(
+      () => _i671.LogoutUseCase(gh<_i337.AuthRepository>()),
+    );
     gh.factory<_i862.MovieDetailManagement>(
       () => _i862.MovieDetailManagement(
         gh<_i244.GetMovieDetailsInfoUseCase>(),
@@ -195,6 +203,17 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i35.CheckFavoriteMovieUseCase>(),
         gh<_i582.SaveFavoriteMovieUseCase>(),
         gh<_i380.DeleteFavoriteUseCase>(),
+      ),
+    );
+    gh.factory<_i874.SettingScreenManagement>(
+      () => _i874.SettingScreenManagement(
+        gh<_i357.GetMyFavoriteMovieUseCase>(),
+        gh<_i332.GetMovieWatchingUseCase>(),
+        gh<_i673.GetWatchedMovieUseCase>(),
+        gh<_i193.DeleteListFavoriteMovieUseCase>(),
+        gh<_i559.DeleteMovieHistoryUseCase>(),
+        gh<_i475.CheckLoginUseCase>(),
+        gh<_i671.LogoutUseCase>(),
       ),
     );
     gh.factory<_i964.SearchPageManagement>(
@@ -216,15 +235,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i837.LoginCubit>(
       () => _i837.LoginCubit(gh<_i681.LoginUseCase>()),
-    );
-    gh.factory<_i874.SettingScreenManagement>(
-      () => _i874.SettingScreenManagement(
-        gh<_i357.GetMyFavoriteMovieUseCase>(),
-        gh<_i332.GetMovieWatchingUseCase>(),
-        gh<_i673.GetWatchedMovieUseCase>(),
-        gh<_i193.DeleteListFavoriteMovieUseCase>(),
-        gh<_i559.DeleteMovieHistoryUseCase>(),
-      ),
     );
     gh.factory<_i816.WatchMovieManagement>(
       () => _i816.WatchMovieManagement(

@@ -9,5 +9,5 @@ abstract class AuthRemoteDataSource {
 
   Future<UserCredential> signInEmailPassword(String email, String password);
 
-  Future<void> signOut();
+  Future<bool> signOut();
 }

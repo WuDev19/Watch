@@ -19,14 +19,6 @@ class AppRoutes {
         builder: (context, state, navigationShell) {
           return Scaffold(
             appBar: AppBar(
-              actions: navigationShell.currentIndex == 2
-                  ? [
-                      Container(
-                        margin: const EdgeInsets.only(right: 10),
-                        child: Icon(Icons.settings, color: Colors.grey),
-                      ),
-                    ]
-                  : null,
               title: const Text(
                 "Watch",
                 style: TextStyle(

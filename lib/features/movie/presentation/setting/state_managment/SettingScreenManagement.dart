@@ -1,10 +1,12 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
+import 'package:movie_app/features/movie/domain/usecases/CheckLoginUseCase.dart';
 import 'package:movie_app/features/movie/domain/usecases/DeleteListFavoriteMovieUseCase.dart';
 import 'package:movie_app/features/movie/domain/usecases/DeleteMovieHistoryUseCase.dart';
 import 'package:movie_app/features/movie/domain/usecases/GetMovieWatchingUseCase.dart';
 import 'package:movie_app/features/movie/domain/usecases/GetMyFavoriteMovieUseCase.dart';
 import 'package:movie_app/features/movie/domain/usecases/GetWatchedMovieUseCase.dart';
+import 'package:movie_app/features/movie/domain/usecases/LogoutUseCase.dart';
 import 'package:movie_app/features/movie/presentation/setting/state/SettingState.dart';
 
 @injectable
@@ -14,6 +16,8 @@ class SettingScreenManagement extends Cubit<SettingState> {
   final GetWatchedMovieUseCase _getWatchedMovieUseCase;
   final DeleteListFavoriteMovieUseCase _deleteListFavoriteMovieUseCase;
   final DeleteMovieHistoryUseCase _deleteMovieHistoryUseCase;
+  final CheckLoginUseCase _checkLoginUseCase;
+  final LogoutUseCase _logoutUseCase;
 
   SettingScreenManagement(
     this._getMyFavoriteMovieUseCase,
@@ -21,6 +25,8 @@ class SettingScreenManagement extends Cubit<SettingState> {
     this._getWatchedMovieUseCase,
     this._deleteListFavoriteMovieUseCase,
     this._deleteMovieHistoryUseCase,
+    this._checkLoginUseCase,
+    this._logoutUseCase,
   ) : super(SettingState());
 
   void getMyFavoriteMovie() async {
@@ -58,4 +64,8 @@ class SettingScreenManagement extends Cubit<SettingState> {
 
   Future<void> deleteHistoryMovie(List<String> slug) =>
       _deleteMovieHistoryUseCase.execute(slug);
+
+  Future<bool> checkLogin() => _checkLoginUseCase.execute();
+
+  Future<bool> logout() => _logoutUseCase.execute();
 }
