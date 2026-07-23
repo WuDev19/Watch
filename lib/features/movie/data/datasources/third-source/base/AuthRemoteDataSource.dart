@@ -1,0 +1,13 @@
+import 'package:firebase_auth/firebase_auth.dart';
+
+import '../dto/SignUpRequest.dart';
+
+abstract class AuthRemoteDataSource {
+  Future<bool> checkLogin();
+
+  Future<UserCredential> signUpEmailPassword(SignUpRequest request);
+
+  Future<UserCredential> signInEmailPassword(String email, String password);
+
+  Future<void> signOut();
+}

@@ -593,7 +593,6 @@ class _SettingScreenState extends State<SettingScreen> {
                           "Đăng nhập",
                           style: TextStyle(
                             color: VColors.white,
-                            fontStyle: FontStyle.italic,
                           ),
                         ),
                       ),

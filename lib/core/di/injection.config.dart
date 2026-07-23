@@ -9,15 +9,24 @@
 // coverage:ignore-file
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:cloud_firestore/cloud_firestore.dart' as _i974;
 import 'package:dio/dio.dart' as _i361;
+import 'package:firebase_auth/firebase_auth.dart' as _i59;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 import 'package:isar_community/isar.dart' as _i214;
 
 import '../../features/movie/data/datasources/remote/api/MovieApi.dart'
     as _i500;
+import '../../features/movie/data/datasources/third-source/base/AuthRemoteDataSource.dart'
+    as _i22;
+import '../../features/movie/data/datasources/third-source/impl/AuthRemoteDataSourceImpl.dart'
+    as _i702;
+import '../../features/movie/data/repositories/AuthRepositoryImpl.dart'
+    as _i454;
 import '../../features/movie/data/repositories/MovieRepositoryImpl.dart'
     as _i709;
+import '../../features/movie/domain/repositories/AuthRepository.dart' as _i337;
 import '../../features/movie/domain/repositories/MovieRepository.dart' as _i503;
 import '../../features/movie/domain/usecases/CheckFavoriteMovieUseCase.dart'
     as _i35;
@@ -45,6 +54,7 @@ import '../../features/movie/domain/usecases/GetWatchedMovieUseCase.dart'
     as _i673;
 import '../../features/movie/domain/usecases/HomePageMovieUseCase.dart'
     as _i755;
+import '../../features/movie/domain/usecases/LoginUseCase.dart' as _i681;
 import '../../features/movie/domain/usecases/SaveFavoriteMovieUseCase.dart'
     as _i582;
 import '../../features/movie/domain/usecases/SaveMovieHistoryUseCase.dart'
@@ -56,6 +66,8 @@ import '../../features/movie/domain/usecases/SearchMovieAccordingToCountryUseCas
 import '../../features/movie/domain/usecases/SearchMovieAccordingToYearUseCase.dart'
     as _i2;
 import '../../features/movie/domain/usecases/SearchMovieUseCase.dart' as _i68;
+import '../../features/movie/presentation/auth/state_management/LoginCubit.dart'
+    as _i837;
 import '../../features/movie/presentation/detail_movie/state_management/MovieDetailManagement.dart'
     as _i862;
 import '../../features/movie/presentation/home/state_management/HomeBloc.dart'
@@ -68,6 +80,7 @@ import '../../features/movie/presentation/setting/state_managment/SettingScreenM
     as _i874;
 import '../../features/movie/presentation/watch_movie/state_management/WatchMovieManagement.dart'
     as _i816;
+import 'FirebaseModule.dart' as _i570;
 import 'IsarModule.dart' as _i448;
 import 'NetworkModule.dart' as _i802;
 
@@ -80,18 +93,46 @@ extension GetItInjectableX on _i174.GetIt {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     final isarModule = _$IsarModule();
     final networkModule = _$NetworkModule();
+    final firebaseModule = _$FirebaseModule();
     gh.factory<_i673.ScalePageBloc>(() => _i673.ScalePageBloc());
     await gh.singletonAsync<_i214.Isar>(
       () => isarModule.provideIsar(),
       preResolve: true,
     );
     gh.singleton<_i361.Dio>(() => networkModule.provideDio());
+    gh.lazySingleton<_i59.FirebaseAuth>(
+      () => firebaseModule.provideFirebaseAuth(),
+    );
+    gh.lazySingleton<_i974.FirebaseFirestore>(
+      () => firebaseModule.provideFirebaseFirestore(),
+    );
     gh.singleton<_i500.MovieApi>(() => _i500.MovieApi(gh<_i361.Dio>()));
+    gh.lazySingleton<_i22.AuthRemoteDataSource>(
+      () => _i702.AuthRemoteDataSourceImpl(
+        gh<_i974.FirebaseFirestore>(),
+        gh<_i59.FirebaseAuth>(),
+      ),
+    );
+    gh.lazySingleton<_i337.AuthRepository>(
+      () => _i454.AuthRepositoryImpl(gh<_i22.AuthRemoteDataSource>()),
+    );
     gh.lazySingleton<_i503.MovieRepository>(
       () => _i709.MovieRepositoryImpl(gh<_i500.MovieApi>(), gh<_i214.Isar>()),
     );
     gh.factory<_i663.GetLastWatchedMovieUseCase>(
       () => _i663.GetLastWatchedMovieUseCase(gh<_i503.MovieRepository>()),
+    );
+    gh.lazySingleton<_i35.CheckFavoriteMovieUseCase>(
+      () => _i35.CheckFavoriteMovieUseCase(gh<_i503.MovieRepository>()),
+    );
+    gh.lazySingleton<_i380.DeleteFavoriteUseCase>(
+      () => _i380.DeleteFavoriteUseCase(gh<_i503.MovieRepository>()),
+    );
+    gh.lazySingleton<_i193.DeleteListFavoriteMovieUseCase>(
+      () => _i193.DeleteListFavoriteMovieUseCase(gh<_i503.MovieRepository>()),
+    );
+    gh.lazySingleton<_i559.DeleteMovieHistoryUseCase>(
+      () => _i559.DeleteMovieHistoryUseCase(gh<_i503.MovieRepository>()),
     );
     gh.lazySingleton<_i414.GetAllYearUseCase>(
       () => _i414.GetAllYearUseCase(gh<_i503.MovieRepository>()),
@@ -108,8 +149,23 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i244.GetMovieDetailsInfoUseCase>(
       () => _i244.GetMovieDetailsInfoUseCase(gh<_i503.MovieRepository>()),
     );
+    gh.lazySingleton<_i332.GetMovieWatchingUseCase>(
+      () => _i332.GetMovieWatchingUseCase(gh<_i503.MovieRepository>()),
+    );
+    gh.lazySingleton<_i357.GetMyFavoriteMovieUseCase>(
+      () => _i357.GetMyFavoriteMovieUseCase(gh<_i503.MovieRepository>()),
+    );
+    gh.lazySingleton<_i673.GetWatchedMovieUseCase>(
+      () => _i673.GetWatchedMovieUseCase(gh<_i503.MovieRepository>()),
+    );
     gh.lazySingleton<_i755.HomePageMovieUseCase>(
       () => _i755.HomePageMovieUseCase(gh<_i503.MovieRepository>()),
+    );
+    gh.lazySingleton<_i582.SaveFavoriteMovieUseCase>(
+      () => _i582.SaveFavoriteMovieUseCase(gh<_i503.MovieRepository>()),
+    );
+    gh.lazySingleton<_i749.SaveMovieHistoryUseCase>(
+      () => _i749.SaveMovieHistoryUseCase(gh<_i503.MovieRepository>()),
     );
     gh.lazySingleton<_i63.SearchMovieAccordingToCategoryUseCase>(
       () => _i63.SearchMovieAccordingToCategoryUseCase(
@@ -127,32 +183,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i68.SearchMovieUseCase>(
       () => _i68.SearchMovieUseCase(gh<_i503.MovieRepository>()),
     );
-    gh.lazySingleton<_i749.SaveMovieHistoryUseCase>(
-      () => _i749.SaveMovieHistoryUseCase(gh<_i503.MovieRepository>()),
-    );
-    gh.lazySingleton<_i35.CheckFavoriteMovieUseCase>(
-      () => _i35.CheckFavoriteMovieUseCase(gh<_i503.MovieRepository>()),
-    );
-    gh.lazySingleton<_i582.SaveFavoriteMovieUseCase>(
-      () => _i582.SaveFavoriteMovieUseCase(gh<_i503.MovieRepository>()),
-    );
-    gh.lazySingleton<_i380.DeleteFavoriteUseCase>(
-      () => _i380.DeleteFavoriteUseCase(gh<_i503.MovieRepository>()),
-    );
-    gh.lazySingleton<_i357.GetMyFavoriteMovieUseCase>(
-      () => _i357.GetMyFavoriteMovieUseCase(gh<_i503.MovieRepository>()),
-    );
-    gh.lazySingleton<_i332.GetMovieWatchingUseCase>(
-      () => _i332.GetMovieWatchingUseCase(gh<_i503.MovieRepository>()),
-    );
-    gh.lazySingleton<_i673.GetWatchedMovieUseCase>(
-      () => _i673.GetWatchedMovieUseCase(gh<_i503.MovieRepository>()),
-    );
-    gh.lazySingleton<_i193.DeleteListFavoriteMovieUseCase>(
-      () => _i193.DeleteListFavoriteMovieUseCase(gh<_i503.MovieRepository>()),
-    );
-    gh.lazySingleton<_i559.DeleteMovieHistoryUseCase>(
-      () => _i559.DeleteMovieHistoryUseCase(gh<_i503.MovieRepository>()),
+    gh.lazySingleton<_i681.LoginUseCase>(
+      () => _i681.LoginUseCase(gh<_i337.AuthRepository>()),
     );
     gh.factory<_i862.MovieDetailManagement>(
       () => _i862.MovieDetailManagement(
@@ -182,6 +214,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i663.GetLastWatchedMovieUseCase>(),
       ),
     );
+    gh.factory<_i837.LoginCubit>(
+      () => _i837.LoginCubit(gh<_i681.LoginUseCase>()),
+    );
     gh.factory<_i874.SettingScreenManagement>(
       () => _i874.SettingScreenManagement(
         gh<_i357.GetMyFavoriteMovieUseCase>(),
@@ -206,3 +241,5 @@ extension GetItInjectableX on _i174.GetIt {
 class _$IsarModule extends _i448.IsarModule {}
 
 class _$NetworkModule extends _i802.NetworkModule {}
+
+class _$FirebaseModule extends _i570.FirebaseModule {}

@@ -177,12 +177,7 @@ class AppRoutes {
                       begin: const Offset(0, 1),
                       end: Offset.zero,
                     ).animate(animation),
-                    child: ClipRRect(
-                      borderRadius: BorderRadiusGeometry.all(
-                        Radius.circular(20),
-                      ),
-                      child: child,
-                    ),
+                    child: child,
                   );
                 },
           );

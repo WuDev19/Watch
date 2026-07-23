@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:movie_app/features/movie/presentation/auth/state/AuthState.dart';
+import 'package:movie_app/features/movie/presentation/auth/state_management/LoginCubit.dart';
 import 'package:rive/rive.dart';
 
 import '../../../../core/colors/VColors.dart';
@@ -18,19 +22,25 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _riveReady = false;
   final ValueNotifier<bool> _isShowPassword = ValueNotifier(false);
   final FocusNode password = FocusNode();
-  final FocusNode username = FocusNode();
+  final FocusNode email = FocusNode();
   late double _screenWidth;
   late double _screenHeight;
+  late final TextEditingController _emailController;
+  late final TextEditingController _passwordController;
+  late final LoginCubit _loginCubit;
 
   @override
   void initState() {
     super.initState();
+    _loginCubit = context.read<LoginCubit>();
+    _emailController = TextEditingController();
+    _passwordController = TextEditingController();
     _loadRive();
     password.addListener(() {
       _stateMachine?.boolean('isHandsUp')?.value = password.hasFocus;
     });
-    username.addListener(() {
-      _stateMachine?.boolean('isChecking')?.value = username.hasFocus;
+    email.addListener(() {
+      _stateMachine?.boolean('isChecking')?.value = email.hasFocus;
     });
   }
 
@@ -54,8 +64,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
     password.dispose();
-    username.dispose();
+    email.dispose();
     _isShowPassword.dispose();
     _riveController?.dispose();
     _riveFile?.dispose();
@@ -72,109 +84,204 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            SizedBox(height: 0.15 * _screenHeight),
-            Align(
-              alignment: Alignment.center,
-              child: ClipRRect(
-                borderRadius: BorderRadius.all(Radius.circular(200)),
-                child: SizedBox(
-                  height: 200,
-                  width: 200,
-                  child: RepaintBoundary(
-                    child: _riveReady
-                        ? RiveWidget(
-                            controller: _riveController!,
-                            fit: Fit.cover,
-                          )
-                        : const Center(child: CircularProgressIndicator()),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 40),
-            SizedBox(
-              width: 0.8 * _screenWidth,
-              child: TextField(
-                focusNode: username,
-                onChanged: (value) {
-                  _stateMachine?.number('numLook')?.value = value.length
-                      .toDouble();
-                },
-                decoration: const InputDecoration(
-                  prefixIcon: Icon(Icons.person),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(width: 2, color: VColors.colorIcon),
-                    borderRadius: BorderRadius.all(Radius.circular(20)),
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(20)),
-                  ),
-                  fillColor: Colors.white,
-                  filled: true,
-                  hintText: "Enter username",
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: 0.8 * _screenWidth,
-              child: ValueListenableBuilder(
-                valueListenable: _isShowPassword,
-                builder: (context, isShow, child) {
-                  return TextField(
-                    focusNode: password,
-                    decoration: InputDecoration(
-                      prefixIcon: const Icon(Icons.password),
-                      suffixIcon: GestureDetector(
-                        onTap: () {
-                          _isShowPassword.value = !_isShowPassword.value;
-                          _stateMachine?.boolean('isHandsUp')?.value =
-                              _isShowPassword.value;
-                        },
-                        child: isShow
-                            ? const Icon(Icons.visibility)
-                            : const Icon(Icons.visibility_off),
+      body: Stack(
+        children: [
+          Image.asset(
+            "assets/images/movie_bg.jpg",
+            cacheWidth: 300,
+            fit: BoxFit.cover,
+            width: _screenWidth,
+            height: _screenHeight,
+          ),
+          SingleChildScrollView(
+            child: Column(
+              children: [
+                SizedBox(height: 0.15 * _screenHeight),
+                Align(
+                  alignment: Alignment.center,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.all(Radius.circular(200)),
+                    child: SizedBox(
+                      height: 200,
+                      width: 200,
+                      child: RepaintBoundary(
+                        child: _riveReady
+                            ? RiveWidget(
+                                controller: _riveController!,
+                                fit: Fit.cover,
+                              )
+                            : const Center(child: CircularProgressIndicator()),
                       ),
-
-                      focusedBorder: const OutlineInputBorder(
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 40),
+                SizedBox(
+                  width: 0.8 * _screenWidth,
+                  child: TextField(
+                    controller: _emailController,
+                    focusNode: email,
+                    onChanged: (value) {
+                      _stateMachine?.number('numLook')?.value = value.length
+                          .toDouble();
+                    },
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: const InputDecoration(
+                      prefixIcon: Icon(Icons.email),
+                      focusedBorder: OutlineInputBorder(
                         borderSide: BorderSide(
                           width: 2,
                           color: VColors.colorIcon,
                         ),
                         borderRadius: BorderRadius.all(Radius.circular(20)),
                       ),
-                      fillColor: Colors.white,
-                      filled: true,
-                      border: const OutlineInputBorder(
+                      border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(20)),
                       ),
-                      hintText: "Enter password",
+                      fillColor: Colors.white,
+                      filled: true,
+                      hintText: "Enter email",
                     ),
-                    obscureText: isShow,
-                  );
-                },
-              ),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                backgroundColor: VColors.colorIcon,
-                shape: RoundedRectangleBorder(
-                  side: const BorderSide(width: 1, color: VColors.white),
-                  borderRadius: BorderRadiusGeometry.circular(10),
+                  ),
                 ),
-              ),
-              child: const Text(
-                "Login",
-                style: TextStyle(color: VColors.white),
-              ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: 0.8 * _screenWidth,
+                  child: Column(
+                    children: [
+                      ValueListenableBuilder(
+                        valueListenable: _isShowPassword,
+                        builder: (context, isShow, child) {
+                          return TextField(
+                            controller: _passwordController,
+                            focusNode: password,
+                            decoration: InputDecoration(
+                              prefixIcon: const Icon(Icons.password),
+                              suffixIcon: GestureDetector(
+                                onTap: () {
+                                  _isShowPassword.value =
+                                      !_isShowPassword.value;
+                                  _stateMachine?.boolean('isHandsUp')?.value =
+                                      !_isShowPassword.value;
+                                },
+                                child: isShow
+                                    ? const Icon(Icons.visibility_off)
+                                    : const Icon(Icons.visibility),
+                              ),
+
+                              focusedBorder: const OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  width: 2,
+                                  color: VColors.colorIcon,
+                                ),
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(20),
+                                ),
+                              ),
+                              fillColor: Colors.white,
+                              filled: true,
+                              border: const OutlineInputBorder(
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(20),
+                                ),
+                              ),
+                              hintText: "Enter password",
+                            ),
+                            obscureText: !isShow,
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 10),
+                      Align(
+                        alignment: AlignmentGeometry.centerRight,
+                        child: Text(
+                          "Forgot password?",
+                          style: TextStyle(
+                            color: VColors.white,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                BlocListener<LoginCubit, AuthState>(
+                  listener: (context, state) {
+                    switch (state) {
+                      case Initial():
+                        break;
+                      case Loading():
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (_) => const Center(
+                            child: CircularProgressIndicator(
+                              color: VColors.colorIcon,
+                            ),
+                          ),
+                        );
+                        break;
+                      case Success():
+                        context.pop();
+                        context.pop();
+                        break;
+                      case Error():
+                        context.pop();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              "Đăng nhập không thành công, xem lại thông tin hoặc kết nối mạng",
+                            ),
+                          ),
+                        );
+                        break;
+                    }
+                  },
+                  child: ElevatedButton(
+                    onPressed: () {
+                      email.unfocus();
+                      password.unfocus();
+                      _loginCubit.login(
+                        _emailController.text.trim(),
+                        _passwordController.text.trim(),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: VColors.colorIcon,
+                      shape: RoundedRectangleBorder(
+                        side: const BorderSide(width: 1, color: VColors.white),
+                        borderRadius: BorderRadiusGeometry.circular(10),
+                      ),
+                    ),
+                    child: const Text(
+                      "Login",
+                      style: TextStyle(color: VColors.white),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: "Don't have an account? ",
+                        style: TextStyle(color: VColors.white),
+                      ),
+                      TextSpan(
+                        text: "Register now",
+                        style: TextStyle(
+                          color: VColors.colorIcon,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
