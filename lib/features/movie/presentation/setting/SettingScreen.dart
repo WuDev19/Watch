@@ -133,10 +133,16 @@ class _SettingScreenState extends State<SettingScreen> {
                       builder: (context, isLogout, child) {
                         return !isLogout
                             ? SizedBox()
-                            : Container(
-                                alignment: AlignmentGeometry.topRight,
-                                margin: const EdgeInsets.only(right: 10),
-                                child: Icon(Icons.settings, color: Colors.grey),
+                            : InkWell(
+                                onTap: () => context.push("/profile"),
+                                child: Container(
+                                  alignment: AlignmentGeometry.topRight,
+                                  margin: const EdgeInsets.only(right: 10),
+                                  child: Icon(
+                                    Icons.settings,
+                                    color: Colors.grey,
+                                  ),
+                                ),
                               );
                       },
                     ),

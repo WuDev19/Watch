@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:injectable/injectable.dart';
 import 'package:movie_app/features/movie/data/datasources/third-source/base/AuthRemoteDataSource.dart';
-import 'package:movie_app/features/movie/data/datasources/third-source/dto/SignUpRequest.dart';
+import 'package:movie_app/features/movie/data/datasources/third-source/dto/request/SignUpRequest.dart';
 
 @LazySingleton(as: AuthRemoteDataSource)
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {

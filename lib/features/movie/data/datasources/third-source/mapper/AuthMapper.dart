@@ -1,4 +1,4 @@
-import 'package:movie_app/features/movie/data/datasources/third-source/dto/SignUpRequest.dart';
+import 'package:movie_app/features/movie/data/datasources/third-source/dto/request/SignUpRequest.dart';
 
 import '../../../../domain/models/SignUpModel.dart';
 

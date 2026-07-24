@@ -101,7 +101,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 Align(
                   alignment: Alignment.center,
                   child: ClipRRect(
-                    borderRadius: BorderRadius.all(Radius.circular(200)),
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(100),
+                      bottomRight: Radius.circular(100),
+                      topRight: Radius.circular(10),
+                      bottomLeft: Radius.circular(10)
+                    ),
                     child: SizedBox(
                       height: 200,
                       width: 200,

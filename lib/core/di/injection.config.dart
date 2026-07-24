@@ -20,14 +20,20 @@ import '../../features/movie/data/datasources/remote/api/MovieApi.dart'
     as _i500;
 import '../../features/movie/data/datasources/third-source/base/AuthRemoteDataSource.dart'
     as _i22;
+import '../../features/movie/data/datasources/third-source/base/UserRemoteDataSource.dart'
+    as _i792;
 import '../../features/movie/data/datasources/third-source/impl/AuthRemoteDataSourceImpl.dart'
     as _i702;
+import '../../features/movie/data/datasources/third-source/impl/UserRemoteDataSourceImpl.dart'
+    as _i953;
 import '../../features/movie/data/repositories/AuthRepositoryImpl.dart'
     as _i454;
 import '../../features/movie/data/repositories/MovieRepositoryImpl.dart'
     as _i709;
+import '../../features/movie/data/repositories/UserRepositoryImpl.dart' as _i54;
 import '../../features/movie/domain/repositories/AuthRepository.dart' as _i337;
 import '../../features/movie/domain/repositories/MovieRepository.dart' as _i503;
+import '../../features/movie/domain/repositories/UserRepository.dart' as _i253;
 import '../../features/movie/domain/usecases/CheckFavoriteMovieUseCase.dart'
     as _i35;
 import '../../features/movie/domain/usecases/CheckLoginUseCase.dart' as _i475;
@@ -51,6 +57,7 @@ import '../../features/movie/domain/usecases/GetMovieWatchingUseCase.dart'
     as _i332;
 import '../../features/movie/domain/usecases/GetMyFavoriteMovieUseCase.dart'
     as _i357;
+import '../../features/movie/domain/usecases/GetMyProfileUseCase.dart' as _i691;
 import '../../features/movie/domain/usecases/GetWatchedMovieUseCase.dart'
     as _i673;
 import '../../features/movie/domain/usecases/HomePageMovieUseCase.dart'
@@ -81,6 +88,8 @@ import '../../features/movie/presentation/home/state_management/HomeBloc.dart'
     as _i309;
 import '../../features/movie/presentation/home/state_management/ScalePageBloc.dart'
     as _i673;
+import '../../features/movie/presentation/profile/state_management/ProfileManagement.dart'
+    as _i970;
 import '../../features/movie/presentation/search/state_management/SearchPageManagement.dart'
     as _i964;
 import '../../features/movie/presentation/setting/state_managment/SettingScreenManagement.dart'
@@ -122,6 +131,12 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i337.AuthRepository>(
       () => _i454.AuthRepositoryImpl(gh<_i22.AuthRemoteDataSource>()),
+    );
+    gh.lazySingleton<_i792.UserRemoteDataSource>(
+      () => _i953.UserRemoteDataSourceImpl(
+        gh<_i974.FirebaseFirestore>(),
+        gh<_i59.FirebaseAuth>(),
+      ),
     );
     gh.lazySingleton<_i503.MovieRepository>(
       () => _i709.MovieRepositoryImpl(gh<_i500.MovieApi>(), gh<_i214.Isar>()),
@@ -205,6 +220,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i812.SendEmailResetPasswordUseCase>(
       () => _i812.SendEmailResetPasswordUseCase(gh<_i337.AuthRepository>()),
     );
+    gh.lazySingleton<_i253.UserRepository>(
+      () => _i54.UserRepositoryImpl(gh<_i792.UserRemoteDataSource>()),
+    );
     gh.factory<_i862.MovieDetailManagement>(
       () => _i862.MovieDetailManagement(
         gh<_i244.GetMovieDetailsInfoUseCase>(),
@@ -260,6 +278,12 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i582.SaveFavoriteMovieUseCase>(),
         gh<_i380.DeleteFavoriteUseCase>(),
       ),
+    );
+    gh.lazySingleton<_i691.GetMyProfileUseCase>(
+      () => _i691.GetMyProfileUseCase(gh<_i253.UserRepository>()),
+    );
+    gh.factory<_i970.ProfileManagement>(
+      () => _i970.ProfileManagement(gh<_i691.GetMyProfileUseCase>()),
     );
     return this;
   }

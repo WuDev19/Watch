@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 
-import '../dto/SignUpRequest.dart';
+import '../dto/request/SignUpRequest.dart';
 
 abstract class AuthRemoteDataSource {
   Future<bool> checkLogin();
