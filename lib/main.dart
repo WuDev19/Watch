@@ -1,7 +1,5 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:injectable/injectable.dart';
 import 'package:movie_app/core/di/injection.dart';
 import 'package:movie_app/core/routes/AppRoutes.dart';
 import 'package:movie_app/features/movie/presentation/auth/state_management/LoginCubit.dart';
@@ -10,18 +8,15 @@ import 'package:movie_app/features/movie/presentation/home/state_management/Home
 import 'package:movie_app/features/movie/presentation/search/state_management/SearchPageManagement.dart';
 import 'package:movie_app/features/movie/presentation/setting/state_managment/SettingScreenManagement.dart';
 import 'package:movie_app/features/movie/presentation/watch_movie/state_management/WatchMovieManagement.dart';
-import 'package:rive/rive.dart';
 
 import 'features/movie/presentation/detail_movie/state_management/MovieDetailManagement.dart';
 import 'features/movie/presentation/home/state_management/ScalePageBloc.dart';
-import 'firebase_options.dart';
+import 'features/movie/presentation/profile/state_management/ProfileManagement.dart';
+import 'features/movie/presentation/splash/SplashScreen.dart';
 
-void main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  await configurationDependencies(Environment.dev);
-  await RiveNative.init();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(const MyApp());
+  runApp(const SplashScreen());
 }
 
 class MyApp extends StatelessWidget {
@@ -39,6 +34,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => getIt.get<SettingScreenManagement>()),
         BlocProvider(create: (context) => getIt.get<LoginCubit>()),
         BlocProvider(create: (context) => getIt.get<SignUpCubit>()),
+        BlocProvider(create: (context) => getIt.get<ProfileManagement>()),
       ],
       child: MaterialApp.router(
         routerConfig: AppRoutes.routes,
