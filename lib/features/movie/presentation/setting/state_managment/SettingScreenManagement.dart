@@ -1,13 +1,14 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
-import 'package:movie_app/features/movie/domain/usecases/CheckLoginUseCase.dart';
+import 'package:movie_app/features/auth/domain/usecases/CheckLoginUseCase.dart';
 import 'package:movie_app/features/movie/domain/usecases/DeleteListFavoriteMovieUseCase.dart';
 import 'package:movie_app/features/movie/domain/usecases/DeleteMovieHistoryUseCase.dart';
 import 'package:movie_app/features/movie/domain/usecases/GetMovieWatchingUseCase.dart';
 import 'package:movie_app/features/movie/domain/usecases/GetMyFavoriteMovieUseCase.dart';
 import 'package:movie_app/features/movie/domain/usecases/GetWatchedMovieUseCase.dart';
-import 'package:movie_app/features/movie/domain/usecases/LogoutUseCase.dart';
 import 'package:movie_app/features/movie/presentation/setting/state/SettingState.dart';
+
+import '../../../../auth/domain/usecases/LogoutUseCase.dart';
 
 @injectable
 class SettingScreenManagement extends Cubit<SettingState> {
