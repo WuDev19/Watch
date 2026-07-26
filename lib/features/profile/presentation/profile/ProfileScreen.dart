@@ -9,6 +9,7 @@ import 'package:movie_app/core/colors/VColors.dart';
 import 'package:movie_app/features/profile/presentation/profile/state/ProfileState.dart';
 import 'package:movie_app/features/profile/presentation/profile/state_management/ProfileManagement.dart';
 import 'package:movie_app/features/profile/presentation/profile/widgets/CameraButton.dart';
+import 'package:movie_app/features/profile/presentation/profile/widgets/EditProfileOptionsSheet.dart';
 import 'package:movie_app/features/profile/presentation/profile/widgets/OptionTile.dart';
 import 'package:movie_app/utils/MethodHelperUtils.dart';
 import 'package:movie_app/utils/constants.dart';
@@ -196,9 +197,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   const SizedBox(height: 16),
                   OutlinedButton(
-                    onPressed: () {
-                      // TODO: navigate to edit-profile screen
-                    },
+                    onPressed: () => _onEditProfilePressed(context),
                     style: OutlinedButton.styleFrom(
                       side: BorderSide(color: VColors.colorIcon),
                       shape: RoundedRectangleBorder(
@@ -368,6 +367,116 @@ class _ProfileScreenState extends State<ProfileScreen> {
       barrierDismissible: false,
       builder: (_) => const Center(
         child: CircularProgressIndicator(color: VColors.colorIcon),
+      ),
+    );
+  }
+
+  void _onEditProfilePressed(BuildContext context) {
+    EditProfileOptionsSheet.show(
+      context,
+      onSelected: (option) {
+        final currentName = _profileManagement.state.name ?? "";
+        final currentEmail = _profileManagement.state.email ?? "";
+        switch (option) {
+          case EditProfileOption.name:
+            _showEditDialog(
+              context,
+              title: "Update Name",
+              hint: "Enter your name",
+              initialValue: currentName,
+              onSave: (value) => _profileManagement.updateName(value),
+            );
+            break;
+          case EditProfileOption.email:
+            _showEditDialog(
+              context,
+              title: "Update Email",
+              hint: "Enter your email",
+              initialValue: currentEmail,
+              keyboardType: TextInputType.emailAddress,
+              onSave: (value) => _profileManagement.updateEmail(value),
+            );
+            break;
+        }
+      },
+    );
+  }
+
+  void _showEditDialog(
+    BuildContext context, {
+    required String title,
+    required String hint,
+    required String initialValue,
+    required Future<void> Function(String value) onSave,
+    TextInputType keyboardType = TextInputType.text,
+  }) {
+    final controller = TextEditingController(text: initialValue);
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: VColors.blackBackground,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: VColors.colorIcon, width: 2),
+        ),
+        title: Text(title, style: TextStyle(color: VColors.white)),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          keyboardType: keyboardType,
+          style: const TextStyle(color: VColors.white),
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: TextStyle(color: VColors.white.withAlpha(120)),
+            enabledBorder: const UnderlineInputBorder(
+              borderSide: BorderSide(color: Colors.white24),
+            ),
+            focusedBorder: const UnderlineInputBorder(
+              borderSide: BorderSide(color: VColors.colorIcon),
+            ),
+          ),
+        ),
+        actions: [
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: VColors.colorIcon,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text("Cancel", style: TextStyle(color: VColors.white)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: VColors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            onPressed: () {
+              final value = controller.text.trim();
+              if (value.isEmpty) return;
+              Navigator.of(dialogContext).pop();
+              _showLoadingDialog(context);
+              onSave(value)
+                  .then((_) {
+                    if (!context.mounted) return;
+                    Navigator.of(context, rootNavigator: true).pop();
+                    MethodHelperUtils.showSnackBar(
+                      context,
+                      "Update successfully",
+                    );
+                  })
+                  .catchError((e) {
+                    if (!context.mounted) return;
+                    Navigator.of(context, rootNavigator: true).pop();
+                    MethodHelperUtils.showSnackBar(context, e.toString());
+                  });
+            },
+            child: const Text("Save", style: TextStyle(color: Colors.black)),
+          ),
+        ],
       ),
     );
   }

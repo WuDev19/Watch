@@ -140,11 +140,6 @@ class _SettingScreenState extends State<SettingScreen> {
                                       await context.push("/profile") as String?;
                                   if (result != null && result == "logout") {
                                     _isLogout.value = false;
-                                  } else {
-                                    MethodHelperUtils.showSnackBar(
-                                      context,
-                                      "ko phải logout",
-                                    );
                                   }
                                 },
                                 child: Container(

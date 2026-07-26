@@ -21,4 +21,14 @@ class UserRepositoryImpl implements UserRepository {
   Future<void> updateAvatar(String file) {
     return _userRemoteDataSource.updateAvatar(file);
   }
+
+  @override
+  Future<void> updateEmail(String email) {
+    return _userRemoteDataSource.updateEmail(email);
+  }
+
+  @override
+  Future<void> updateName(String name) {
+    return _userRemoteDataSource.updateName(name);
+  }
 }

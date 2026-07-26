@@ -11,6 +11,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
   final FirebaseFirestore _firebaseFirestore;
   final FirebaseAuth _firebaseAuth;
   final CloudinaryPublic cloudinary;
+  static const String _users = "users";
 
   UserRemoteDataSourceImpl(
     this._firebaseFirestore,
@@ -21,7 +22,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
   @override
   Future<ProfileResponse> getMyProfile() async {
     final result = await _firebaseFirestore
-        .collection("users")
+        .collection(_users)
         .doc(_firebaseAuth.currentUser!.uid)
         .get();
     return ProfileResponse.fromJson(result.data() ?? {});
@@ -30,14 +31,21 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
   @override
   Future<void> updateAvatar(String file) async {
     final cloudinaryResponse = await cloudinary.uploadFile(
-      CloudinaryFile.fromFile(
-        file,
-        resourceType: CloudinaryResourceType.Image,
-      ),
+      CloudinaryFile.fromFile(file, resourceType: CloudinaryResourceType.Image),
     );
     _firebaseFirestore
-        .collection("users")
+        .collection(_users)
         .doc(_firebaseAuth.currentUser!.uid)
         .update({"avt": cloudinaryResponse.secureUrl});
   }
+
+  @override
+  Future<void> updateEmail(String email) =>
+      _firebaseAuth.currentUser!.verifyBeforeUpdateEmail(email);
+
+  @override
+  Future<void> updateName(String name) => _firebaseFirestore
+      .collection(_users)
+      .doc(_firebaseAuth.currentUser!.uid)
+      .update({"name": name});
 }

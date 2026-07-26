@@ -98,6 +98,9 @@ import '../../features/profile/domain/usecases/GetMyProfileUseCase.dart'
     as _i39;
 import '../../features/profile/domain/usecases/UpdateAvatarUseCase.dart'
     as _i69;
+import '../../features/profile/domain/usecases/UpdateEmailUseCase.dart'
+    as _i841;
+import '../../features/profile/domain/usecases/UpdateNameUseCase.dart' as _i997;
 import '../../features/profile/presentation/profile/state_management/ProfileManagement.dart'
     as _i249;
 import 'CloudinaryModule.dart' as _i656;
@@ -239,12 +242,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i69.UpdateAvatarUseCase>(
       () => _i69.UpdateAvatarUseCase(gh<_i4.UserRepository>()),
     );
-    gh.factory<_i249.ProfileManagement>(
-      () => _i249.ProfileManagement(
-        gh<_i39.GetMyProfileUseCase>(),
-        gh<_i69.UpdateAvatarUseCase>(),
-        gh<_i672.LogoutUseCase>(),
-      ),
+    gh.lazySingleton<_i841.UpdateEmailUseCase>(
+      () => _i841.UpdateEmailUseCase(gh<_i4.UserRepository>()),
+    );
+    gh.lazySingleton<_i997.UpdateNameUseCase>(
+      () => _i997.UpdateNameUseCase(gh<_i4.UserRepository>()),
     );
     gh.factory<_i862.MovieDetailManagement>(
       () => _i862.MovieDetailManagement(
@@ -301,6 +303,15 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i276.SignUpCubit>(
       () => _i276.SignUpCubit(gh<_i47.SignUpUseCase>()),
+    );
+    gh.factory<_i249.ProfileManagement>(
+      () => _i249.ProfileManagement(
+        gh<_i39.GetMyProfileUseCase>(),
+        gh<_i69.UpdateAvatarUseCase>(),
+        gh<_i672.LogoutUseCase>(),
+        gh<_i841.UpdateEmailUseCase>(),
+        gh<_i997.UpdateNameUseCase>(),
+      ),
     );
     return this;
   }
