@@ -12,6 +12,7 @@ class Constants {
   static const String nothing = "Nothing to show";
   static const String forgotPassword = "Forgot password?";
   static const String appName = "Watch";
+  static const String logoutNotification = "Logout successfully";
   static double getHeightScreen(BuildContext context) {
     return MediaQuery.of(context).size.height;
   }

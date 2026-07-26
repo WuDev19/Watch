@@ -106,7 +106,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       topLeft: Radius.circular(100),
                       bottomRight: Radius.circular(100),
                       topRight: Radius.circular(10),
-                      bottomLeft: Radius.circular(10)
+                      bottomLeft: Radius.circular(10),
                     ),
                     child: SizedBox(
                       height: 200,
@@ -137,6 +137,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           .toDouble();
                     },
                     keyboardType: TextInputType.emailAddress,
+                    textInputAction: TextInputAction.next,
                     style: TextStyle(color: VColors.white),
                     decoration: InputDecoration(
                       prefixIcon: Icon(Icons.email, color: VColors.white),
@@ -279,11 +280,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         );
                         break;
                       case Success():
-                        context.pop();
+                        Navigator.of(context, rootNavigator: true).pop();
                         context.pop(true);
                         break;
                       case Error():
-                        context.pop();
+                        Navigator.of(context, rootNavigator: true).pop();
                         MethodHelperUtils.showSnackBar(
                           context,
                           "Đăng nhập không thành công, xem lại thông tin hoặc kết nối mạng",

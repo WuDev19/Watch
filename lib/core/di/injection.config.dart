@@ -239,6 +239,13 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i69.UpdateAvatarUseCase>(
       () => _i69.UpdateAvatarUseCase(gh<_i4.UserRepository>()),
     );
+    gh.factory<_i249.ProfileManagement>(
+      () => _i249.ProfileManagement(
+        gh<_i39.GetMyProfileUseCase>(),
+        gh<_i69.UpdateAvatarUseCase>(),
+        gh<_i672.LogoutUseCase>(),
+      ),
+    );
     gh.factory<_i862.MovieDetailManagement>(
       () => _i862.MovieDetailManagement(
         gh<_i244.GetMovieDetailsInfoUseCase>(),
@@ -271,12 +278,6 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i582.LoginCubit(
         gh<_i934.LoginUseCase>(),
         gh<_i1054.SendEmailResetPasswordUseCase>(),
-      ),
-    );
-    gh.factory<_i249.ProfileManagement>(
-      () => _i249.ProfileManagement(
-        gh<_i39.GetMyProfileUseCase>(),
-        gh<_i69.UpdateAvatarUseCase>(),
       ),
     );
     gh.factory<_i874.SettingScreenManagement>(

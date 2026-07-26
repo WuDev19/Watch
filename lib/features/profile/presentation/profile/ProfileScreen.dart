@@ -159,46 +159,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       : CameraButton(
                                           onTap: () {
                                             if (image != null) {
-                                              showDialog(
-                                                context: context,
-                                                barrierDismissible: false,
-                                                builder: (_) => const Center(
-                                                  child:
-                                                      CircularProgressIndicator(
-                                                        color:
-                                                            VColors.colorIcon,
-                                                      ),
-                                                ),
-                                              );
-                                              _profileManagement
-                                                  .updateAvatar(image!.path)
-                                                  .then((value) {
-                                                    if (!context.mounted) {
-                                                      return;
-                                                    }
-                                                    MethodHelperUtils.showSnackBar(
-                                                      context,
-                                                      "Update avatar successfully",
-                                                    );
-                                                    _isUploadAvt.value = false;
-                                                    Navigator.of(
-                                                      context,
-                                                      rootNavigator: true,
-                                                    ).pop();
-                                                  })
-                                                  .catchError((e) {
-                                                    if (!context.mounted) {
-                                                      return;
-                                                    }
-                                                    MethodHelperUtils.showSnackBar(
-                                                      context,
-                                                      "Update avatar unsuccessfully because of ${e.toString()}",
-                                                    );
-                                                    Navigator.of(
-                                                      context,
-                                                      rootNavigator: true,
-                                                    ).pop();
-                                                  });
+                                              _showLoadingDialog(context);
+                                              _onUploadAvt(context, image!);
                                             }
                                           },
                                           size: 20,
@@ -213,7 +175,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            name ?? "Not Defined",
+                            name ?? "",
                             style: TextStyle(
                               color: VColors.white,
                               fontSize: 20,
@@ -222,7 +184,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            email ?? "Not Defined",
+                            email ?? "",
                             style: TextStyle(
                               color: VColors.white.withAlpha(155),
                               fontSize: 14,
@@ -284,7 +246,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 12),
             const Divider(color: Colors.white24, height: 1),
             const SizedBox(height: 12),
-
             OptionTile(
               icon: Icons.help_outline,
               title: "Help & Support",
@@ -302,14 +263,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 12),
             const Divider(color: Colors.white24, height: 1),
             const SizedBox(height: 12),
-
-            // Logout
             OptionTile(
               icon: Icons.logout,
               title: "Log out",
               iconColor: Colors.redAccent,
               textColor: Colors.redAccent,
-              onTap: _onLogoutPressed,
+              onTap: () => _onLogoutPressed(context),
             ),
             const SizedBox(height: 24),
           ],
@@ -318,10 +277,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Future<void> _onLogoutPressed() async {
-    final confirmed = await showDialog<bool>(
+  void _onLogoutPressed(BuildContext context) async {
+    showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         backgroundColor: VColors.blackBackground,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
@@ -337,20 +296,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: VColors.colorIcon,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadiusGeometry.circular(10),
+                borderRadius: BorderRadius.circular(10),
               ),
             ),
-            onPressed: () => Navigator.of(context).pop(false),
+            onPressed: () => Navigator.of(dialogContext).pop(),
             child: Text("Cancel", style: TextStyle(color: VColors.white)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: VColors.white,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadiusGeometry.circular(10),
+                borderRadius: BorderRadius.circular(10),
               ),
             ),
-            onPressed: () => Navigator.of(context).pop(true),
+            onPressed: () {
+              _showLoadingDialog(dialogContext);
+              _profileManagement
+                  .logout()
+                  .then((value) {
+                    if (!context.mounted) return;
+                    MethodHelperUtils.showSnackBar(
+                      context,
+                      Constants.logoutNotification,
+                    );
+                    Navigator.of(context, rootNavigator: true).pop();
+                    Navigator.of(dialogContext).pop();
+                    context.pop("logout");
+                  })
+                  .catchError((e) {
+                    if (!context.mounted) return;
+                    Navigator.of(context, rootNavigator: true).pop();
+                    MethodHelperUtils.showSnackBar(context, e.toString());
+                  });
+            },
             child: const Text(
               "Log out",
               style: TextStyle(color: Colors.redAccent),
@@ -359,9 +337,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ],
       ),
     );
+  }
 
-    if (confirmed == true) {
-      // TODO: call the actual logout logic (clear session, navigate to login, etc.)
-    }
+  void _onUploadAvt(BuildContext context, XFile image) {
+    _profileManagement
+        .updateAvatar(image.path)
+        .then((value) {
+          if (!context.mounted) {
+            return;
+          }
+          MethodHelperUtils.showSnackBar(context, "Update avatar successfully");
+          _isUploadAvt.value = false;
+          Navigator.of(context, rootNavigator: true).pop();
+        })
+        .catchError((e) {
+          if (!context.mounted) {
+            return;
+          }
+          MethodHelperUtils.showSnackBar(
+            context,
+            "Update avatar unsuccessfully because of ${e.toString()}",
+          );
+          Navigator.of(context, rootNavigator: true).pop();
+        });
+  }
+
+  void _showLoadingDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(
+        child: CircularProgressIndicator(color: VColors.colorIcon),
+      ),
+    );
   }
 }

@@ -13,6 +13,7 @@ import 'package:movie_app/features/movie/presentation/setting/widgets/FavoriteMo
 import 'package:movie_app/features/movie/presentation/setting/widgets/LogInOutButton.dart';
 import 'package:movie_app/features/movie/presentation/setting/widgets/WatchedMovieWidget.dart';
 import 'package:movie_app/features/movie/presentation/setting/widgets/WatchingMovieWidget.dart';
+import 'package:movie_app/utils/MethodHelperUtils.dart';
 import 'package:movie_app/utils/constants.dart';
 
 class SettingScreen extends StatefulWidget {
@@ -134,7 +135,18 @@ class _SettingScreenState extends State<SettingScreen> {
                         return !isLogout
                             ? SizedBox()
                             : InkWell(
-                                onTap: () => context.push("/profile"),
+                                onTap: () async {
+                                  final result =
+                                      await context.push("/profile") as String?;
+                                  if (result != null && result == "logout") {
+                                    _isLogout.value = false;
+                                  } else {
+                                    MethodHelperUtils.showSnackBar(
+                                      context,
+                                      "ko phải logout",
+                                    );
+                                  }
+                                },
                                 child: Container(
                                   alignment: AlignmentGeometry.topRight,
                                   margin: const EdgeInsets.only(right: 10),
@@ -610,7 +622,13 @@ class _SettingScreenState extends State<SettingScreen> {
                                       await context.push("/login") as bool;
                                   _isLogout.value = result;
                                 },
-                                text: "Đăng nhập",
+                                text: "Login",
+                                icon: Icon(
+                                  Icons.login,
+                                  color: VColors.colorIcon,
+                                ),
+                                borderColor: VColors.colorIcon,
+                                textColor: VColors.white,
                               )
                             : LogInOutButton(
                                 onDo: () async {
@@ -620,11 +638,14 @@ class _SettingScreenState extends State<SettingScreen> {
                                   if (!context.mounted) return;
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content: Text("Đăng xuất thành công"),
+                                      content: Text(Constants.logoutNotification),
                                     ),
                                   );
                                 },
-                                text: "Đăng xuất",
+                                text: "Logout",
+                                icon: Icon(Icons.logout, color: VColors.red),
+                                borderColor: VColors.red,
+                                textColor: VColors.red,
                               );
                       },
                     ),

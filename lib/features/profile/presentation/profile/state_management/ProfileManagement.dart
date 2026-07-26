@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
+import 'package:movie_app/features/auth/domain/usecases/LogoutUseCase.dart';
 import 'package:movie_app/features/profile/domain/usecases/UpdateAvatarUseCase.dart';
 import 'package:movie_app/features/profile/presentation/profile/state/ProfileState.dart';
 
@@ -9,9 +10,13 @@ import '../../../domain/usecases/GetMyProfileUseCase.dart';
 class ProfileManagement extends Cubit<ProfileState> {
   final GetMyProfileUseCase _getMyProfileUseCase;
   final UpdateAvatarUseCase _updateAvatarUseCase;
+  final LogoutUseCase _logoutUseCase;
 
-  ProfileManagement(this._getMyProfileUseCase, this._updateAvatarUseCase)
-    : super(ProfileState());
+  ProfileManagement(
+    this._getMyProfileUseCase,
+    this._updateAvatarUseCase,
+    this._logoutUseCase,
+  ) : super(ProfileState());
 
   void getMyProfile() async {
     emit(state.copyWith(isLoading: true));
@@ -35,4 +40,6 @@ class ProfileManagement extends Cubit<ProfileState> {
   }
 
   Future<void> updateAvatar(String file) => _updateAvatarUseCase.execute(file);
+
+  Future<void> logout() => _logoutUseCase.execute();
 }
