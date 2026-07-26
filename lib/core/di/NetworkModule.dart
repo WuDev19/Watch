@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:injectable/injectable.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/interceptors/RetryInterceptor.dart';
 
@@ -6,9 +7,10 @@ import 'package:movie_app/features/movie/data/datasources/remote/interceptors/Re
 abstract class NetworkModule {
   @singleton
   Dio provideDio() {
+    final baseUrl = dotenv.get("BASE_URL");
     final dio = Dio(
       BaseOptions(
-        baseUrl: "https://ophim1.com",
+        baseUrl: baseUrl,
         connectTimeout: const Duration(seconds: 30),
         sendTimeout: const Duration(seconds: 30),
         receiveTimeout: const Duration(seconds: 30),

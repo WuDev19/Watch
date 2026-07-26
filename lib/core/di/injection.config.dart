@@ -205,20 +205,20 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i68.SearchMovieUseCase>(
       () => _i68.SearchMovieUseCase(gh<_i503.MovieRepository>()),
     );
-    gh.lazySingleton<_i681.LoginUseCase>(
-      () => _i681.LoginUseCase(gh<_i337.AuthRepository>()),
-    );
     gh.lazySingleton<_i475.CheckLoginUseCase>(
       () => _i475.CheckLoginUseCase(gh<_i337.AuthRepository>()),
+    );
+    gh.lazySingleton<_i681.LoginUseCase>(
+      () => _i681.LoginUseCase(gh<_i337.AuthRepository>()),
     );
     gh.lazySingleton<_i671.LogoutUseCase>(
       () => _i671.LogoutUseCase(gh<_i337.AuthRepository>()),
     );
-    gh.lazySingleton<_i204.SignUpUseCase>(
-      () => _i204.SignUpUseCase(gh<_i337.AuthRepository>()),
-    );
     gh.lazySingleton<_i812.SendEmailResetPasswordUseCase>(
       () => _i812.SendEmailResetPasswordUseCase(gh<_i337.AuthRepository>()),
+    );
+    gh.lazySingleton<_i204.SignUpUseCase>(
+      () => _i204.SignUpUseCase(gh<_i337.AuthRepository>()),
     );
     gh.lazySingleton<_i253.UserRepository>(
       () => _i54.UserRepositoryImpl(gh<_i792.UserRemoteDataSource>()),

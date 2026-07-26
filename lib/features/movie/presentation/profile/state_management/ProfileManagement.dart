@@ -11,7 +11,7 @@ class ProfileManagement extends Cubit<ProfileState> {
   ProfileManagement(this._getMyProfileUseCase) : super(ProfileState());
 
   void getMyProfile() async {
-    emit(state.copyWith(isLoadingProfile: true));
+    emit(state.copyWith(isLoading: true));
     try {
       final profile = await _getMyProfileUseCase.execute();
       emit(
@@ -19,11 +19,17 @@ class ProfileManagement extends Cubit<ProfileState> {
           name: profile.name,
           email: profile.email,
           avt: profile.avt,
-          isLoadingProfile: false,
+          isLoading: false,
         ),
       );
     } catch (e) {
-      emit(state.copyWith(errorProfile: e.toString(), isLoadingProfile: false));
+      emit(state.copyWith(error: e.toString(), isLoading: false));
     }
   }
+
+  void setAvatarFromImagePicker() {
+    emit(state.copyWith(avt: null));
+    print("set state");
+  }
+
 }

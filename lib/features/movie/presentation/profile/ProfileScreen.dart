@@ -1,9 +1,15 @@
+import 'dart:io';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:movie_app/core/colors/VColors.dart';
 import 'package:movie_app/features/movie/presentation/profile/state/ProfileState.dart';
 import 'package:movie_app/features/movie/presentation/profile/state_management/ProfileManagement.dart';
+import 'package:movie_app/features/movie/presentation/profile/widgets/CameraButton.dart';
 import 'package:movie_app/features/movie/presentation/profile/widgets/OptionTile.dart';
+import 'package:movie_app/utils/constants.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -14,12 +20,30 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   late ProfileManagement _profileManagement;
+  late double _screenHeight;
+  late double _screenWidth;
+  final ImagePicker _pick = ImagePicker();
+  XFile? image;
+  final ValueNotifier<bool> _isUploadAvt = ValueNotifier(false);
 
   @override
   void initState() {
     super.initState();
     _profileManagement = context.read<ProfileManagement>();
     _profileManagement.getMyProfile();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _screenHeight = Constants.getHeightScreen(context);
+    _screenWidth = Constants.getWidthScreen(context);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _isUploadAvt.dispose();
   }
 
   @override
@@ -42,71 +66,126 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Center(
               child: Column(
                 children: [
-                  Stack(
-                    children: [
-                      BlocSelector<ProfileManagement, ProfileState, String?>(
-                        selector: (ProfileState state) => state.avt,
-                        builder: (context, state) {
-                          final avtUrl = state;
-                          return CircleAvatar(
-                            radius: 48,
-                            backgroundColor: Colors.grey[800],
-                            backgroundImage: avtUrl != null
-                                ? NetworkImage(avtUrl)
-                                : null,
-                            child: avtUrl == null
-                                ? Icon(
-                                    Icons.person,
-                                    size: 48,
-                                    color: VColors.white.withAlpha(155),
-                                  )
-                                : null,
-                          );
-                        },
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: GestureDetector(
-                          onTap: () {
-                            // TODO: pick/upload a new avatar image
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.all(6),
-                            decoration: BoxDecoration(
-                              color: VColors.colorIcon,
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: VColors.blackBackground,
-                                width: 2,
+                  BlocSelector<
+                    ProfileManagement,
+                    ProfileState,
+                    (String?, String?, String?)
+                  >(
+                    selector: (state) => (state.avt, state.name, state.email),
+                    builder: (context, state) {
+                      final avtUrl = state.$1;
+                      final name = state.$2;
+                      final email = state.$3;
+                      return Column(
+                        children: [
+                          Stack(
+                            children: [
+                              GestureDetector(
+                                child: CircleAvatar(
+                                  radius: 48,
+                                  backgroundColor: Colors.grey[800],
+                                  backgroundImage: avtUrl != null
+                                      ? CachedNetworkImageProvider(avtUrl)
+                                      : image != null
+                                      ? FileImage(File(image!.path))
+                                      : null,
+                                  child: avtUrl == null && image == null
+                                      ? Icon(
+                                          Icons.person,
+                                          size: 48,
+                                          color: VColors.white.withAlpha(155),
+                                        )
+                                      : null,
+                                ),
+                                onTap: () {
+                                  showGeneralDialog(
+                                    context: context,
+                                    pageBuilder:
+                                        (
+                                          context,
+                                          animation,
+                                          secondaryAnimation,
+                                        ) {
+                                          return Center(
+                                            child: ScaleTransition(
+                                              scale: animation,
+                                              child: ClipRRect(
+                                                borderRadius:
+                                                    BorderRadiusGeometry.circular(
+                                                      20,
+                                                    ),
+                                                child: CachedNetworkImage(
+                                                  height: _screenHeight * 0.5,
+                                                  width: _screenWidth * 0.9,
+                                                  imageUrl: avtUrl!,
+                                                  fit: BoxFit.cover,
+                                                  errorWidget:
+                                                      (context, url, error) =>
+                                                          const Icon(
+                                                            Icons.error,
+                                                            color: Colors.white,
+                                                          ),
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                  );
+                                },
                               ),
-                            ),
-                            child: const Icon(
-                              Icons.camera_alt,
-                              size: 16,
-                              color: Colors.white,
+                              ValueListenableBuilder(
+                                valueListenable: _isUploadAvt,
+                                builder: (context, isUpload, child) {
+                                  return !isUpload
+                                      ? CameraButton(
+                                          onTap: () async {
+                                            image = await _pick.pickImage(
+                                              source: ImageSource.gallery,
+                                            );
+                                            if (image != null) {
+                                              _profileManagement
+                                                  .setAvatarFromImagePicker();
+                                              _isUploadAvt.value = true;
+                                            }
+                                          },
+                                          size: 16,
+                                          borderColor: VColors.blackBackground,
+                                          icon: Icons.camera_alt,
+                                          backgroundColor: VColors.colorIcon,
+                                          iconColor: VColors.white,
+                                        )
+                                      : CameraButton(
+                                          onTap: () {},
+                                          size: 20,
+                                          borderColor: VColors.blackBackground,
+                                          icon: Icons.done_outline_rounded,
+                                          iconColor: Colors.green,
+                                          backgroundColor: VColors.white,
+                                        );
+                                },
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            name ?? "Not Defined",
+                            style: TextStyle(
+                              color: VColors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    "_name",
-                    style: TextStyle(
-                      color: VColors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    "_email",
-                    style: TextStyle(
-                      color: VColors.white.withAlpha(155),
-                      fontSize: 14,
-                    ),
+                          const SizedBox(height: 4),
+                          Text(
+                            email ?? "Not Defined",
+                            style: TextStyle(
+                              color: VColors.white.withAlpha(155),
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      );
+                    },
                   ),
                   const SizedBox(height: 16),
                   OutlinedButton(

@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:injectable/injectable.dart';
 import 'package:rive/rive.dart';
 
@@ -12,6 +13,7 @@ class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
 
   Future<void> _initApp() async {
+    await dotenv.load(fileName: ".env");
     await configurationDependencies(Environment.dev);
     await RiveNative.init();
     await Firebase.initializeApp(

@@ -4,33 +4,33 @@ class ProfileState extends Equatable {
   final String? name;
   final String? email;
   final String? avt;
-  final bool isLoadingProfile;
-  final String? errorProfile;
+  final bool isLoading;
+  final String? error;
 
   const ProfileState({
     this.name,
     this.email,
     this.avt,
-    this.isLoadingProfile = false,
-    this.errorProfile,
+    this.isLoading = false,
+    this.error,
   });
 
   ProfileState copyWith({
     String? name,
     String? email,
     String? avt,
-    bool? isLoadingProfile,
-    String? errorProfile,
+    bool? isLoading,
+    String? error,
   }) {
     return ProfileState(
       name: name ?? this.name,
       email: email ?? this.email,
-      avt: avt ?? this.avt,
-      isLoadingProfile: isLoadingProfile ?? this.isLoadingProfile,
-      errorProfile: errorProfile ?? this.errorProfile,
+      avt: avt,
+      isLoading: isLoading ?? this.isLoading,
+      error: error ?? this.error,
     );
   }
 
   @override
-  List<Object?> get props => [name, email, avt, isLoadingProfile, errorProfile];
+  List<Object?> get props => [name, email, avt, isLoading, error];
 }
