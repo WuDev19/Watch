@@ -16,4 +16,9 @@ class UserRepositoryImpl implements UserRepository {
     final response = await _userRemoteDataSource.getMyProfile();
     return UserMapper.mapToProfile(response);
   }
+
+  @override
+  Future<void> updateAvatar(String file) {
+    return _userRemoteDataSource.updateAvatar(file);
+  }
 }

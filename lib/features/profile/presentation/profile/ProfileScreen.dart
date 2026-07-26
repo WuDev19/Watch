@@ -3,12 +3,14 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:movie_app/core/colors/VColors.dart';
 import 'package:movie_app/features/profile/presentation/profile/state/ProfileState.dart';
 import 'package:movie_app/features/profile/presentation/profile/state_management/ProfileManagement.dart';
 import 'package:movie_app/features/profile/presentation/profile/widgets/CameraButton.dart';
 import 'package:movie_app/features/profile/presentation/profile/widgets/OptionTile.dart';
+import 'package:movie_app/utils/MethodHelperUtils.dart';
 import 'package:movie_app/utils/constants.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -156,7 +158,48 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         )
                                       : CameraButton(
                                           onTap: () {
-                                            _isUploadAvt.value = false;
+                                            if (image != null) {
+                                              showDialog(
+                                                context: context,
+                                                barrierDismissible: false,
+                                                builder: (_) => const Center(
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                        color:
+                                                            VColors.colorIcon,
+                                                      ),
+                                                ),
+                                              );
+                                              _profileManagement
+                                                  .updateAvatar(image!.path)
+                                                  .then((value) {
+                                                    if (!context.mounted) {
+                                                      return;
+                                                    }
+                                                    MethodHelperUtils.showSnackBar(
+                                                      context,
+                                                      "Update avatar successfully",
+                                                    );
+                                                    _isUploadAvt.value = false;
+                                                    Navigator.of(
+                                                      context,
+                                                      rootNavigator: true,
+                                                    ).pop();
+                                                  })
+                                                  .catchError((e) {
+                                                    if (!context.mounted) {
+                                                      return;
+                                                    }
+                                                    MethodHelperUtils.showSnackBar(
+                                                      context,
+                                                      "Update avatar unsuccessfully because of ${e.toString()}",
+                                                    );
+                                                    Navigator.of(
+                                                      context,
+                                                      rootNavigator: true,
+                                                    ).pop();
+                                                  });
+                                            }
                                           },
                                           size: 20,
                                           borderColor: VColors.blackBackground,

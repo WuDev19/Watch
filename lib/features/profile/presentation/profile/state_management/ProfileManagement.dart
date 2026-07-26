@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
+import 'package:movie_app/features/profile/domain/usecases/UpdateAvatarUseCase.dart';
 import 'package:movie_app/features/profile/presentation/profile/state/ProfileState.dart';
 
 import '../../../domain/usecases/GetMyProfileUseCase.dart';
@@ -7,8 +8,10 @@ import '../../../domain/usecases/GetMyProfileUseCase.dart';
 @injectable
 class ProfileManagement extends Cubit<ProfileState> {
   final GetMyProfileUseCase _getMyProfileUseCase;
+  final UpdateAvatarUseCase _updateAvatarUseCase;
 
-  ProfileManagement(this._getMyProfileUseCase) : super(ProfileState());
+  ProfileManagement(this._getMyProfileUseCase, this._updateAvatarUseCase)
+    : super(ProfileState());
 
   void getMyProfile() async {
     emit(state.copyWith(isLoading: true));
@@ -31,4 +34,5 @@ class ProfileManagement extends Cubit<ProfileState> {
     emit(state.copyWith(avt: null));
   }
 
+  Future<void> updateAvatar(String file) => _updateAvatarUseCase.execute(file);
 }

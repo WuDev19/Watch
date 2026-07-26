@@ -10,6 +10,7 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:cloud_firestore/cloud_firestore.dart' as _i974;
+import 'package:cloudinary_public/cloudinary_public.dart' as _i524;
 import 'package:dio/dio.dart' as _i361;
 import 'package:firebase_auth/firebase_auth.dart' as _i59;
 import 'package:get_it/get_it.dart' as _i174;
@@ -95,8 +96,11 @@ import '../../features/profile/data/repositories/UserRepositoryImpl.dart'
 import '../../features/profile/domain/repositories/UserRepository.dart' as _i4;
 import '../../features/profile/domain/usecases/GetMyProfileUseCase.dart'
     as _i39;
+import '../../features/profile/domain/usecases/UpdateAvatarUseCase.dart'
+    as _i69;
 import '../../features/profile/presentation/profile/state_management/ProfileManagement.dart'
     as _i249;
+import 'CloudinaryModule.dart' as _i656;
 import 'FirebaseModule.dart' as _i570;
 import 'IsarModule.dart' as _i448;
 import 'NetworkModule.dart' as _i802;
@@ -110,6 +114,7 @@ extension GetItInjectableX on _i174.GetIt {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     final isarModule = _$IsarModule();
     final networkModule = _$NetworkModule();
+    final cloudinaryModule = _$CloudinaryModule();
     final firebaseModule = _$FirebaseModule();
     gh.factory<_i673.ScalePageBloc>(() => _i673.ScalePageBloc());
     await gh.singletonAsync<_i214.Isar>(
@@ -117,19 +122,23 @@ extension GetItInjectableX on _i174.GetIt {
       preResolve: true,
     );
     gh.singleton<_i361.Dio>(() => networkModule.provideDio());
+    gh.lazySingleton<_i524.CloudinaryPublic>(
+      () => cloudinaryModule.provideCloudinary(),
+    );
     gh.lazySingleton<_i59.FirebaseAuth>(
       () => firebaseModule.provideFirebaseAuth(),
     );
     gh.lazySingleton<_i974.FirebaseFirestore>(
       () => firebaseModule.provideFirebaseFirestore(),
     );
-    gh.singleton<_i500.MovieApi>(() => _i500.MovieApi(gh<_i361.Dio>()));
     gh.lazySingleton<_i1055.UserRemoteDataSource>(
       () => _i84.UserRemoteDataSourceImpl(
         gh<_i974.FirebaseFirestore>(),
         gh<_i59.FirebaseAuth>(),
+        gh<_i524.CloudinaryPublic>(),
       ),
     );
+    gh.singleton<_i500.MovieApi>(() => _i500.MovieApi(gh<_i361.Dio>()));
     gh.lazySingleton<_i633.AuthRemoteDataSource>(
       () => _i50.AuthRemoteDataSourceImpl(
         gh<_i974.FirebaseFirestore>(),
@@ -227,6 +236,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i39.GetMyProfileUseCase>(
       () => _i39.GetMyProfileUseCase(gh<_i4.UserRepository>()),
     );
+    gh.lazySingleton<_i69.UpdateAvatarUseCase>(
+      () => _i69.UpdateAvatarUseCase(gh<_i4.UserRepository>()),
+    );
     gh.factory<_i862.MovieDetailManagement>(
       () => _i862.MovieDetailManagement(
         gh<_i244.GetMovieDetailsInfoUseCase>(),
@@ -237,9 +249,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i582.SaveFavoriteMovieUseCase>(),
         gh<_i380.DeleteFavoriteUseCase>(),
       ),
-    );
-    gh.factory<_i249.ProfileManagement>(
-      () => _i249.ProfileManagement(gh<_i39.GetMyProfileUseCase>()),
     );
     gh.factory<_i964.SearchPageManagement>(
       () => _i964.SearchPageManagement(
@@ -262,6 +271,12 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i582.LoginCubit(
         gh<_i934.LoginUseCase>(),
         gh<_i1054.SendEmailResetPasswordUseCase>(),
+      ),
+    );
+    gh.factory<_i249.ProfileManagement>(
+      () => _i249.ProfileManagement(
+        gh<_i39.GetMyProfileUseCase>(),
+        gh<_i69.UpdateAvatarUseCase>(),
       ),
     );
     gh.factory<_i874.SettingScreenManagement>(
@@ -293,5 +308,7 @@ extension GetItInjectableX on _i174.GetIt {
 class _$IsarModule extends _i448.IsarModule {}
 
 class _$NetworkModule extends _i802.NetworkModule {}
+
+class _$CloudinaryModule extends _i656.CloudinaryModule {}
 
 class _$FirebaseModule extends _i570.FirebaseModule {}

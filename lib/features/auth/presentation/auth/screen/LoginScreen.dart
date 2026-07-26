@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:movie_app/features/auth/presentation/auth/state/AuthState.dart';
 import 'package:movie_app/features/auth/presentation/auth/state_management/LoginCubit.dart';
 import 'package:movie_app/features/auth/presentation/auth/widgets/ForgotPassword.dart';
+import 'package:movie_app/utils/MethodHelperUtils.dart';
 import 'package:rive/rive.dart';
 
 import '../../../../../core/colors/VColors.dart';
@@ -229,14 +230,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                         .then((value) {
                                           if (!context.mounted) return;
                                           context.pop(email);
-                                          _showSnackBar(
+                                          MethodHelperUtils.showSnackBar(
                                             context,
                                             "Vui lòng kiểm tra email để đặt lại mật khẩu",
                                           );
                                         })
                                         .catchError((e) {
                                           if (!context.mounted) return;
-                                          _showSnackBar(
+                                          MethodHelperUtils.showSnackBar(
                                             context,
                                             "Gửi email reset không thành công, "
                                             "hãy đảm bảo rằng bạn nhập email đã đăng ký tài khoản trước đó "
@@ -283,7 +284,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         break;
                       case Error():
                         context.pop();
-                        _showSnackBar(
+                        MethodHelperUtils.showSnackBar(
                           context,
                           "Đăng nhập không thành công, xem lại thông tin hoặc kết nối mạng",
                         );
@@ -346,11 +347,5 @@ class _LoginScreenState extends State<LoginScreen> {
         ],
       ),
     );
-  }
-
-  void _showSnackBar(BuildContext context, String content) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(content)));
   }
 }

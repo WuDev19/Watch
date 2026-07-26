@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import '../features/movie/domain/models/EpisodeList.dart';
 
 class MethodHelperUtils {
@@ -16,5 +18,11 @@ class MethodHelperUtils {
         : int.tryParse(currentEpisode.slug) == null
         ? 1
         : int.parse(currentEpisode.slug);
+  }
+
+  static void showSnackBar(BuildContext context, String content) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(content)));
   }
 }
