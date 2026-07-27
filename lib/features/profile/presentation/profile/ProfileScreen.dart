@@ -117,18 +117,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                     BorderRadiusGeometry.circular(
                                                       20,
                                                     ),
-                                                child: CachedNetworkImage(
-                                                  height: _screenHeight * 0.5,
-                                                  width: _screenWidth * 0.9,
-                                                  imageUrl: avtUrl!,
-                                                  fit: BoxFit.cover,
-                                                  errorWidget:
-                                                      (context, url, error) =>
-                                                          const Icon(
-                                                            Icons.error,
-                                                            color: Colors.white,
-                                                          ),
-                                                ),
+                                                child: avtUrl != null
+                                                    ? CachedNetworkImage(
+                                                        height:
+                                                            _screenHeight * 0.5,
+                                                        width:
+                                                            _screenWidth * 0.9,
+                                                        imageUrl: avtUrl,
+                                                        fit: BoxFit.cover,
+                                                        errorWidget:
+                                                            (
+                                                              context,
+                                                              url,
+                                                              error,
+                                                            ) => const Icon(
+                                                              Icons.error,
+                                                              color:
+                                                                  Colors.white,
+                                                            ),
+                                                      )
+                                                    : image != null
+                                                    ? Image.file(
+                                                        File(image!.path),
+                                                        height:
+                                                            _screenHeight * 0.5,
+                                                        width:
+                                                            _screenWidth * 0.9,
+                                                        fit: BoxFit.cover,
+                                                      )
+                                                    : Icon(Icons.person),
                                               ),
                                             ),
                                           );
@@ -195,7 +212,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       );
                     },
                   ),
-                  const SizedBox(height: 16),
+                  BlocListener<ProfileManagement, ProfileState>(
+                    listenWhen: (previous, current) =>
+                        previous.updateEmailState != current.updateEmailState,
+                    listener: (context, state) {
+                      if (state.updateEmailState.isLoading) {
+                        _showLoadingDialog(context);
+                      } else if (state.updateEmailState.error != null) {
+                        Navigator.of(context, rootNavigator: true).pop();
+                        MethodHelperUtils.showSnackBar(
+                          context,
+                          state.updateEmailState.error!,
+                        );
+                      } else {
+                        Navigator.of(context, rootNavigator: true).pop();
+                        MethodHelperUtils.showSnackBar(
+                          context,
+                          "Update successfully",
+                        );
+                      }
+                    },
+                    child: const SizedBox(height: 16),
+                  ),
                   OutlinedButton(
                     onPressed: () => _onEditProfilePressed(context),
                     style: OutlinedButton.styleFrom(
@@ -407,7 +445,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required String title,
     required String hint,
     required String initialValue,
-    required Future<void> Function(String value) onSave,
+    required void Function(String value) onSave,
     TextInputType keyboardType = TextInputType.text,
   }) {
     final controller = TextEditingController(text: initialValue);
@@ -422,7 +460,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         title: Text(title, style: TextStyle(color: VColors.white)),
         content: TextField(
           controller: controller,
-          autofocus: true,
           keyboardType: keyboardType,
           style: const TextStyle(color: VColors.white),
           decoration: InputDecoration(
@@ -458,21 +495,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               final value = controller.text.trim();
               if (value.isEmpty) return;
               Navigator.of(dialogContext).pop();
-              _showLoadingDialog(context);
-              onSave(value)
-                  .then((_) {
-                    if (!context.mounted) return;
-                    Navigator.of(context, rootNavigator: true).pop();
-                    MethodHelperUtils.showSnackBar(
-                      context,
-                      "Update successfully",
-                    );
-                  })
-                  .catchError((e) {
-                    if (!context.mounted) return;
-                    Navigator.of(context, rootNavigator: true).pop();
-                    MethodHelperUtils.showSnackBar(context, e.toString());
-                  });
+              onSave(value);
             },
             child: const Text("Save", style: TextStyle(color: Colors.black)),
           ),

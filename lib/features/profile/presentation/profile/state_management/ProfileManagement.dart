@@ -1,6 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:movie_app/features/auth/domain/usecases/LogoutUseCase.dart';
+import 'package:movie_app/features/auth/domain/usecases/ReauthenticateUseCase.dart';
 import 'package:movie_app/features/profile/domain/usecases/UpdateAvatarUseCase.dart';
 import 'package:movie_app/features/profile/domain/usecases/UpdateEmailUseCase.dart';
 import 'package:movie_app/features/profile/domain/usecases/UpdateNameUseCase.dart';
@@ -15,6 +17,7 @@ class ProfileManagement extends Cubit<ProfileState> {
   final LogoutUseCase _logoutUseCase;
   final UpdateEmailUseCase _updateEmailUseCase;
   final UpdateNameUseCase _updateNameUseCase;
+  final ReauthenticateUseCase _reauthenticateUseCase;
 
   ProfileManagement(
     this._getMyProfileUseCase,
@@ -22,6 +25,7 @@ class ProfileManagement extends Cubit<ProfileState> {
     this._logoutUseCase,
     this._updateEmailUseCase,
     this._updateNameUseCase,
+    this._reauthenticateUseCase,
   ) : super(ProfileState());
 
   void getMyProfile() async {
@@ -49,7 +53,61 @@ class ProfileManagement extends Cubit<ProfileState> {
 
   Future<void> logout() => _logoutUseCase.execute();
 
-  Future<void> updateName(String name) => _updateNameUseCase.execute(name);
+  void updateName(String name) async {
+    _updateNameUseCase.execute(name);
+  }
 
-  Future<void> updateEmail(String email) => _updateEmailUseCase.execute(email);
+  void updateEmail(String email) async {
+    emit(
+      state.copyWith(
+        avt: state.avt,
+        updateEmailState: state.updateEmailState.copyWith(isLoading: true),
+      ),
+    );
+    try {
+      await _updateEmailUseCase.execute(email);
+      emit(
+        state.copyWith(
+          avt: state.avt,
+          updateEmailState: state.updateEmailState.copyWith(isLoading: false),
+        ),
+      );
+    } catch (e) {
+      if (e is FirebaseAuthException && e.code == "requires-recent-login") {
+        try {
+          await _reauthenticateUseCase.execute();
+          await _updateEmailUseCase.execute(email);
+          emit(
+            state.copyWith(
+              avt: state.avt,
+              updateEmailState: state.updateEmailState.copyWith(
+                isLoading: false,
+              ),
+            ),
+          );
+        } catch (e) {
+          emit(
+            state.copyWith(
+              avt: state.avt,
+              updateEmailState: state.updateEmailState.copyWith(
+                isLoading: false,
+                error: e.toString(),
+              ),
+            ),
+          );
+        }
+      } else {
+        print("lỗi tiếp ${e.toString()}");
+        emit(
+          state.copyWith(
+            avt: state.avt,
+            updateEmailState: state.updateEmailState.copyWith(
+              isLoading: false,
+              error: e.toString(),
+            ),
+          ),
+        );
+      }
+    }
+  }
 }

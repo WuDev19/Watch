@@ -52,4 +52,13 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<void> sendEmailResetPassword(String email) {
     return _firebaseAuth.sendPasswordResetEmail(email: email);
   }
+
+  @override
+  Future<void> reauthenticate(String email, String password) {
+    final credential = EmailAuthProvider.credential(
+      email: email,
+      password: password,
+    );
+    return _firebaseAuth.currentUser!.reauthenticateWithCredential(credential);
+  }
 }

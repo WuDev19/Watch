@@ -16,6 +16,7 @@ import 'package:firebase_auth/firebase_auth.dart' as _i59;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 import 'package:isar_community/isar.dart' as _i214;
+import 'package:shared_preferences/shared_preferences.dart' as _i460;
 
 import '../../features/auth/data/datasources/third-source/base/AuthRemoteDataSource.dart'
     as _i633;
@@ -26,6 +27,8 @@ import '../../features/auth/domain/repositories/AuthRepository.dart' as _i966;
 import '../../features/auth/domain/usecases/CheckLoginUseCase.dart' as _i163;
 import '../../features/auth/domain/usecases/LoginUseCase.dart' as _i934;
 import '../../features/auth/domain/usecases/LogoutUseCase.dart' as _i672;
+import '../../features/auth/domain/usecases/ReauthenticateUseCase.dart'
+    as _i436;
 import '../../features/auth/domain/usecases/SendEmailResetPasswordUseCase.dart'
     as _i1054;
 import '../../features/auth/domain/usecases/SignUpUseCase.dart' as _i47;
@@ -107,6 +110,7 @@ import 'CloudinaryModule.dart' as _i656;
 import 'FirebaseModule.dart' as _i570;
 import 'IsarModule.dart' as _i448;
 import 'NetworkModule.dart' as _i802;
+import 'SharePreferencesModule.dart' as _i950;
 
 extension GetItInjectableX on _i174.GetIt {
   // initializes the registration of main-scope dependencies inside of GetIt
@@ -115,10 +119,15 @@ extension GetItInjectableX on _i174.GetIt {
     _i526.EnvironmentFilter? environmentFilter,
   }) async {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
+    final sharePreferencesModule = _$SharePreferencesModule();
     final isarModule = _$IsarModule();
     final networkModule = _$NetworkModule();
     final cloudinaryModule = _$CloudinaryModule();
     final firebaseModule = _$FirebaseModule();
+    await gh.factoryAsync<_i460.SharedPreferences>(
+      () => sharePreferencesModule.provideSharedPreferences(),
+      preResolve: true,
+    );
     gh.factory<_i673.ScalePageBloc>(() => _i673.ScalePageBloc());
     await gh.singletonAsync<_i214.Isar>(
       () => isarModule.provideIsar(),
@@ -153,6 +162,12 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i503.MovieRepository>(
       () => _i709.MovieRepositoryImpl(gh<_i500.MovieApi>(), gh<_i214.Isar>()),
+    );
+    gh.lazySingleton<_i966.AuthRepository>(
+      () => _i763.AuthRepositoryImpl(
+        gh<_i633.AuthRemoteDataSource>(),
+        gh<_i460.SharedPreferences>(),
+      ),
     );
     gh.factory<_i663.GetLastWatchedMovieUseCase>(
       () => _i663.GetLastWatchedMovieUseCase(gh<_i503.MovieRepository>()),
@@ -218,9 +233,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i68.SearchMovieUseCase>(
       () => _i68.SearchMovieUseCase(gh<_i503.MovieRepository>()),
     );
-    gh.lazySingleton<_i966.AuthRepository>(
-      () => _i763.AuthRepositoryImpl(gh<_i633.AuthRemoteDataSource>()),
-    );
     gh.lazySingleton<_i163.CheckLoginUseCase>(
       () => _i163.CheckLoginUseCase(gh<_i966.AuthRepository>()),
     );
@@ -229,6 +241,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i672.LogoutUseCase>(
       () => _i672.LogoutUseCase(gh<_i966.AuthRepository>()),
+    );
+    gh.lazySingleton<_i436.ReauthenticateUseCase>(
+      () => _i436.ReauthenticateUseCase(gh<_i966.AuthRepository>()),
     );
     gh.lazySingleton<_i1054.SendEmailResetPasswordUseCase>(
       () => _i1054.SendEmailResetPasswordUseCase(gh<_i966.AuthRepository>()),
@@ -301,9 +316,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i380.DeleteFavoriteUseCase>(),
       ),
     );
-    gh.factory<_i276.SignUpCubit>(
-      () => _i276.SignUpCubit(gh<_i47.SignUpUseCase>()),
-    );
     gh.factory<_i249.ProfileManagement>(
       () => _i249.ProfileManagement(
         gh<_i39.GetMyProfileUseCase>(),
@@ -311,11 +323,17 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i672.LogoutUseCase>(),
         gh<_i841.UpdateEmailUseCase>(),
         gh<_i997.UpdateNameUseCase>(),
+        gh<_i436.ReauthenticateUseCase>(),
       ),
+    );
+    gh.factory<_i276.SignUpCubit>(
+      () => _i276.SignUpCubit(gh<_i47.SignUpUseCase>()),
     );
     return this;
   }
 }
+
+class _$SharePreferencesModule extends _i950.SharePreferencesModule {}
 
 class _$IsarModule extends _i448.IsarModule {}
 

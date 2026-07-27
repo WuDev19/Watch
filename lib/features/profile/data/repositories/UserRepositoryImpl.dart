@@ -1,6 +1,7 @@
 import 'package:injectable/injectable.dart';
 import 'package:movie_app/features/profile/domain/models/Profile.dart';
 import 'package:movie_app/features/profile/domain/repositories/UserRepository.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../datasources/third-source/base/UserRemoteDataSource.dart';
 import '../datasources/third-source/mapper/UserMapper.dart';
@@ -8,8 +9,9 @@ import '../datasources/third-source/mapper/UserMapper.dart';
 @LazySingleton(as: UserRepository)
 class UserRepositoryImpl implements UserRepository {
   final UserRemoteDataSource _userRemoteDataSource;
+  final SharedPreferences _sharedPreferences;
 
-  UserRepositoryImpl(this._userRemoteDataSource);
+  UserRepositoryImpl(this._userRemoteDataSource, this._sharedPreferences);
 
   @override
   Future<Profile> getMyProfile() async {
@@ -23,7 +25,8 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
-  Future<void> updateEmail(String email) {
+  Future<void> updateEmail(String email) async{
+    await _sharedPreferences.setString("email", email);
     return _userRemoteDataSource.updateEmail(email);
   }
 
