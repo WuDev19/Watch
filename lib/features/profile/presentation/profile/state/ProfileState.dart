@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:movie_app/features/profile/presentation/profile/state/UpdateNameState.dart';
 
 import 'UpdateEmailState.dart';
 
@@ -9,6 +10,7 @@ class ProfileState extends Equatable {
   final bool isLoading;
   final String? error;
   final UpdateEmailState updateEmailState;
+  final UpdateNameState updateNameState;
 
   const ProfileState({
     this.name,
@@ -17,6 +19,7 @@ class ProfileState extends Equatable {
     this.isLoading = false,
     this.error,
     this.updateEmailState = const UpdateEmailState(),
+    this.updateNameState = const UpdateNameState(),
   });
 
   ProfileState copyWith({
@@ -26,6 +29,7 @@ class ProfileState extends Equatable {
     bool? isLoading,
     String? error,
     UpdateEmailState? updateEmailState,
+    UpdateNameState? updateNameState,
   }) {
     return ProfileState(
       name: name ?? this.name,
@@ -34,6 +38,7 @@ class ProfileState extends Equatable {
       isLoading: isLoading ?? this.isLoading,
       error: error ?? this.error,
       updateEmailState: updateEmailState ?? this.updateEmailState,
+      updateNameState: updateNameState ?? this.updateNameState,
     );
   }
 
@@ -45,5 +50,6 @@ class ProfileState extends Equatable {
     isLoading,
     error,
     updateEmailState,
+    updateNameState,
   ];
 }

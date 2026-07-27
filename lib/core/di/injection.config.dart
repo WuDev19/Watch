@@ -97,6 +97,8 @@ import '../../features/profile/data/datasources/third-source/impl/UserRemoteData
 import '../../features/profile/data/repositories/UserRepositoryImpl.dart'
     as _i663;
 import '../../features/profile/domain/repositories/UserRepository.dart' as _i4;
+import '../../features/profile/domain/usecases/CheckVerifiedNewEmailUseCase.dart'
+    as _i304;
 import '../../features/profile/domain/usecases/GetMyProfileUseCase.dart'
     as _i39;
 import '../../features/profile/domain/usecases/UpdateAvatarUseCase.dart'
@@ -151,14 +153,32 @@ extension GetItInjectableX on _i174.GetIt {
       ),
     );
     gh.singleton<_i500.MovieApi>(() => _i500.MovieApi(gh<_i361.Dio>()));
+    gh.lazySingleton<_i4.UserRepository>(
+      () => _i663.UserRepositoryImpl(
+        gh<_i1055.UserRemoteDataSource>(),
+        gh<_i460.SharedPreferences>(),
+      ),
+    );
+    gh.lazySingleton<_i39.GetMyProfileUseCase>(
+      () => _i39.GetMyProfileUseCase(gh<_i4.UserRepository>()),
+    );
+    gh.lazySingleton<_i69.UpdateAvatarUseCase>(
+      () => _i69.UpdateAvatarUseCase(gh<_i4.UserRepository>()),
+    );
+    gh.lazySingleton<_i841.UpdateEmailUseCase>(
+      () => _i841.UpdateEmailUseCase(gh<_i4.UserRepository>()),
+    );
+    gh.lazySingleton<_i997.UpdateNameUseCase>(
+      () => _i997.UpdateNameUseCase(gh<_i4.UserRepository>()),
+    );
+    gh.lazySingleton<_i304.CheckVerifiedNewEmailUseCase>(
+      () => _i304.CheckVerifiedNewEmailUseCase(gh<_i4.UserRepository>()),
+    );
     gh.lazySingleton<_i633.AuthRemoteDataSource>(
       () => _i50.AuthRemoteDataSourceImpl(
         gh<_i974.FirebaseFirestore>(),
         gh<_i59.FirebaseAuth>(),
       ),
-    );
-    gh.lazySingleton<_i4.UserRepository>(
-      () => _i663.UserRepositoryImpl(gh<_i1055.UserRemoteDataSource>()),
     );
     gh.lazySingleton<_i503.MovieRepository>(
       () => _i709.MovieRepositoryImpl(gh<_i500.MovieApi>(), gh<_i214.Isar>()),
@@ -251,18 +271,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i47.SignUpUseCase>(
       () => _i47.SignUpUseCase(gh<_i966.AuthRepository>()),
     );
-    gh.lazySingleton<_i39.GetMyProfileUseCase>(
-      () => _i39.GetMyProfileUseCase(gh<_i4.UserRepository>()),
-    );
-    gh.lazySingleton<_i69.UpdateAvatarUseCase>(
-      () => _i69.UpdateAvatarUseCase(gh<_i4.UserRepository>()),
-    );
-    gh.lazySingleton<_i841.UpdateEmailUseCase>(
-      () => _i841.UpdateEmailUseCase(gh<_i4.UserRepository>()),
-    );
-    gh.lazySingleton<_i997.UpdateNameUseCase>(
-      () => _i997.UpdateNameUseCase(gh<_i4.UserRepository>()),
-    );
     gh.factory<_i862.MovieDetailManagement>(
       () => _i862.MovieDetailManagement(
         gh<_i244.GetMovieDetailsInfoUseCase>(),
@@ -316,6 +324,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i380.DeleteFavoriteUseCase>(),
       ),
     );
+    gh.factory<_i276.SignUpCubit>(
+      () => _i276.SignUpCubit(gh<_i47.SignUpUseCase>()),
+    );
     gh.factory<_i249.ProfileManagement>(
       () => _i249.ProfileManagement(
         gh<_i39.GetMyProfileUseCase>(),
@@ -324,10 +335,8 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i841.UpdateEmailUseCase>(),
         gh<_i997.UpdateNameUseCase>(),
         gh<_i436.ReauthenticateUseCase>(),
+        gh<_i304.CheckVerifiedNewEmailUseCase>(),
       ),
-    );
-    gh.factory<_i276.SignUpCubit>(
-      () => _i276.SignUpCubit(gh<_i47.SignUpUseCase>()),
     );
     return this;
   }

@@ -21,7 +21,8 @@ class ProfileScreen extends StatefulWidget {
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfileScreenState extends State<ProfileScreen>
+    with WidgetsBindingObserver {
   late ProfileManagement _profileManagement;
   late double _screenHeight;
   late double _screenWidth;
@@ -32,6 +33,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _profileManagement = context.read<ProfileManagement>();
     _profileManagement.getMyProfile();
   }
@@ -45,8 +47,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   void dispose() {
-    super.dispose();
+    WidgetsBinding.instance.removeObserver(this);
     _isUploadAvt.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      _profileManagement.checkPendingEmailVerification().then((value) {
+        _profileManagement.getMyProfile();
+      });
+    }
   }
 
   @override
@@ -228,7 +241,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Navigator.of(context, rootNavigator: true).pop();
                         MethodHelperUtils.showSnackBar(
                           context,
-                          "Update successfully",
+                          "Please check your new email to verify",
                         );
                       }
                     },
@@ -237,7 +250,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   OutlinedButton(
                     onPressed: () => _onEditProfilePressed(context),
                     style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: VColors.colorIcon),
+                      side: const BorderSide(color: VColors.colorIcon),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -254,11 +267,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 28),
+            BlocListener<ProfileManagement, ProfileState>(
+              listenWhen: (previous, current) =>
+                  previous.updateNameState != current.updateNameState,
+              listener: (context, state) {
+                if (state.updateNameState.isLoading) {
+                  _showLoadingDialog(context);
+                } else if (state.updateNameState.error != null) {
+                  Navigator.of(context, rootNavigator: true).pop();
+                  MethodHelperUtils.showSnackBar(
+                    context,
+                    state.updateNameState.error!,
+                  );
+                } else {
+                  Navigator.of(context, rootNavigator: true).pop();
+                  MethodHelperUtils.showSnackBar(
+                    context,
+                    "Update successfully",
+                  );
+                  _profileManagement.getMyProfile();
+                }
+              },
+              child: const SizedBox(height: 28),
+            ),
             const Divider(color: Colors.white24, height: 1),
             const SizedBox(height: 12),
 
-            // Account section
             OptionTile(
               icon: Icons.favorite_border,
               title: "My Favorites",

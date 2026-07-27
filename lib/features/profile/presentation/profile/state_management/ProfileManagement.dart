@@ -8,6 +8,7 @@ import 'package:movie_app/features/profile/domain/usecases/UpdateEmailUseCase.da
 import 'package:movie_app/features/profile/domain/usecases/UpdateNameUseCase.dart';
 import 'package:movie_app/features/profile/presentation/profile/state/ProfileState.dart';
 
+import '../../../domain/usecases/CheckVerifiedNewEmailUseCase.dart';
 import '../../../domain/usecases/GetMyProfileUseCase.dart';
 
 @injectable
@@ -18,6 +19,7 @@ class ProfileManagement extends Cubit<ProfileState> {
   final UpdateEmailUseCase _updateEmailUseCase;
   final UpdateNameUseCase _updateNameUseCase;
   final ReauthenticateUseCase _reauthenticateUseCase;
+  final CheckVerifiedNewEmailUseCase _checkVerifiedNewEmailUseCase;
 
   ProfileManagement(
     this._getMyProfileUseCase,
@@ -26,6 +28,7 @@ class ProfileManagement extends Cubit<ProfileState> {
     this._updateEmailUseCase,
     this._updateNameUseCase,
     this._reauthenticateUseCase,
+    this._checkVerifiedNewEmailUseCase,
   ) : super(ProfileState());
 
   void getMyProfile() async {
@@ -54,7 +57,31 @@ class ProfileManagement extends Cubit<ProfileState> {
   Future<void> logout() => _logoutUseCase.execute();
 
   void updateName(String name) async {
-    _updateNameUseCase.execute(name);
+    emit(
+      state.copyWith(
+        avt: state.avt,
+        updateNameState: state.updateNameState.copyWith(isLoading: true),
+      ),
+    );
+    try {
+      await _updateNameUseCase.execute(name);
+      emit(
+        state.copyWith(
+          avt: state.avt,
+          updateNameState: state.updateNameState.copyWith(isLoading: false),
+        ),
+      );
+    } catch (e) {
+      emit(
+        state.copyWith(
+          avt: state.avt,
+          updateNameState: state.updateNameState.copyWith(
+            isLoading: false,
+            error: e.toString(),
+          ),
+        ),
+      );
+    }
   }
 
   void updateEmail(String email) async {
@@ -110,4 +137,7 @@ class ProfileManagement extends Cubit<ProfileState> {
       }
     }
   }
+
+  Future<void> checkPendingEmailVerification() =>
+      _checkVerifiedNewEmailUseCase.execute();
 }

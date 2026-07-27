@@ -25,13 +25,20 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
-  Future<void> updateEmail(String email) async{
-    await _sharedPreferences.setString("email", email);
+  Future<void> updateEmail(String email) async {
+    await _sharedPreferences.setString("newEmail", email);
     return _userRemoteDataSource.updateEmail(email);
   }
 
   @override
   Future<void> updateName(String name) {
     return _userRemoteDataSource.updateName(name);
+  }
+
+  @override
+  Future<void> checkPendingEmailVerification() async {
+    final newEmail =
+        _sharedPreferences.getString("newEmail") ?? "vantoine1905@gmail.com";
+    return _userRemoteDataSource.checkPendingEmailVerification(newEmail);
   }
 }

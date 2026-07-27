@@ -8,4 +8,6 @@ abstract class UserRemoteDataSource {
   Future<void> updateName(String name);
 
   Future<void> updateEmail(String email);
+
+  Future<void> checkPendingEmailVerification(String newEmail);
 }

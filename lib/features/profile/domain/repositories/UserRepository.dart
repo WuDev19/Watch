@@ -8,4 +8,6 @@ abstract class UserRepository {
   Future<void> updateName(String name);
 
   Future<void> updateEmail(String email);
+
+  Future<void> checkPendingEmailVerification();
 }

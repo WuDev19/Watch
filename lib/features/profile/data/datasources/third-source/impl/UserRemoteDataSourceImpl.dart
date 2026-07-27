@@ -48,4 +48,23 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
       .collection(_users)
       .doc(_firebaseAuth.currentUser!.uid)
       .update({"name": name});
+
+  @override
+  Future<void> checkPendingEmailVerification(String newEmail) async {
+    if (newEmail.isEmpty) return;
+    final user = _firebaseAuth.currentUser;
+    if (user == null) return;
+    try {
+      await user.reload();
+      final refreshedUser = _firebaseAuth.currentUser;
+      if (refreshedUser?.email == newEmail) {
+        await _firebaseFirestore
+            .collection(_users)
+            .doc(refreshedUser!.uid)
+            .update({"email": newEmail});
+      }
+    } catch (e) {
+      print("Lỗi khi check email mới ${e.toString()}");
+    }
+  }
 }
