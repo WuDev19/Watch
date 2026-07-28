@@ -3,6 +3,7 @@ import 'package:movie_app/features/auth/domain/models/SignUpModel.dart';
 import 'package:movie_app/features/auth/domain/repositories/AuthRepository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../utils/constants.dart';
 import '../datasources/third-source/base/AuthRemoteDataSource.dart';
 import '../datasources/third-source/mapper/AuthMapper.dart';
 
@@ -32,8 +33,8 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<void> signIn(String email, String password) async {
-    await _sharedPreferences.setString("email", email);
-    await _sharedPreferences.setString("password", password);
+    await _sharedPreferences.setString(Constants.emailKey, email);
+    await _sharedPreferences.setString(Constants.passwordKey, password);
     _authRemoteDataSource.signInEmailPassword(email, password);
   }
 
@@ -44,8 +45,10 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<void> reauthenticate() {
-    final email = _sharedPreferences.getString("email") ?? "test@gmail.com";
-    final password = _sharedPreferences.getString("password") ?? "123456";
+    final email =
+        _sharedPreferences.getString(Constants.emailKey) ?? "test@gmail.com";
+    final password =
+        _sharedPreferences.getString(Constants.passwordKey) ?? "123456";
     return _authRemoteDataSource.reauthenticate(email, password);
   }
 }

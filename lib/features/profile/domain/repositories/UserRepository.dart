@@ -9,5 +9,5 @@ abstract class UserRepository {
 
   Future<void> updateEmail(String email);
 
-  Future<void> checkPendingEmailVerification();
+  Future<bool> checkPendingEmailVerification();
 }

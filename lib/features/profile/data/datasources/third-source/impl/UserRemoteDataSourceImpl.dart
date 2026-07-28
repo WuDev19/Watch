@@ -50,10 +50,10 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
       .update({"name": name});
 
   @override
-  Future<void> checkPendingEmailVerification(String newEmail) async {
-    if (newEmail.isEmpty) return;
+  Future<bool> checkPendingEmailVerification(String newEmail) async {
+    if (newEmail.isEmpty) return false;
     final user = _firebaseAuth.currentUser;
-    if (user == null) return;
+    if (user == null) return false;
     try {
       await user.reload();
       final refreshedUser = _firebaseAuth.currentUser;
@@ -62,9 +62,12 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
             .collection(_users)
             .doc(refreshedUser!.uid)
             .update({"email": newEmail});
+        return true;
       }
     } catch (e) {
       print("Lỗi khi check email mới ${e.toString()}");
+      return false;
     }
+    return false;
   }
 }

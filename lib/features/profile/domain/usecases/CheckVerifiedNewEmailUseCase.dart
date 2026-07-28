@@ -8,5 +8,5 @@ class CheckVerifiedNewEmailUseCase {
 
   CheckVerifiedNewEmailUseCase(this._userRepository);
 
-  Future<void> execute() => _userRepository.checkPendingEmailVerification();
+  Future<bool> execute() => _userRepository.checkPendingEmailVerification();
 }

@@ -9,5 +9,5 @@ abstract class UserRemoteDataSource {
 
   Future<void> updateEmail(String email);
 
-  Future<void> checkPendingEmailVerification(String newEmail);
+  Future<bool> checkPendingEmailVerification(String newEmail);
 }

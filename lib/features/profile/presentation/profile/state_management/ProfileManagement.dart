@@ -138,6 +138,6 @@ class ProfileManagement extends Cubit<ProfileState> {
     }
   }
 
-  Future<void> checkPendingEmailVerification() =>
+  Future<bool> checkPendingEmailVerification() =>
       _checkVerifiedNewEmailUseCase.execute();
 }

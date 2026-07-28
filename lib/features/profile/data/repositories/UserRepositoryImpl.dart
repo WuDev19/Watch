@@ -3,6 +3,7 @@ import 'package:movie_app/features/profile/domain/models/Profile.dart';
 import 'package:movie_app/features/profile/domain/repositories/UserRepository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../utils/constants.dart';
 import '../datasources/third-source/base/UserRemoteDataSource.dart';
 import '../datasources/third-source/mapper/UserMapper.dart';
 
@@ -26,7 +27,7 @@ class UserRepositoryImpl implements UserRepository {
 
   @override
   Future<void> updateEmail(String email) async {
-    await _sharedPreferences.setString("newEmail", email);
+    await _sharedPreferences.setString(Constants.newEmailKey, email);
     return _userRemoteDataSource.updateEmail(email);
   }
 
@@ -36,9 +37,13 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
-  Future<void> checkPendingEmailVerification() async {
-    final newEmail =
-        _sharedPreferences.getString("newEmail") ?? "vantoine1905@gmail.com";
-    return _userRemoteDataSource.checkPendingEmailVerification(newEmail);
+  Future<bool> checkPendingEmailVerification() async {
+    final newEmail = _sharedPreferences.getString(Constants.newEmailKey) ?? "";
+    final result = await _userRemoteDataSource.checkPendingEmailVerification(newEmail);
+    if(result){
+      await _sharedPreferences.remove(Constants.newEmailKey);
+      await _sharedPreferences.setString(Constants.emailKey, newEmail);
+    }
+    return result;
   }
 }

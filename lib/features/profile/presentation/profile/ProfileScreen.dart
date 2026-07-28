@@ -57,7 +57,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.resumed) {
       _profileManagement.checkPendingEmailVerification().then((value) {
-        _profileManagement.getMyProfile();
+        if (value) _profileManagement.getMyProfile();
       });
     }
   }
@@ -92,6 +92,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                       final avtUrl = state.$1;
                       final name = state.$2;
                       final email = state.$3;
+                      print("avatar url: $avtUrl name: $name email: $email");
                       return Column(
                         children: [
                           Stack(

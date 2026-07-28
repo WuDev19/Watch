@@ -13,6 +13,10 @@ class Constants {
   static const String forgotPassword = "Forgot password?";
   static const String appName = "Watch";
   static const String logoutNotification = "Logout successfully";
+  static const String emailKey = "email";
+  static const String passwordKey = "password";
+  static const String newEmailKey = "newEmail";
+
   static double getHeightScreen(BuildContext context) {
     return MediaQuery.of(context).size.height;
   }
