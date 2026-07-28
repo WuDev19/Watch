@@ -13,6 +13,7 @@ import 'package:movie_app/features/profile/presentation/profile/widgets/EditProf
 import 'package:movie_app/features/profile/presentation/profile/widgets/OptionTile.dart';
 import 'package:movie_app/utils/MethodHelperUtils.dart';
 import 'package:movie_app/utils/constants.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -315,22 +316,10 @@ class _ProfileScreenState extends State<ProfileScreen>
                 // TODO: navigate to downloads screen
               },
             ),
-            const SizedBox(height: 12),
-            const Divider(color: Colors.white24, height: 1),
-            const SizedBox(height: 12),
-            OptionTile(
-              icon: Icons.help_outline,
-              title: "Help & Support",
-              onTap: () {
-                // TODO: navigate to help & support screen
-              },
-            ),
             OptionTile(
               icon: Icons.info_outline,
               title: "About",
-              onTap: () {
-                // TODO: navigate to about screen
-              },
+              onTap: () => _onAboutPressed(context),
             ),
             const SizedBox(height: 12),
             const Divider(color: Colors.white24, height: 1),
@@ -537,5 +526,142 @@ class _ProfileScreenState extends State<ProfileScreen>
         ],
       ),
     );
+  }
+
+  void _onAboutPressed(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: VColors.blackBackground,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: VColors.colorIcon, width: 2),
+        ),
+        title: Row(
+          children: [
+            CircleAvatar(
+              radius: 20,
+              backgroundColor: VColors.colorIcon.withAlpha(40),
+              child: Icon(
+                Icons.movie_creation_outlined,
+                color: VColors.colorIcon,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              Constants.appName,
+              style: TextStyle(
+                color: VColors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Version 1.0.0",
+              style: TextStyle(
+                color: VColors.white.withAlpha(155),
+                fontSize: 13,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              "Ứng dụng xem phim trực tuyến giúp bạn khám phá, tìm kiếm "
+              "và theo dõi những bộ phim yêu thích một cách nhanh chóng, "
+              "dễ dàng và mượt mà.",
+              style: TextStyle(
+                color: VColors.white.withAlpha(200),
+                fontSize: 14,
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Divider(color: Colors.white24, height: 1),
+            const SizedBox(height: 16),
+            InkWell(
+              onTap: _launchFacebook,
+              borderRadius: BorderRadius.circular(8),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.code,
+                      size: 18,
+                      color: VColors.white.withAlpha(155),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Nhà phát triển",
+                            style: TextStyle(
+                              color: VColors.white.withAlpha(155),
+                              fontSize: 13,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Row(
+                            children: [
+                              Text(
+                                "Wenwu",
+                                style: TextStyle(
+                                  color: VColors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Icon(
+                                Icons.facebook,
+                                size: 16,
+                                color: Colors.blueAccent,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              "© 2026 All rights reserved.",
+              style: TextStyle(
+                color: VColors.white.withAlpha(120),
+                fontSize: 12,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: VColors.colorIcon,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text("Đóng", style: TextStyle(color: VColors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _launchFacebook() async {
+    final Uri url = Uri.parse("https://www.facebook.com/vanvu.197");
+    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+      throw Exception("Could not launch $url");
+    }
   }
 }

@@ -30,31 +30,85 @@ class SettingScreenManagement extends Cubit<SettingState> {
     this._logoutUseCase,
   ) : super(SettingState());
 
-  void getMyFavoriteMovie() async {
-    emit(state.copyWith(favoriteLoading: true));
+  void getMyFavoriteMovie(bool isRefresh) async {
+    if (!isRefresh) {
+      if (state.favoriteLoading || state.isFavoriteLast) return;
+    }
+    final nextPage = isRefresh ? 0 : state.currentPageFavorite + 1;
+    emit(
+      state.copyWith(
+        favoriteMovies: isRefresh ? const [] : state.favoriteMovies,
+        favoriteLoading: true,
+      ),
+    );
     try {
-      final result = await _getMyFavoriteMovieUseCase.execute();
-      emit(state.copyWith(favoriteMovies: result, favoriteLoading: false));
+      final result = await _getMyFavoriteMovieUseCase.execute(nextPage, 24);
+      emit(
+        state.copyWith(
+          favoriteMovies: isRefresh
+              ? result
+              : [...state.favoriteMovies, ...result],
+          favoriteLoading: false,
+          currentPageFavorite: nextPage,
+          isFavoriteLast: result.length < 24,
+        ),
+      );
     } catch (e) {
       emit(state.copyWith(favoriteError: e.toString(), favoriteLoading: false));
     }
   }
 
-  void getWatchingMovie() async {
-    emit(state.copyWith(watchingLoading: true));
+  void getWatchingMovie(bool isRefresh) async {
+    if (!isRefresh) {
+      if (state.watchingLoading || state.isWatchingLast) return;
+    }
+    final nextPage = isRefresh ? 0 : state.currentPageWatching + 1;
+    emit(
+      state.copyWith(
+        watchingMovies: isRefresh ? const [] : state.watchingMovies,
+        watchingLoading: true,
+      ),
+    );
     try {
-      final result = await _getMovieWatchingUseCase.execute();
-      emit(state.copyWith(watchingMovies: result, watchingLoading: false));
+      final result = await _getMovieWatchingUseCase.execute(nextPage, 24);
+      emit(
+        state.copyWith(
+          watchingMovies: isRefresh
+              ? result
+              : [...state.watchingMovies, ...result],
+          watchingLoading: false,
+          currentPageWatching: nextPage,
+          isWatchingLast: result.length < 24,
+        ),
+      );
     } catch (e) {
       emit(state.copyWith(watchingError: e.toString(), watchingLoading: false));
     }
   }
 
-  void getWatchedMovie() async {
-    emit(state.copyWith(watchedLoading: true));
+  void getWatchedMovie(bool isRefresh) async {
+    if (!isRefresh) {
+      if (state.watchedLoading || state.isWatchedLast) return;
+    }
+    final nextPage = isRefresh ? 0 : state.currentPageWatched + 1;
+    emit(
+      state.copyWith(
+        watchedMovies: isRefresh ? const [] : state.watchedMovies,
+        watchedLoading: true,
+      ),
+    );
     try {
-      final result = await _getWatchedMovieUseCase.execute();
-      emit(state.copyWith(watchedMovies: result, watchedLoading: false));
+      final result = await _getWatchedMovieUseCase.execute(nextPage, 24);
+      emit(
+        state.copyWith(
+          watchedMovies: isRefresh
+              ? result
+              : [...state.watchedMovies, ...result],
+          watchedLoading: false,
+          currentPageWatched: nextPage,
+          isWatchedLast: result.length < 24,
+        ),
+      );
     } catch (e) {
       emit(state.copyWith(watchedError: e.toString(), watchedLoading: false));
     }

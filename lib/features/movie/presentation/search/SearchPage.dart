@@ -68,9 +68,9 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   void _onScrollSearchLast() {
+    if (_isLoadingMore) return;
     if (_searchController.offset >=
         _searchController.position.maxScrollExtent * 0.9) {
-      if (_isLoadingMore) return;
       _isLoadingMore = true;
       _isSearchKeyWord
           ? _searchPageManagement.searchMovie(

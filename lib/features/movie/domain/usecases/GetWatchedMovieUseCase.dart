@@ -8,5 +8,6 @@ class GetWatchedMovieUseCase {
 
   GetWatchedMovieUseCase(this._movieRepository);
 
-  Future<List<MovieWatching>> execute() => _movieRepository.getWatchedMovie();
+  Future<List<MovieWatching>> execute(int page, int size) =>
+      _movieRepository.getWatchedMovie(page, size);
 }

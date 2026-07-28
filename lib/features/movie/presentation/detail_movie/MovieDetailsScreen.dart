@@ -10,6 +10,8 @@ import 'package:movie_app/features/movie/domain/models/MovieDetails.dart';
 import 'package:movie_app/features/movie/domain/models/MovieHistoryModel.dart';
 import 'package:movie_app/features/movie/domain/models/MovieWatch.dart';
 import 'package:movie_app/features/movie/domain/models/SearchMovieDisplay.dart';
+import 'package:movie_app/features/movie/presentation/common_widgets/ErrorHandleWidget.dart';
+import 'package:movie_app/features/movie/presentation/common_widgets/LoadingHandleWidget.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/state/MovieDetailState.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/state_management/MovieDetailManagement.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/widgets/ActorItem.dart';
@@ -36,7 +38,6 @@ class MovieDetailsScreen extends StatefulWidget {
 class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
   late double _screenHeight;
   late double _screenWidth;
-  late ScrollController _scrollController;
   late ScrollController _relatedMovieController;
   late MovieDetailManagement _movieDetailManagement;
   late ValueNotifier<Map<int, List<EpisodeList>>> _paginationEpisodeValues;
@@ -53,7 +54,6 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
   @override
   void initState() {
     super.initState();
-    _scrollController = ScrollController();
     _relatedMovieController = ScrollController();
     _relatedMovieController.addListener(_onLoadMore);
     _paginationEpisodeValues = ValueNotifier({});
@@ -71,12 +71,11 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
 
   @override
   void dispose() {
-    super.dispose();
     _relatedMovieController.removeListener(_onLoadMore);
-    _scrollController.dispose();
     _relatedMovieController.dispose();
     _episodeListValues.dispose();
     _paginationEpisodeValues.dispose();
+    super.dispose();
   }
 
   void _onLoadMore() {
@@ -520,32 +519,15 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                                   ),
                                   builder: (context, state) {
                                     _isLoading = false;
-                                    if (state.$2) {
-                                      return Center(
-                                        child: const CircularProgressIndicator(
-                                          color: VColors.colorIcon,
-                                        ),
-                                      );
+                                    if (state.$2 && state.$1.isEmpty) {
+                                      return const LoadingHandleWidget();
                                     }
                                     if (state.$3 != null) {
-                                      return Center(
-                                        child: ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: VColors.colorIcon,
-                                          ),
-                                          onPressed: () {
-                                            _movieDetailManagement
-                                                .getMovieDetailsInfo(
-                                                  widget._movieSlug,
-                                                );
-                                          },
-                                          child: Text(
-                                            Constants.retry,
-                                            style: TextStyle(
-                                              color: Colors.white,
+                                      return ErrorHandleWidget(
+                                        onTap: () => _movieDetailManagement
+                                            .getMovieDetailsInfo(
+                                              widget._movieSlug,
                                             ),
-                                          ),
-                                        ),
                                       );
                                     }
                                     return ListView.builder(

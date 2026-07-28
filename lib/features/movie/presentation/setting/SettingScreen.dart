@@ -13,7 +13,6 @@ import 'package:movie_app/features/movie/presentation/setting/widgets/FavoriteMo
 import 'package:movie_app/features/movie/presentation/setting/widgets/LogInOutButton.dart';
 import 'package:movie_app/features/movie/presentation/setting/widgets/WatchedMovieWidget.dart';
 import 'package:movie_app/features/movie/presentation/setting/widgets/WatchingMovieWidget.dart';
-import 'package:movie_app/utils/MethodHelperUtils.dart';
 import 'package:movie_app/utils/constants.dart';
 
 class SettingScreen extends StatefulWidget {
@@ -36,6 +35,12 @@ class _SettingScreenState extends State<SettingScreen> {
   late final ValueNotifier<Set<int>> _selectedWatched;
   late final ValueNotifier<bool> _isSelectedWatchedToDelete;
   late final ValueNotifier<bool> _isLogout;
+  final ScrollController _favoriteController = ScrollController();
+  final ScrollController _watchedController = ScrollController();
+  final ScrollController _watchingController = ScrollController();
+  bool _isFavoriteLoading = false;
+  bool _isWatchedLoading = false;
+  bool _isWatchingLoading = false;
 
   @override
   void initState() {
@@ -48,12 +53,15 @@ class _SettingScreenState extends State<SettingScreen> {
     _isSelectedWatchedToDelete = ValueNotifier(false);
     _isLogout = ValueNotifier(true);
     _settingScreenManagement = context.read<SettingScreenManagement>();
-    _settingScreenManagement.getMyFavoriteMovie();
-    _settingScreenManagement.getWatchingMovie();
-    _settingScreenManagement.getWatchedMovie();
+    _settingScreenManagement.getMyFavoriteMovie(false);
+    _settingScreenManagement.getWatchingMovie(false);
+    _settingScreenManagement.getWatchedMovie(false);
     _settingScreenManagement.checkLogin().then(
       (value) => _isLogout.value = value,
     );
+    _favoriteController.addListener(_onLoadFavoriteMore);
+    _watchedController.addListener(_onLoadWatchedMore);
+    _watchingController.addListener(_onLoadWatchingMore);
   }
 
   @override
@@ -74,7 +82,40 @@ class _SettingScreenState extends State<SettingScreen> {
     _selectedWatched.dispose();
     _isSelectedWatchedToDelete.dispose();
     _isLogout.dispose();
+    _favoriteController.dispose();
+    _watchedController.dispose();
+    _watchingController.dispose();
+    _favoriteController.removeListener(_onLoadFavoriteMore);
+    _watchedController.removeListener(_onLoadWatchedMore);
+    _watchingController.removeListener(_onLoadWatchingMore);
     super.dispose();
+  }
+
+  void _onLoadFavoriteMore() {
+    if (_isFavoriteLoading) return;
+    if (_favoriteController.offset >=
+        _favoriteController.position.maxScrollExtent * 0.9) {
+      _isFavoriteLoading = true;
+      _settingScreenManagement.getMyFavoriteMovie(false);
+    }
+  }
+
+  void _onLoadWatchedMore() {
+    if (_isWatchedLoading) return;
+    if (_watchedController.offset >=
+        _watchedController.position.maxScrollExtent * 0.9) {
+      _isWatchedLoading = true;
+      _settingScreenManagement.getWatchedMovie(false);
+    }
+  }
+
+  void _onLoadWatchingMore() {
+    if (_isWatchingLoading) return;
+    if (_watchingController.offset >=
+        _watchingController.position.maxScrollExtent * 0.9) {
+      _isWatchingLoading = true;
+      _settingScreenManagement.getWatchingMovie(false);
+    }
   }
 
   @override
@@ -119,9 +160,9 @@ class _SettingScreenState extends State<SettingScreen> {
             padding: const EdgeInsets.all(10),
             child: RefreshIndicator(
               onRefresh: () async {
-                _settingScreenManagement.getMyFavoriteMovie();
-                _settingScreenManagement.getWatchingMovie();
-                _settingScreenManagement.getWatchedMovie();
+                _settingScreenManagement.getMyFavoriteMovie(true);
+                _settingScreenManagement.getWatchingMovie(true);
+                _settingScreenManagement.getWatchedMovie(true);
               },
               color: VColors.white,
               backgroundColor: VColors.colorIcon,
@@ -180,7 +221,7 @@ class _SettingScreenState extends State<SettingScreen> {
                                               preDeleteFav.toList(),
                                             );
                                         _settingScreenManagement
-                                            .getMyFavoriteMovie();
+                                            .getMyFavoriteMovie(true);
                                         preDeleteFav.clear();
                                       },
                                       child: Icon(
@@ -209,13 +250,14 @@ class _SettingScreenState extends State<SettingScreen> {
                               state.favoriteError,
                             ),
                             builder: (context, state) {
+                              _isFavoriteLoading = false;
                               if (state.$3 != null) {
                                 return ErrorHandleWidget(
                                   onTap: () => _settingScreenManagement
-                                      .getMyFavoriteMovie(),
+                                      .getMyFavoriteMovie(true),
                                 );
                               }
-                              if (state.$2) {
+                              if (state.$2 && state.$1.isEmpty) {
                                 return const LoadingHandleWidget();
                               }
                               if (state.$1.isEmpty) {
@@ -223,6 +265,8 @@ class _SettingScreenState extends State<SettingScreen> {
                               }
                               final favoriteMovies = state.$1;
                               return ListView.builder(
+                                key: PageStorageKey("favorite_movie"),
+                                controller: _favoriteController,
                                 itemExtent: _imageWidth,
                                 itemBuilder: (context, index) {
                                   final favorMovie = favoriteMovies[index];
@@ -327,7 +371,7 @@ class _SettingScreenState extends State<SettingScreen> {
                                               preDeleteWatching.toList(),
                                             );
                                         _settingScreenManagement
-                                            .getWatchingMovie();
+                                            .getWatchingMovie(true);
                                         preDeleteWatching.clear();
                                       },
                                       child: Icon(
@@ -356,13 +400,14 @@ class _SettingScreenState extends State<SettingScreen> {
                               state.watchingError,
                             ),
                             builder: (context, state) {
+                              _isWatchingLoading = false;
                               if (state.$3 != null) {
                                 return ErrorHandleWidget(
                                   onTap: () => _settingScreenManagement
-                                      .getWatchingMovie(),
+                                      .getWatchingMovie(true),
                                 );
                               }
-                              if (state.$2) {
+                              if (state.$2 && state.$1.isEmpty) {
                                 return const LoadingHandleWidget();
                               }
                               if (state.$1.isEmpty) {
@@ -370,6 +415,8 @@ class _SettingScreenState extends State<SettingScreen> {
                               }
                               final watchingMovies = state.$1;
                               return ListView.builder(
+                                key: PageStorageKey("watching_movie"),
+                                controller: _watchingController,
                                 itemExtent: _imageWidth,
                                 itemBuilder: (context, index) {
                                   final movieWatching = watchingMovies[index];
@@ -480,7 +527,7 @@ class _SettingScreenState extends State<SettingScreen> {
                                               preDeleteWatched.toList(),
                                             );
                                         _settingScreenManagement
-                                            .getWatchedMovie();
+                                            .getWatchedMovie(true);
                                         preDeleteWatched.clear();
                                       },
                                       child: Icon(
@@ -509,13 +556,14 @@ class _SettingScreenState extends State<SettingScreen> {
                               state.watchedError,
                             ),
                             builder: (context, state) {
+                              _isWatchedLoading = false;
                               if (state.$3 != null) {
                                 return ErrorHandleWidget(
                                   onTap: () => _settingScreenManagement
-                                      .getWatchedMovie(),
+                                      .getWatchedMovie(true),
                                 );
                               }
-                              if (state.$2) {
+                              if (state.$2 && state.$1.isEmpty) {
                                 return const LoadingHandleWidget();
                               }
                               if (state.$1.isEmpty) {
@@ -523,6 +571,8 @@ class _SettingScreenState extends State<SettingScreen> {
                               }
                               final watchedMovies = state.$1;
                               return ListView.builder(
+                                key: PageStorageKey("watched_movie"),
+                                controller: _watchedController,
                                 itemExtent: _imageWidth,
                                 itemBuilder: (context, index) {
                                   final movieWatched = watchedMovies[index];
@@ -633,7 +683,9 @@ class _SettingScreenState extends State<SettingScreen> {
                                   if (!context.mounted) return;
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content: Text(Constants.logoutNotification),
+                                      content: Text(
+                                        Constants.logoutNotification,
+                                      ),
                                     ),
                                   );
                                 },

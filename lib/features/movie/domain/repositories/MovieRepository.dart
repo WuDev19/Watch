@@ -50,11 +50,11 @@ abstract class MovieRepository {
 
   Future<void> deleteFavoriteMovie(String slug);
 
-  Future<List<FavoriteMovieModel>> getMyFavoriteMovie();
+  Future<List<FavoriteMovieModel>> getMyFavoriteMovie(int page, int size);
 
-  Future<List<MovieWatching>> getWatchingMovie();
+  Future<List<MovieWatching>> getWatchingMovie(int page, int size);
 
-  Future<List<MovieWatching>> getWatchedMovie();
+  Future<List<MovieWatching>> getWatchedMovie(int page, int size);
 
   Future<void> deleteListFavoriteMovie(List<String> slug);
 

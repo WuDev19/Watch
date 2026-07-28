@@ -16,6 +16,9 @@ class Constants {
   static const String emailKey = "email";
   static const String passwordKey = "password";
   static const String newEmailKey = "newEmail";
+  static const double rateScroll = 0.9;
+  static const int defaultPage = 0;
+  static const int defaultSize = 24;
 
   static double getHeightScreen(BuildContext context) {
     return MediaQuery.of(context).size.height;

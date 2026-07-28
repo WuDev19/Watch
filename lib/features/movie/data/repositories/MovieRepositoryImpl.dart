@@ -244,18 +244,28 @@ class MovieRepositoryImpl implements MovieRepository {
   }
 
   @override
-  Future<List<FavoriteMovieModel>> getMyFavoriteMovie() async {
-    final result = await _isar.favoriteMovies.where().anyCreatedAt().findAll();
+  Future<List<FavoriteMovieModel>> getMyFavoriteMovie(
+    int page,
+    int size,
+  ) async {
+    final result = await _isar.favoriteMovies
+        .where()
+        .anyCreatedAt()
+        .offset(page * size)
+        .limit(size)
+        .findAll();
     return result
         .map((e) => MovieLocalMapper.mapToFavoriteMovieModel(e))
         .toList();
   }
 
   @override
-  Future<List<MovieWatching>> getWatchingMovie() async {
+  Future<List<MovieWatching>> getWatchingMovie(int page, int size) async {
     final result = await _isar.movieHistorys
         .where()
         .sortByLastWatchedDesc()
+        .offset(page * size)
+        .limit(size)
         .findAll();
     return result
         .map((e) => MovieLocalMapper.mapToMovieWatching(e))
@@ -264,10 +274,12 @@ class MovieRepositoryImpl implements MovieRepository {
   }
 
   @override
-  Future<List<MovieWatching>> getWatchedMovie() async {
+  Future<List<MovieWatching>> getWatchedMovie(int page, int size) async {
     final result = await _isar.movieHistorys
         .where()
         .sortByLastWatchedDesc()
+        .offset(page * size)
+        .limit(size)
         .findAll();
     return result
         .map((e) => MovieLocalMapper.mapToMovieWatching(e))

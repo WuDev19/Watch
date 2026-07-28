@@ -8,6 +8,6 @@ class GetMyFavoriteMovieUseCase {
 
   GetMyFavoriteMovieUseCase(this._movieRepository);
 
-  Future<List<FavoriteMovieModel>> execute() =>
-      _movieRepository.getMyFavoriteMovie();
+  Future<List<FavoriteMovieModel>> execute(int page, int size) =>
+      _movieRepository.getMyFavoriteMovie(page, size);
 }
