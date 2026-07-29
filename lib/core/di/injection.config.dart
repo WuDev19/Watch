@@ -99,13 +99,23 @@ import '../../features/profile/data/repositories/UserRepositoryImpl.dart'
 import '../../features/profile/domain/repositories/UserRepository.dart' as _i4;
 import '../../features/profile/domain/usecases/CheckVerifiedNewEmailUseCase.dart'
     as _i304;
+import '../../features/profile/domain/usecases/DeleteAllFavoriteMovieUseCase.dart'
+    as _i188;
+import '../../features/profile/domain/usecases/DeleteAllMovieHistoryUseCase.dart'
+    as _i443;
+import '../../features/profile/domain/usecases/GetMyHistoryUseCase.dart'
+    as _i1012;
 import '../../features/profile/domain/usecases/GetMyProfileUseCase.dart'
     as _i39;
+import '../../features/profile/domain/usecases/SearchMovieHistoryUseCase.dart'
+    as _i430;
 import '../../features/profile/domain/usecases/UpdateAvatarUseCase.dart'
     as _i69;
 import '../../features/profile/domain/usecases/UpdateEmailUseCase.dart'
     as _i841;
 import '../../features/profile/domain/usecases/UpdateNameUseCase.dart' as _i997;
+import '../../features/profile/presentation/history/state_management/HistoryManagement.dart'
+    as _i815;
 import '../../features/profile/presentation/profile/state_management/ProfileManagement.dart'
     as _i249;
 import 'CloudinaryModule.dart' as _i656;
@@ -159,6 +169,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i460.SharedPreferences>(),
       ),
     );
+    gh.lazySingleton<_i304.CheckVerifiedNewEmailUseCase>(
+      () => _i304.CheckVerifiedNewEmailUseCase(gh<_i4.UserRepository>()),
+    );
     gh.lazySingleton<_i39.GetMyProfileUseCase>(
       () => _i39.GetMyProfileUseCase(gh<_i4.UserRepository>()),
     );
@@ -170,9 +183,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i997.UpdateNameUseCase>(
       () => _i997.UpdateNameUseCase(gh<_i4.UserRepository>()),
-    );
-    gh.lazySingleton<_i304.CheckVerifiedNewEmailUseCase>(
-      () => _i304.CheckVerifiedNewEmailUseCase(gh<_i4.UserRepository>()),
     );
     gh.lazySingleton<_i633.AuthRemoteDataSource>(
       () => _i50.AuthRemoteDataSourceImpl(
@@ -253,6 +263,18 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i68.SearchMovieUseCase>(
       () => _i68.SearchMovieUseCase(gh<_i503.MovieRepository>()),
     );
+    gh.lazySingleton<_i1012.GetMyHistoryUseCase>(
+      () => _i1012.GetMyHistoryUseCase(gh<_i503.MovieRepository>()),
+    );
+    gh.lazySingleton<_i430.SearchMovieHistoryUseCase>(
+      () => _i430.SearchMovieHistoryUseCase(gh<_i503.MovieRepository>()),
+    );
+    gh.lazySingleton<_i188.DeleteAllFavoriteMovieUseCase>(
+      () => _i188.DeleteAllFavoriteMovieUseCase(gh<_i503.MovieRepository>()),
+    );
+    gh.lazySingleton<_i443.DeleteAllMovieHistoryUseCase>(
+      () => _i443.DeleteAllMovieHistoryUseCase(gh<_i503.MovieRepository>()),
+    );
     gh.lazySingleton<_i163.CheckLoginUseCase>(
       () => _i163.CheckLoginUseCase(gh<_i966.AuthRepository>()),
     );
@@ -322,6 +344,14 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i35.CheckFavoriteMovieUseCase>(),
         gh<_i582.SaveFavoriteMovieUseCase>(),
         gh<_i380.DeleteFavoriteUseCase>(),
+      ),
+    );
+    gh.factory<_i815.HistoryManagement>(
+      () => _i815.HistoryManagement(
+        gh<_i1012.GetMyHistoryUseCase>(),
+        gh<_i430.SearchMovieHistoryUseCase>(),
+        gh<_i443.DeleteAllMovieHistoryUseCase>(),
+        gh<_i559.DeleteMovieHistoryUseCase>(),
       ),
     );
     gh.factory<_i276.SignUpCubit>(

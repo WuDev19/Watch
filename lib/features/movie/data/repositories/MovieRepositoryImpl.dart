@@ -288,6 +288,17 @@ class MovieRepositoryImpl implements MovieRepository {
   }
 
   @override
+  Future<List<MovieWatching>> getMovieHistory(int page, int size) async {
+    final result = await _isar.movieHistorys
+        .where()
+        .sortByLastWatchedDesc()
+        .offset(page * size)
+        .limit(size)
+        .findAll();
+    return result.map((e) => MovieLocalMapper.mapToMovieWatching(e)).toList();
+  }
+
+  @override
   Future<void> deleteListFavoriteMovie(List<String> slug) async {
     await _isar.writeTxn(() async {
       await _isar.favoriteMovies.deleteAllByMovieSlug(slug);
@@ -298,6 +309,36 @@ class MovieRepositoryImpl implements MovieRepository {
   Future<void> deleteHistoryMovie(List<String> slug) async {
     await _isar.writeTxn(() async {
       await _isar.movieHistorys.deleteAllBySlug(slug);
+    });
+  }
+
+  @override
+  Future<List<MovieWatching>> searchMovieHistory(
+    String keyword,
+    int page,
+    int size,
+  ) async {
+    final result = await _isar.movieHistorys
+        .filter()
+        .nameContains(keyword.trim(), caseSensitive: false)
+        .sortByLastWatchedDesc()
+        .offset(page * size)
+        .limit(size)
+        .findAll();
+    return result.map((e) => MovieLocalMapper.mapToMovieWatching(e)).toList();
+  }
+
+  @override
+  Future<void> deleteAllMovieHistory() async {
+    await _isar.writeTxn(() async {
+      await _isar.movieHistorys.clear();
+    });
+  }
+
+  @override
+  Future<void> deleteAllFavoriteMovie() async {
+    await _isar.writeTxn(() async {
+      await _isar.favoriteMovies.clear();
     });
   }
 }

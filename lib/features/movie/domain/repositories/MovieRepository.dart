@@ -56,7 +56,19 @@ abstract class MovieRepository {
 
   Future<List<MovieWatching>> getWatchedMovie(int page, int size);
 
+  Future<List<MovieWatching>> getMovieHistory(int page, int size);
+
+  Future<List<MovieWatching>> searchMovieHistory(
+    String keyword,
+    int page,
+    int size,
+  );
+
   Future<void> deleteListFavoriteMovie(List<String> slug);
 
   Future<void> deleteHistoryMovie(List<String> slug);
+
+  Future<void> deleteAllMovieHistory();
+
+  Future<void> deleteAllFavoriteMovie();
 }

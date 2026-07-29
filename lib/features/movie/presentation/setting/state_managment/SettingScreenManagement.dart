@@ -7,6 +7,7 @@ import 'package:movie_app/features/movie/domain/usecases/GetMovieWatchingUseCase
 import 'package:movie_app/features/movie/domain/usecases/GetMyFavoriteMovieUseCase.dart';
 import 'package:movie_app/features/movie/domain/usecases/GetWatchedMovieUseCase.dart';
 import 'package:movie_app/features/movie/presentation/setting/state/SettingState.dart';
+import 'package:movie_app/utils/constants.dart';
 
 import '../../../../auth/domain/usecases/LogoutUseCase.dart';
 
@@ -42,7 +43,10 @@ class SettingScreenManagement extends Cubit<SettingState> {
       ),
     );
     try {
-      final result = await _getMyFavoriteMovieUseCase.execute(nextPage, 24);
+      final result = await _getMyFavoriteMovieUseCase.execute(
+        nextPage,
+        Constants.defaultSize,
+      );
       emit(
         state.copyWith(
           favoriteMovies: isRefresh
@@ -50,7 +54,7 @@ class SettingScreenManagement extends Cubit<SettingState> {
               : [...state.favoriteMovies, ...result],
           favoriteLoading: false,
           currentPageFavorite: nextPage,
-          isFavoriteLast: result.length < 24,
+          isFavoriteLast: result.length < Constants.defaultSize,
         ),
       );
     } catch (e) {
@@ -70,7 +74,10 @@ class SettingScreenManagement extends Cubit<SettingState> {
       ),
     );
     try {
-      final result = await _getMovieWatchingUseCase.execute(nextPage, 24);
+      final result = await _getMovieWatchingUseCase.execute(
+        nextPage,
+        Constants.defaultSize,
+      );
       emit(
         state.copyWith(
           watchingMovies: isRefresh
@@ -78,7 +85,7 @@ class SettingScreenManagement extends Cubit<SettingState> {
               : [...state.watchingMovies, ...result],
           watchingLoading: false,
           currentPageWatching: nextPage,
-          isWatchingLast: result.length < 24,
+          isWatchingLast: result.length < Constants.defaultSize,
         ),
       );
     } catch (e) {
@@ -98,7 +105,10 @@ class SettingScreenManagement extends Cubit<SettingState> {
       ),
     );
     try {
-      final result = await _getWatchedMovieUseCase.execute(nextPage, 24);
+      final result = await _getWatchedMovieUseCase.execute(
+        nextPage,
+        Constants.defaultSize,
+      );
       emit(
         state.copyWith(
           watchedMovies: isRefresh
@@ -106,7 +116,7 @@ class SettingScreenManagement extends Cubit<SettingState> {
               : [...state.watchedMovies, ...result],
           watchedLoading: false,
           currentPageWatched: nextPage,
-          isWatchedLast: result.length < 24,
+          isWatchedLast: result.length < Constants.defaultSize,
         ),
       );
     } catch (e) {

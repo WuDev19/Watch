@@ -80,7 +80,8 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
 
   void _onLoadMore() {
     if (_relatedMovieController.offset >=
-        _relatedMovieController.position.maxScrollExtent * 0.9) {
+        _relatedMovieController.position.maxScrollExtent *
+            Constants.rateScroll) {
       if (_isLoading) return;
       _isLoading = true;
       if (_categorySlug != null) {

@@ -6,6 +6,8 @@ import 'package:movie_app/features/auth/presentation/auth/screen/LoginScreen.dar
 import 'package:movie_app/features/auth/presentation/auth/screen/SignUpScreen.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/MovieDetailsScreen.dart';
 import 'package:movie_app/features/movie/presentation/home/HomePage.dart';
+import 'package:movie_app/features/profile/presentation/favorite/FavoriteScreen.dart';
+import 'package:movie_app/features/profile/presentation/history/HistoryScreen.dart';
 import 'package:movie_app/features/profile/presentation/profile/ProfileScreen.dart';
 import 'package:movie_app/features/movie/presentation/search/SearchPage.dart';
 import 'package:movie_app/features/movie/presentation/setting/SettingScreen.dart';
@@ -96,10 +98,10 @@ class AppRoutes {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                  path: "/setting",
-                  builder: (context, state) {
-                    return const SettingScreen();
-                  }
+                path: "/setting",
+                builder: (context, state) {
+                  return const SettingScreen();
+                },
               ),
             ],
           ),
@@ -118,14 +120,14 @@ class AppRoutes {
             transitionDuration: const Duration(milliseconds: 300),
             transitionsBuilder:
                 (context, animation, secondaryAnimation, child) {
-              return SlideTransition(
-                position: Tween(
-                  begin: const Offset(-1, 0),
-                  end: Offset.zero,
-                ).animate(animation),
-                child: child,
-              );
-            },
+                  return SlideTransition(
+                    position: Tween(
+                      begin: const Offset(-1, 0),
+                      end: Offset.zero,
+                    ).animate(animation),
+                    child: child,
+                  );
+                },
           );
         },
       ),
@@ -142,20 +144,20 @@ class AppRoutes {
             transitionDuration: const Duration(milliseconds: 800),
             transitionsBuilder:
                 (context, animation, secondaryAnimation, child) {
-              final curved = CurvedAnimation(
-                parent: animation,
-                curve: Curves.easeOutBack,
-              );
-              return ScaleTransition(
-                scale: curved,
-                child: ClipRRect(
-                  borderRadius: BorderRadiusGeometry.all(
-                    Radius.circular(20),
-                  ),
-                  child: child,
-                ),
-              );
-            },
+                  final curved = CurvedAnimation(
+                    parent: animation,
+                    curve: Curves.easeOutBack,
+                  );
+                  return ScaleTransition(
+                    scale: curved,
+                    child: ClipRRect(
+                      borderRadius: BorderRadiusGeometry.all(
+                        Radius.circular(20),
+                      ),
+                      child: child,
+                    ),
+                  );
+                },
           );
         },
       ),
@@ -168,14 +170,14 @@ class AppRoutes {
             reverseTransitionDuration: const Duration(milliseconds: 500),
             transitionsBuilder:
                 (context, animation, secondaryAnimation, child) {
-              return SlideTransition(
-                position: Tween(
-                  begin: const Offset(0, 1),
-                  end: Offset.zero,
-                ).animate(animation),
-                child: child,
-              );
-            },
+                  return SlideTransition(
+                    position: Tween(
+                      begin: const Offset(0, 1),
+                      end: Offset.zero,
+                    ).animate(animation),
+                    child: child,
+                  );
+                },
           );
         },
       ),
@@ -190,17 +192,28 @@ class AppRoutes {
         pageBuilder: (context, state) {
           return CustomTransitionPage(
             child: const ProfileScreen(),
-            transitionsBuilder: (context, animation,
-                secondaryAnimation, child) {
-              return SlideTransition(
-                position: Tween(
-                  begin: const Offset(1, 0),
-                  end: Offset.zero,
-                ).animate(animation),
-                child: child,
-              );
-            },);
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+                  return SlideTransition(
+                    position: Tween(
+                      begin: const Offset(1, 0),
+                      end: Offset.zero,
+                    ).animate(animation),
+                    child: child,
+                  );
+                },
+          );
         },
+        routes: [
+          GoRoute(
+            path: "favorite",
+            builder: (context, state) => const FavoriteScreen(),
+          ),
+          GoRoute(
+            path: "history",
+            builder: (context, state) => const HistoryScreen(),
+          ),
+        ],
       ),
     ],
   );

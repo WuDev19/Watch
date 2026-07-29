@@ -24,7 +24,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen>
     with WidgetsBindingObserver {
-  late ProfileManagement _profileManagement;
+  late final ProfileManagement _profileManagement;
   late double _screenHeight;
   late double _screenWidth;
   final ImagePicker _pick = ImagePicker();
@@ -93,7 +93,6 @@ class _ProfileScreenState extends State<ProfileScreen>
                       final avtUrl = state.$1;
                       final name = state.$2;
                       final email = state.$3;
-                      print("avatar url: $avtUrl name: $name email: $email");
                       return Column(
                         children: [
                           Stack(
@@ -298,16 +297,12 @@ class _ProfileScreenState extends State<ProfileScreen>
             OptionTile(
               icon: Icons.favorite_border,
               title: "My Favorites",
-              onTap: () {
-                // TODO: navigate to favorites screen
-              },
+              onTap: () => context.push("/profile/favorite"),
             ),
             OptionTile(
               icon: Icons.history,
               title: "Watch History",
-              onTap: () {
-                // TODO: navigate to watch history screen
-              },
+              onTap: () => context.push("/profile/history"),
             ),
             OptionTile(
               icon: Icons.download_outlined,

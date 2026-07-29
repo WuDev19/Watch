@@ -94,7 +94,7 @@ class _SettingScreenState extends State<SettingScreen> {
   void _onLoadFavoriteMore() {
     if (_isFavoriteLoading) return;
     if (_favoriteController.offset >=
-        _favoriteController.position.maxScrollExtent * 0.9) {
+        _favoriteController.position.maxScrollExtent * Constants.rateScroll) {
       _isFavoriteLoading = true;
       _settingScreenManagement.getMyFavoriteMovie(false);
     }
@@ -103,7 +103,7 @@ class _SettingScreenState extends State<SettingScreen> {
   void _onLoadWatchedMore() {
     if (_isWatchedLoading) return;
     if (_watchedController.offset >=
-        _watchedController.position.maxScrollExtent * 0.9) {
+        _watchedController.position.maxScrollExtent * Constants.rateScroll) {
       _isWatchedLoading = true;
       _settingScreenManagement.getWatchedMovie(false);
     }
@@ -112,7 +112,7 @@ class _SettingScreenState extends State<SettingScreen> {
   void _onLoadWatchingMore() {
     if (_isWatchingLoading) return;
     if (_watchingController.offset >=
-        _watchingController.position.maxScrollExtent * 0.9) {
+        _watchingController.position.maxScrollExtent * Constants.rateScroll) {
       _isWatchingLoading = true;
       _settingScreenManagement.getWatchingMovie(false);
     }

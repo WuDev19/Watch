@@ -9,6 +9,7 @@ import 'package:movie_app/features/movie/presentation/search/widgets/CountryWidg
 import 'package:movie_app/features/movie/presentation/search/widgets/SearchResultItem.dart';
 import 'package:movie_app/features/movie/presentation/search/widgets/YearWidget.dart';
 import '../../../../core/colors/VColors.dart';
+import '../../../../utils/constants.dart';
 import '../../domain/models/SearchMovieDisplay.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
@@ -70,7 +71,7 @@ class _SearchPageState extends State<SearchPage> {
   void _onScrollSearchLast() {
     if (_isLoadingMore) return;
     if (_searchController.offset >=
-        _searchController.position.maxScrollExtent * 0.9) {
+        _searchController.position.maxScrollExtent * Constants.rateScroll) {
       _isLoadingMore = true;
       _isSearchKeyWord
           ? _searchPageManagement.searchMovie(
