@@ -107,6 +107,8 @@ import '../../features/profile/domain/usecases/GetMyHistoryUseCase.dart'
     as _i1012;
 import '../../features/profile/domain/usecases/GetMyProfileUseCase.dart'
     as _i39;
+import '../../features/profile/domain/usecases/SearchFavoriteMovieUseCase.dart'
+    as _i809;
 import '../../features/profile/domain/usecases/SearchMovieHistoryUseCase.dart'
     as _i430;
 import '../../features/profile/domain/usecases/UpdateAvatarUseCase.dart'
@@ -114,6 +116,8 @@ import '../../features/profile/domain/usecases/UpdateAvatarUseCase.dart'
 import '../../features/profile/domain/usecases/UpdateEmailUseCase.dart'
     as _i841;
 import '../../features/profile/domain/usecases/UpdateNameUseCase.dart' as _i997;
+import '../../features/profile/presentation/favorite/state_management/FavoriteManagement.dart'
+    as _i751;
 import '../../features/profile/presentation/history/state_management/HistoryManagement.dart'
     as _i815;
 import '../../features/profile/presentation/profile/state_management/ProfileManagement.dart'
@@ -275,6 +279,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i443.DeleteAllMovieHistoryUseCase>(
       () => _i443.DeleteAllMovieHistoryUseCase(gh<_i503.MovieRepository>()),
     );
+    gh.lazySingleton<_i809.SearchFavoriteMovieUseCase>(
+      () => _i809.SearchFavoriteMovieUseCase(gh<_i503.MovieRepository>()),
+    );
     gh.lazySingleton<_i163.CheckLoginUseCase>(
       () => _i163.CheckLoginUseCase(gh<_i966.AuthRepository>()),
     );
@@ -319,6 +326,14 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i309.HomeBloc(
         gh<_i755.HomePageMovieUseCase>(),
         gh<_i663.GetLastWatchedMovieUseCase>(),
+      ),
+    );
+    gh.factory<_i751.FavoriteManagement>(
+      () => _i751.FavoriteManagement(
+        gh<_i357.GetMyFavoriteMovieUseCase>(),
+        gh<_i188.DeleteAllFavoriteMovieUseCase>(),
+        gh<_i193.DeleteListFavoriteMovieUseCase>(),
+        gh<_i809.SearchFavoriteMovieUseCase>(),
       ),
     );
     gh.factory<_i582.LoginCubit>(

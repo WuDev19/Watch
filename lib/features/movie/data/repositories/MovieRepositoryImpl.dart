@@ -329,6 +329,24 @@ class MovieRepositoryImpl implements MovieRepository {
   }
 
   @override
+  Future<List<FavoriteMovieModel>> searchFavoriteMovie(
+    String keyword,
+    int page,
+    int size,
+  ) async {
+    final result = await _isar.favoriteMovies
+        .filter()
+        .movieNameContains(keyword.trim(), caseSensitive: false)
+        .sortByCreatedAtDesc()
+        .offset(page * size)
+        .limit(size)
+        .findAll();
+    return result
+        .map((e) => MovieLocalMapper.mapToFavoriteMovieModel(e))
+        .toList();
+  }
+
+  @override
   Future<void> deleteAllMovieHistory() async {
     await _isar.writeTxn(() async {
       await _isar.movieHistorys.clear();

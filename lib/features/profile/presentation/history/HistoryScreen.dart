@@ -134,7 +134,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
           IconButton(
             icon: const Icon(Icons.delete_sweep_outlined),
             color: VColors.white,
-            tooltip: "Delete all",
             onPressed: () => _onClearHistoryPressed(preDelete),
           ),
         ],
