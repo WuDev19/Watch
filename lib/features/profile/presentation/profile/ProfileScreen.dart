@@ -307,9 +307,7 @@ class _ProfileScreenState extends State<ProfileScreen>
             OptionTile(
               icon: Icons.download_outlined,
               title: "Downloads",
-              onTap: () {
-                // TODO: navigate to downloads screen
-              },
+              onTap: () => context.push("/profile/download"),
             ),
             OptionTile(
               icon: Icons.info_outline,

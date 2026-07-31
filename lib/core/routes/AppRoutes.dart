@@ -6,6 +6,7 @@ import 'package:movie_app/features/auth/presentation/auth/screen/LoginScreen.dar
 import 'package:movie_app/features/auth/presentation/auth/screen/SignUpScreen.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/MovieDetailsScreen.dart';
 import 'package:movie_app/features/movie/presentation/home/HomePage.dart';
+import 'package:movie_app/features/profile/presentation/download/DownloadScreen.dart';
 import 'package:movie_app/features/profile/presentation/favorite/FavoriteScreen.dart';
 import 'package:movie_app/features/profile/presentation/history/HistoryScreen.dart';
 import 'package:movie_app/features/profile/presentation/profile/ProfileScreen.dart';
@@ -212,6 +213,10 @@ class AppRoutes {
           GoRoute(
             path: "history",
             builder: (context, state) => const HistoryScreen(),
+          ),
+          GoRoute(
+            path: "download",
+            builder: (context, state) => const DownloadScreen(),
           ),
         ],
       ),

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -184,6 +186,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                 margin: EdgeInsets.only(top: 0.4 * heightImage),
                 alignment: AlignmentGeometry.topCenter,
                 child: Wrap(
+                  alignment: WrapAlignment.center,
                   children: [
                     ElevatedButton.icon(
                       onPressed: () async {
@@ -282,6 +285,27 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                         Icons.play_arrow,
                         color: VColors.colorIcon,
                       ),
+                      style: const ButtonStyle(
+                        overlayColor: WidgetStatePropertyAll(VColors.colorIcon),
+                        backgroundColor: WidgetStatePropertyAll(
+                          VColors.greySearch,
+                        ),
+                        elevation: WidgetStatePropertyAll(10),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    ElevatedButton.icon(
+                      onPressed: ()  {
+
+                      },
+                      label: const Text(
+                        "Watch together",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      icon: const Icon(Icons.groups, color: VColors.colorIcon),
                       style: const ButtonStyle(
                         overlayColor: WidgetStatePropertyAll(VColors.colorIcon),
                         backgroundColor: WidgetStatePropertyAll(

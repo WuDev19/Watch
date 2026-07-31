@@ -69,7 +69,7 @@ class _WatchMovieScreenState extends State<WatchMovieScreen>
           deviceOrientationsAfterFullScreen: [DeviceOrientation.portraitUp],
           //khi hết phim hoặc thu nhỏ thì sẽ cho quay về dọc
           systemOverlaysAfterFullScreen: [],
-          controlsConfiguration: const BetterPlayerControlsConfiguration(
+          controlsConfiguration: BetterPlayerControlsConfiguration(
             enablePip: true,
             pipMenuIcon: Icons.picture_in_picture,
           ),
@@ -88,14 +88,14 @@ class _WatchMovieScreenState extends State<WatchMovieScreen>
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
         await Future.delayed(const Duration(milliseconds: 1000));
         BetterPlayerDataSource betterPlayerDataSource =
-            BetterPlayerDataSource.network(
-              widget.combineDetailAndWatch!.movieWatch.currentEpisode.linkM3U8,
-              cacheConfiguration: BetterPlayerCacheConfiguration(
-                useCache: true,
-                maxCacheSize: 100 * 1024 * 1024,
-                maxCacheFileSize: 10 * 1024 * 1024,
-              ),
-            );
+        BetterPlayerDataSource.network(
+          widget.combineDetailAndWatch!.movieWatch.currentEpisode.linkM3U8,
+          cacheConfiguration: BetterPlayerCacheConfiguration(
+            useCache: true,
+            maxCacheSize: 100 * 1024 * 1024,
+            maxCacheFileSize: 10 * 1024 * 1024,
+          ),
+        );
         await _betterPlayerController!.setupDataSource(betterPlayerDataSource);
         _betterPlayerController!.enterFullScreen();
         _betterPlayerController!.play();
@@ -104,9 +104,9 @@ class _WatchMovieScreenState extends State<WatchMovieScreen>
       _watchMovieManagement
           .checkFavoriteMovie(widget.combineDetailAndWatch!.movieSlug)
           .then((value) {
-            _addToFavoriteValues.value = value;
-            _isFavorite = value;
-          });
+        _addToFavoriteValues.value = value;
+        _isFavorite = value;
+      });
     }
   }
 
@@ -142,178 +142,190 @@ class _WatchMovieScreenState extends State<WatchMovieScreen>
   @override
   Widget build(BuildContext context) {
     final secondaryTitle = Constants.calculateFontSize(context, 1.1);
+    final combine = widget.combineDetailAndWatch;
     return Scaffold(
-      body: widget.combineDetailAndWatch != null
+      body: combine != null
           ? Container(
-              height: Constants.getHeightScreen(context),
-              color: VColors.blackBackground,
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ClipRRect(
-                      borderRadius: const BorderRadiusGeometry.only(
-                        bottomRight: Radius.circular(20),
-                        bottomLeft: Radius.circular(20),
-                      ),
-                      child: BetterPlayer(
-                        key: _betterPlayerKey,
-                        controller: _betterPlayerController!,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            "Watching: ${widget.combineDetailAndWatch!.movieWatch.movieName}",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: secondaryTitle,
-                            ),
-                            textAlign: TextAlign.start,
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        GestureDetector(
-                          onTap: () {
-                            if (_isFavorite) {
-                              _watchMovieManagement.deleteFavoriteMovie(
-                                widget.combineDetailAndWatch!.movieSlug,
-                              );
-                            } else {
-                              _watchMovieManagement.saveFavoriteMovie(
-                                FavoriteMovieModel(
-                                  movieName: widget
-                                      .combineDetailAndWatch!
-                                      .movieWatch
-                                      .movieName,
-                                  movieSlug:
-                                      widget.combineDetailAndWatch!.movieSlug,
-                                  thumbUrl:
-                                      Constants.baseImageUrl +
-                                      widget.combineDetailAndWatch!.moviePoster,
-                                ),
-                              );
-                            }
-                            _isFavorite = !_isFavorite;
-                            _addToFavoriteValues.value = _isFavorite;
-                          },
-                          child: ValueListenableBuilder(
-                            valueListenable: _addToFavoriteValues,
-                            builder: (context, value, child) {
-                              return value == true
-                                  ? Icon(
-                                      Icons.favorite,
-                                      color: VColors.colorIcon,
-                                    )
-                                  : Icon(
-                                      Icons.favorite_border,
-                                      color: VColors.colorIcon,
-                                    );
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    Container(
-                      margin: const EdgeInsets.only(left: 10),
-                      child: Text(
-                        "Episodes",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: secondaryTitle,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Container(
-                      margin: const EdgeInsets.only(left: 10),
-                      child: EpisodeWidget(
-                        episodes:
-                            widget.combineDetailAndWatch!.movieWatch.episodes,
-                        onServerName: (episode) {
-                          _paginationEpisodeValues.value =
-                              episode.paginationEpisode;
-                          _episodeListValues.value =
-                              episode.paginationEpisode[1] ?? [];
-                        },
-                      ),
-                    ),
-                    ValueListenableBuilder(
-                      valueListenable: _episodeListValues,
-                      builder: (context, value, child) {
-                        return AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 500),
-                          transitionBuilder: (child, animation) {
-                            return FadeTransition(
-                              opacity: animation,
-                              child: child,
-                            );
-                          },
-                          child: Container(
-                            margin: const EdgeInsets.only(left: 10),
-                            child: EpisodeItem(
-                              key: ValueKey(value),
-                              episodeList: value,
-                              currentEpisode: widget
-                                  .combineDetailAndWatch!
-                                  .movieWatch
-                                  .currentEpisode,
-                              onWatch: (currentEpisode) {
-                                widget
-                                        .combineDetailAndWatch!
-                                        .movieWatch
-                                        .currentEpisode =
-                                    currentEpisode;
-                                _watchMovieManagement.saveMovieHistory(
-                                  MovieHistoryModel(
-                                    currentEpisode:
-                                        MethodHelperUtils.getCurrentEpisode(
-                                          currentEpisode,
-                                        ),
-                                    combineDetailAndWatch:
-                                        widget.combineDetailAndWatch!,
-                                  ),
-                                );
-                                _changeEpisode(currentEpisode);
-                              },
-                              isInWatch: true,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 10),
-                    ValueListenableBuilder(
-                      valueListenable: _paginationEpisodeValues,
-                      builder: (context, value, child) {
-                        return Center(
-                          child: PageWidget(
-                            key: ValueKey(value),
-                            pagination: value,
-                            onChoosePage: (episodeList) {
-                              _episodeListValues.value = episodeList;
-                            },
-                            currentPage: widget
-                                .combineDetailAndWatch!
-                                .movieWatch
-                                .currentListEpisode,
-                            isInWatch: true,
-                          ),
-                        );
-                      },
-                    ),
-                  ],
+        height: Constants.getHeightScreen(context),
+        color: VColors.blackBackground,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: const BorderRadiusGeometry.only(
+                  bottomRight: Radius.circular(20),
+                  bottomLeft: Radius.circular(20),
+                ),
+                child: BetterPlayer(
+                  key: _betterPlayerKey,
+                  controller: _betterPlayerController!,
                 ),
               ),
-            )
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      "Watching: ${combine.movieWatch.movieName}",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: secondaryTitle,
+                      ),
+                      textAlign: TextAlign.start,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  GestureDetector(
+                    onTap: () {
+                      if (_isFavorite) {
+                        _watchMovieManagement.deleteFavoriteMovie(
+                          combine.movieSlug,
+                        );
+                      } else {
+                        _watchMovieManagement.saveFavoriteMovie(
+                          FavoriteMovieModel(
+                            movieName: combine
+                                .movieWatch
+                                .movieName,
+                            movieSlug:
+                            combine.movieSlug,
+                            thumbUrl:
+                            Constants.baseImageUrl +
+                                combine.moviePoster,
+                          ),
+                        );
+                      }
+                      _isFavorite = !_isFavorite;
+                      _addToFavoriteValues.value = _isFavorite;
+                    },
+                    child: ValueListenableBuilder(
+                      valueListenable: _addToFavoriteValues,
+                      builder: (context, value, child) {
+                        return value == true
+                            ? Icon(
+                          Icons.favorite,
+                          color: VColors.colorIcon,
+                        )
+                            : Icon(
+                          Icons.favorite_border,
+                          color: VColors.colorIcon,
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  GestureDetector(
+                    onTap: () {
+                      _watchMovieManagement.download(
+                        url: combine.movieWatch.currentEpisode.linkM3U8,
+                        name: combine.movieWatch.movieName,
+                        episodeName: combine.movieWatch.currentEpisode.name,
+                        movieSlug: combine.movieSlug,
+                      );
+                    },
+                    child: const Icon(
+                      Icons.download,
+                      color: VColors.colorIcon,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Container(
+                margin: const EdgeInsets.only(left: 10),
+                child: Text(
+                  "Episodes",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: secondaryTitle,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Container(
+                margin: const EdgeInsets.only(left: 10),
+                child: EpisodeWidget(
+                  episodes:
+                  combine.movieWatch.episodes,
+                  onServerName: (episode) {
+                    _paginationEpisodeValues.value =
+                        episode.paginationEpisode;
+                    _episodeListValues.value =
+                        episode.paginationEpisode[1] ?? [];
+                  },
+                ),
+              ),
+              ValueListenableBuilder(
+                valueListenable: _episodeListValues,
+                builder: (context, value, child) {
+                  return AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 500),
+                    transitionBuilder: (child, animation) {
+                      return FadeTransition(
+                        opacity: animation,
+                        child: child,
+                      );
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.only(left: 10),
+                      child: EpisodeItem(
+                        key: ValueKey(value),
+                        episodeList: value,
+                        currentEpisode: combine
+                            .movieWatch
+                            .currentEpisode,
+                        onWatch: (currentEpisode) {
+                          combine
+                              .movieWatch
+                              .currentEpisode =
+                              currentEpisode;
+                          _watchMovieManagement.saveMovieHistory(
+                            MovieHistoryModel(
+                              currentEpisode:
+                              MethodHelperUtils.getCurrentEpisode(
+                                currentEpisode,
+                              ),
+                              combineDetailAndWatch:
+                              combine,
+                            ),
+                          );
+                          _changeEpisode(currentEpisode);
+                        },
+                        isInWatch: true,
+                      ),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 10),
+              ValueListenableBuilder(
+                valueListenable: _paginationEpisodeValues,
+                builder: (context, value, child) {
+                  return Center(
+                    child: PageWidget(
+                      key: ValueKey(value),
+                      pagination: value,
+                      onChoosePage: (episodeList) {
+                        _episodeListValues.value = episodeList;
+                      },
+                      currentPage: combine
+                          .movieWatch
+                          .currentListEpisode,
+                      isInWatch: true,
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      )
           : Center(child: const CircularProgressIndicator()),
     );
   }

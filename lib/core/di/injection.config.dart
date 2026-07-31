@@ -38,8 +38,14 @@ import '../../features/auth/presentation/auth/state_management/SignUpCubit.dart'
     as _i276;
 import '../../features/movie/data/datasources/remote/api/MovieApi.dart'
     as _i500;
+import '../../features/movie/data/datasources/service/ForegroundServiceDataSource.dart'
+    as _i17;
+import '../../features/movie/data/repositories/DownloadRepositoryImpl.dart'
+    as _i764;
 import '../../features/movie/data/repositories/MovieRepositoryImpl.dart'
     as _i709;
+import '../../features/movie/domain/repositories/DownloadRepository.dart'
+    as _i1025;
 import '../../features/movie/domain/repositories/MovieRepository.dart' as _i503;
 import '../../features/movie/domain/usecases/CheckFavoriteMovieUseCase.dart'
     as _i35;
@@ -49,6 +55,7 @@ import '../../features/movie/domain/usecases/DeleteListFavoriteMovieUseCase.dart
     as _i193;
 import '../../features/movie/domain/usecases/DeleteMovieHistoryUseCase.dart'
     as _i559;
+import '../../features/movie/domain/usecases/DownloadMovieUseCase.dart' as _i54;
 import '../../features/movie/domain/usecases/GetAllYearUseCase.dart' as _i414;
 import '../../features/movie/domain/usecases/GetCategoriesUseCase.dart'
     as _i716;
@@ -159,12 +166,22 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i974.FirebaseFirestore>(
       () => firebaseModule.provideFirebaseFirestore(),
     );
+    gh.lazySingleton<_i17.ForegroundServiceDataSource>(
+      () => _i17.ForegroundServiceDataSource(),
+    );
     gh.lazySingleton<_i1055.UserRemoteDataSource>(
       () => _i84.UserRemoteDataSourceImpl(
         gh<_i974.FirebaseFirestore>(),
         gh<_i59.FirebaseAuth>(),
         gh<_i524.CloudinaryPublic>(),
       ),
+    );
+    gh.lazySingleton<_i1025.DownloadRepository>(
+      () =>
+          _i764.DownloadRepositoryImpl(gh<_i17.ForegroundServiceDataSource>()),
+    );
+    gh.lazySingleton<_i54.DownloadMovieUseCase>(
+      () => _i54.DownloadMovieUseCase(gh<_i1025.DownloadRepository>()),
     );
     gh.singleton<_i500.MovieApi>(() => _i500.MovieApi(gh<_i361.Dio>()));
     gh.lazySingleton<_i4.UserRepository>(
@@ -267,20 +284,29 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i68.SearchMovieUseCase>(
       () => _i68.SearchMovieUseCase(gh<_i503.MovieRepository>()),
     );
-    gh.lazySingleton<_i1012.GetMyHistoryUseCase>(
-      () => _i1012.GetMyHistoryUseCase(gh<_i503.MovieRepository>()),
-    );
-    gh.lazySingleton<_i430.SearchMovieHistoryUseCase>(
-      () => _i430.SearchMovieHistoryUseCase(gh<_i503.MovieRepository>()),
-    );
     gh.lazySingleton<_i188.DeleteAllFavoriteMovieUseCase>(
       () => _i188.DeleteAllFavoriteMovieUseCase(gh<_i503.MovieRepository>()),
     );
     gh.lazySingleton<_i443.DeleteAllMovieHistoryUseCase>(
       () => _i443.DeleteAllMovieHistoryUseCase(gh<_i503.MovieRepository>()),
     );
+    gh.lazySingleton<_i1012.GetMyHistoryUseCase>(
+      () => _i1012.GetMyHistoryUseCase(gh<_i503.MovieRepository>()),
+    );
     gh.lazySingleton<_i809.SearchFavoriteMovieUseCase>(
       () => _i809.SearchFavoriteMovieUseCase(gh<_i503.MovieRepository>()),
+    );
+    gh.lazySingleton<_i430.SearchMovieHistoryUseCase>(
+      () => _i430.SearchMovieHistoryUseCase(gh<_i503.MovieRepository>()),
+    );
+    gh.factory<_i816.WatchMovieManagement>(
+      () => _i816.WatchMovieManagement(
+        gh<_i749.SaveMovieHistoryUseCase>(),
+        gh<_i35.CheckFavoriteMovieUseCase>(),
+        gh<_i582.SaveFavoriteMovieUseCase>(),
+        gh<_i380.DeleteFavoriteUseCase>(),
+        gh<_i54.DownloadMovieUseCase>(),
+      ),
     );
     gh.lazySingleton<_i163.CheckLoginUseCase>(
       () => _i163.CheckLoginUseCase(gh<_i966.AuthRepository>()),
@@ -351,14 +377,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i559.DeleteMovieHistoryUseCase>(),
         gh<_i163.CheckLoginUseCase>(),
         gh<_i672.LogoutUseCase>(),
-      ),
-    );
-    gh.factory<_i816.WatchMovieManagement>(
-      () => _i816.WatchMovieManagement(
-        gh<_i749.SaveMovieHistoryUseCase>(),
-        gh<_i35.CheckFavoriteMovieUseCase>(),
-        gh<_i582.SaveFavoriteMovieUseCase>(),
-        gh<_i380.DeleteFavoriteUseCase>(),
       ),
     );
     gh.factory<_i815.HistoryManagement>(

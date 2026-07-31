@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:injectable/injectable.dart';
 import 'package:rive/rive.dart';
 
@@ -19,6 +20,7 @@ class SplashScreen extends StatelessWidget {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    FlutterForegroundTask.initCommunicationPort();
   }
 
   @override

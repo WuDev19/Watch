@@ -4,9 +4,11 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   cloud_firestore
+  ffmpeg_kit_flutter_new
   file_selector_windows
   firebase_auth
   firebase_core
+  gal
   isar_community_flutter_libs
   rive_native
   url_launcher_windows
