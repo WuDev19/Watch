@@ -5,7 +5,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:movie_app/core/colors/VColors.dart';
 import 'package:movie_app/features/movie/domain/models/CombineDetailAndWatch.dart';
 import 'package:movie_app/features/movie/domain/models/MovieHistoryModel.dart';
+import 'package:movie_app/features/movie/presentation/watch_movie/state/SelfState.dart';
+import 'package:movie_app/features/movie/presentation/watch_movie/state/WatchMovieState.dart';
 import 'package:movie_app/features/movie/presentation/watch_movie/state_management/WatchMovieManagement.dart';
+import 'package:movie_app/features/movie/presentation/watch_movie/widgets/WriteComment.dart';
 import 'package:movie_app/utils/MethodHelperUtils.dart';
 
 import '../../../../utils/constants.dart';
@@ -104,9 +107,6 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
         await _betterPlayerController!.setupDataSource(betterPlayerDataSource);
         _betterPlayerController!.enterFullScreen();
         _betterPlayerController!.play();
-        check().then((value) => print("pippp: $value")).catchError((e) {
-          print("error: $e");
-        });
       });
 
       _watchMovieManagement
@@ -115,11 +115,9 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
             _addToFavoriteValues.value = value;
             _isFavorite = value;
           });
+      _watchMovieManagement.getMyProfile();
     }
   }
-
-  Future<bool> check() =>
-      _betterPlayerController!.isPictureInPictureSupported();
 
   @override
   void dispose() {
@@ -221,7 +219,7 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
                   const SizedBox(height: 24),
                   _buildDivider(),
                   const SizedBox(height: 16),
-                  _buildCommentSection(secondaryTitle),
+                  _buildCommentSection(combine, secondaryTitle),
                   const SizedBox(height: 24),
                 ],
               ),
@@ -376,20 +374,10 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
     );
   }
 
-  Widget _buildCommentSection(double secondaryTitle) {
-    final sampleComments = [
-      {
-        "name": "Minh Anh",
-        "time": "2 giờ trước",
-        "comment": "Phim hay quá, cảnh cuối xúc động thật sự!",
-      },
-      {
-        "name": "Quốc Huy",
-        "time": "5 giờ trước",
-        "comment": "Tập này diễn viên diễn tốt hơn hẳn tập trước.",
-      },
-    ];
-
+  Widget _buildCommentSection(
+    CombineDetailAndWatch combine,
+    double secondaryTitle,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Column(
@@ -404,108 +392,26 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          // Ô nhập bình luận
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const CircleAvatar(
-                radius: 18,
-                backgroundColor: Colors.white24,
-                child: Icon(Icons.person, color: Colors.white70, size: 20),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withAlpha(20),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _commentController,
-                          style: const TextStyle(color: Colors.white),
-                          decoration: const InputDecoration(
-                            hintText: "Viết bình luận...",
-                            hintStyle: TextStyle(color: Colors.white38),
-                            border: InputBorder.none,
-                          ),
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(
-                          Icons.send,
-                          color: VColors.colorIcon,
-                          size: 20,
-                        ),
-                        onPressed: () {
-                          _commentController.clear();
-                          FocusScope.of(context).unfocus();
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+          BlocSelector<WatchMovieManagement, WatchMovieState, SelfState>(
+            selector: (state) => state.selfState,
+            builder: (context, state) {
+              return WriteComment(
+                controller: _commentController,
+                onSend: (comment) {
+                  _watchMovieManagement.postComment(
+                    state.avt,
+                    state.name!,
+                    comment,
+                    combine.movieSlug,
+                  );
+                  _commentController.clear();
+                },
+                avt: state.avt,
+              );
+            },
           ),
           const SizedBox(height: 16),
-          ...sampleComments.map(
-            (c) => Padding(
-              padding: const EdgeInsets.only(bottom: 14),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const CircleAvatar(
-                    radius: 18,
-                    backgroundColor: Colors.white24,
-                    child: Icon(Icons.person, color: Colors.white70, size: 20),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              c["name"]!,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              c["time"]!,
-                              style: const TextStyle(
-                                color: Colors.white38,
-                                fontSize: 11,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          c["comment"]!,
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          // TODO: Hiển thị bình luận
         ],
       ),
     );

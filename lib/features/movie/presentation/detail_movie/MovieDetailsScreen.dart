@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -295,9 +293,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                     ),
                     const SizedBox(width: 10),
                     ElevatedButton.icon(
-                      onPressed: ()  {
-
-                      },
+                      onPressed: () {},
                       label: const Text(
                         "Watch together",
                         style: TextStyle(
@@ -659,13 +655,21 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
             _isFavorite = !_isFavorite;
             _addToFavoriteValues.value = _isFavorite;
           },
-          child: ValueListenableBuilder(
-            valueListenable: _addToFavoriteValues,
-            builder: (context, value, child) {
-              return value == true
-                  ? Icon(Icons.favorite, color: VColors.colorIcon)
-                  : Icon(Icons.favorite_border, color: VColors.colorIcon);
-            },
+          child: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white.withAlpha(25),
+              shape: BoxShape.circle,
+            ),
+            child: ValueListenableBuilder(
+              valueListenable: _addToFavoriteValues,
+              builder: (context, value, child) {
+                return Icon(
+                  value == true ? Icons.favorite : Icons.favorite_border,
+                  color: VColors.colorIcon,
+                );
+              },
+            ),
           ),
         ),
       ],
