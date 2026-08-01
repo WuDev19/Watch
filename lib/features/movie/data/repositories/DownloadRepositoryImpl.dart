@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:ffmpeg_kit_flutter_new/ffmpeg_kit.dart';
 import 'package:ffmpeg_kit_flutter_new/ffprobe_kit.dart';
 import 'package:flutter_foreground_task/models/notification_permission.dart';
 import 'package:gal/gal.dart';
@@ -8,15 +7,17 @@ import 'package:injectable/injectable.dart';
 import 'package:movie_app/features/movie/domain/models/DownloadStart.dart';
 import 'package:movie_app/features/movie/domain/models/DownloadStartResult.dart';
 import 'package:movie_app/features/movie/domain/repositories/DownloadRepository.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:movie_app/utils/FileUtils.dart';
 
+import '../../../../utils/extension.dart';
 import '../datasources/service/ForegroundServiceDataSource.dart';
 
 @LazySingleton(as: DownloadRepository)
 class DownloadRepositoryImpl implements DownloadRepository {
   final ForegroundServiceDataSource _foregroundDataSource;
+  final FileUtils _fileUtils;
 
-  DownloadRepositoryImpl(this._foregroundDataSource);
+  DownloadRepositoryImpl(this._foregroundDataSource, this._fileUtils);
 
   Future<bool> _ensurePermissions() async {
     final notificationPermission = await _foregroundDataSource
@@ -46,15 +47,12 @@ class DownloadRepositoryImpl implements DownloadRepository {
     if (!hasGalAccess) {
       return DownloadStartResult.permissionDenied;
     }
-    final tempDir = await getTemporaryDirectory();
-    final safeFileName = '${request.movieSlug}_${request.episodeName}'
+    final safeFileName = 'phim_${request.movieSlug}_tap_${request.episodeName}'
         .replaceAll(RegExp(r'[^\w\-]'), '_');
-    final downloadTempFolder = Directory('${tempDir.path}/downloads_tmp');
-    if (!await downloadTempFolder.exists()) {
-      await downloadTempFolder.create(recursive: true);
-    }
-    final savePath =
-        '${downloadTempFolder.path}/${safeFileName}_${DateTime.now().millisecondsSinceEpoch}.mp4';
+    final savePath = await _fileUtils.createTmpFile(
+      fileName: safeFileName,
+      extension: Extension.mp4,
+    );
     await _foregroundDataSource.init();
     final started = await _foregroundDataSource.startService();
     if (!started) {
@@ -72,13 +70,5 @@ class DownloadRepositoryImpl implements DownloadRepository {
       'durationMs': double.tryParse(info?.getDuration() ?? "0")! * 1000,
     });
     return DownloadStartResult.started;
-  }
-
-  @override
-  Future<void> cancelDownload() async {
-    if (await _foregroundDataSource.isRunning()) {
-      await FFmpegKit.cancel();
-      await _foregroundDataSource.stopService();
-    }
   }
 }

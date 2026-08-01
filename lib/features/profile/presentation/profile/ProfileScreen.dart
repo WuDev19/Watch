@@ -305,11 +305,6 @@ class _ProfileScreenState extends State<ProfileScreen>
               onTap: () => context.push("/profile/history"),
             ),
             OptionTile(
-              icon: Icons.download_outlined,
-              title: "Downloads",
-              onTap: () => context.push("/profile/download"),
-            ),
-            OptionTile(
               icon: Icons.info_outline,
               title: "About",
               onTap: () => _onAboutPressed(context),

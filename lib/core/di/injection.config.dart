@@ -129,6 +129,7 @@ import '../../features/profile/presentation/history/state_management/HistoryMana
     as _i815;
 import '../../features/profile/presentation/profile/state_management/ProfileManagement.dart'
     as _i249;
+import '../../utils/FileUtils.dart' as _i281;
 import 'CloudinaryModule.dart' as _i656;
 import 'FirebaseModule.dart' as _i570;
 import 'IsarModule.dart' as _i448;
@@ -169,6 +170,7 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i17.ForegroundServiceDataSource>(
       () => _i17.ForegroundServiceDataSource(),
     );
+    gh.lazySingleton<_i281.FileUtils>(() => _i281.FileUtils());
     gh.lazySingleton<_i1055.UserRemoteDataSource>(
       () => _i84.UserRemoteDataSourceImpl(
         gh<_i974.FirebaseFirestore>(),
@@ -177,8 +179,10 @@ extension GetItInjectableX on _i174.GetIt {
       ),
     );
     gh.lazySingleton<_i1025.DownloadRepository>(
-      () =>
-          _i764.DownloadRepositoryImpl(gh<_i17.ForegroundServiceDataSource>()),
+      () => _i764.DownloadRepositoryImpl(
+        gh<_i17.ForegroundServiceDataSource>(),
+        gh<_i281.FileUtils>(),
+      ),
     );
     gh.lazySingleton<_i54.DownloadMovieUseCase>(
       () => _i54.DownloadMovieUseCase(gh<_i1025.DownloadRepository>()),

@@ -1,5 +1,6 @@
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:injectable/injectable.dart';
+import 'package:movie_app/utils/constants.dart';
 
 import 'FfmpegDownloadTaskHandler.dart';
 
@@ -49,6 +50,9 @@ class ForegroundServiceDataSource {
       notificationTitle: 'Đang chuẩn bị tải...',
       notificationText: 'Vui lòng chờ trong giây lát.',
       callback: ffmpegDownloadStartCallback,
+      notificationButtons: [
+        NotificationButton(id: Constants.cancelButton, text: 'Cancel'),
+      ],
     );
     return result is ServiceRequestSuccess;
   }

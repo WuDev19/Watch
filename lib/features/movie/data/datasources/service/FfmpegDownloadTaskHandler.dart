@@ -6,6 +6,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:gal/gal.dart';
 
+import '../../../../../utils/constants.dart';
+
 class FfmpegDownloadTaskHandler extends TaskHandler {
   String? _currentOutputPath;
   bool _isCancelled = false;
@@ -15,11 +17,14 @@ class FfmpegDownloadTaskHandler extends TaskHandler {
   Future<void> onDestroy(DateTime timestamp, bool isTimeout) async {
     debugPrint('onDestroy: $isTimeout');
     if (_currentOutputPath != null) {
+      print("nhảy vào trong này để xóa khi ondestroy");
       try {
         final file = File(_currentOutputPath!);
         if (await file.exists()) {
           await file.delete();
-          debugPrint('Đã xóa file dở dang do service bị hủy đột ngột: $_currentOutputPath');
+          debugPrint(
+            'Đã xóa file dở dang do service bị hủy đột ngột: $_currentOutputPath',
+          );
         }
       } catch (e) {
         debugPrint('Không thể xóa file dở dang trong onDestroy: $e');
@@ -37,14 +42,17 @@ class FfmpegDownloadTaskHandler extends TaskHandler {
 
   @override
   void onNotificationButtonPressed(String id) async {
-    if (id != 'cancel_button') return;
+    if (id != Constants.cancelButton) return;
+    print("cancel button");
     _isCancelled = true;
     await FFmpegKit.cancel();
     if (_currentOutputPath != null) {
+      print("cancel button và $_currentOutputPath");
       try {
         final file = File(_currentOutputPath!);
         if (await file.exists()) {
           await file.delete();
+          debugPrint('Xóa thành công');
         }
       } catch (e) {
         debugPrint('Không thể xóa file dở dang: $e');
@@ -101,12 +109,6 @@ class FfmpegDownloadTaskHandler extends TaskHandler {
         if (ReturnCode.isSuccess(returnCode)) {
           await _saveToGalleryAndCleanup(path);
         } else {
-          final output = await session.getOutput();
-          final failStackTrace = await session.getFailStackTrace();
-          debugPrint('FFmpeg returnCode: $returnCode');
-          debugPrint('FFmpeg output/logs: $output');
-          debugPrint('FFmpeg failStackTrace: $failStackTrace');
-
           FlutterForegroundTask.updateService(
             notificationTitle: 'Tải thất bại',
             notificationText: 'Đã xảy ra lỗi trong quá trình xử lý.',
@@ -126,6 +128,9 @@ class FfmpegDownloadTaskHandler extends TaskHandler {
         FlutterForegroundTask.updateService(
           notificationTitle: 'Đang tải tập $episode phim $movieName...',
           notificationText: 'Tiến trình: $progressPercent%',
+          notificationButtons: [
+            NotificationButton(id: Constants.cancelButton, text: 'Cancel'),
+          ],
         );
       },
     );
@@ -141,9 +146,7 @@ class FfmpegDownloadTaskHandler extends TaskHandler {
         );
         return;
       }
-
-      await Gal.putVideo(tempPath, album: 'MovieApp');
-
+      await Gal.putVideo(tempPath, album: 'Watch');
       FlutterForegroundTask.updateService(
         notificationTitle: 'Tải thành công!',
         notificationText: 'Video đã được lưu vào thư viện ảnh.',
@@ -164,6 +167,7 @@ class FfmpegDownloadTaskHandler extends TaskHandler {
       await _deleteTempFile(tempPath);
     }
   }
+
   Future<void> _deleteTempFile(String path) async {
     try {
       final file = File(path);

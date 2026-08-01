@@ -18,6 +18,7 @@ class Constants {
   static const String newEmailKey = "newEmail";
   static const double rateScroll = 0.9;
   static const int defaultSize = 24;
+  static const String cancelButton = 'cancel_button';
 
   static double getHeightScreen(BuildContext context) {
     return MediaQuery.sizeOf(context).height;

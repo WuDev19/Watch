@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:movie_app/core/colors/VColors.dart';
-import 'package:movie_app/features/movie/domain/models/CombineDetailAndWatch.dart';
 import 'package:movie_app/features/auth/presentation/auth/screen/LoginScreen.dart';
 import 'package:movie_app/features/auth/presentation/auth/screen/SignUpScreen.dart';
+import 'package:movie_app/features/movie/domain/models/CombineDetailAndWatch.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/MovieDetailsScreen.dart';
 import 'package:movie_app/features/movie/presentation/home/HomePage.dart';
-import 'package:movie_app/features/profile/presentation/download/DownloadScreen.dart';
-import 'package:movie_app/features/profile/presentation/favorite/FavoriteScreen.dart';
-import 'package:movie_app/features/profile/presentation/history/HistoryScreen.dart';
-import 'package:movie_app/features/profile/presentation/profile/ProfileScreen.dart';
 import 'package:movie_app/features/movie/presentation/search/SearchPage.dart';
 import 'package:movie_app/features/movie/presentation/setting/SettingScreen.dart';
 import 'package:movie_app/features/movie/presentation/watch_movie/WatchMovieScreen.dart';
+import 'package:movie_app/features/profile/presentation/favorite/FavoriteScreen.dart';
+import 'package:movie_app/features/profile/presentation/history/HistoryScreen.dart';
+import 'package:movie_app/features/profile/presentation/profile/ProfileScreen.dart';
 
 import '../../utils/constants.dart';
 
@@ -213,10 +212,6 @@ class AppRoutes {
           GoRoute(
             path: "history",
             builder: (context, state) => const HistoryScreen(),
-          ),
-          GoRoute(
-            path: "download",
-            builder: (context, state) => const DownloadScreen(),
           ),
         ],
       ),
