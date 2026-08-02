@@ -5,4 +5,9 @@ class CommentTotal {
   final String others;
 
   const CommentTotal({required this.comments, required this.others});
+
+  @override
+  String toString() {
+    return 'CommentTotal{comments: $comments, others: $others}';
+  }
 }

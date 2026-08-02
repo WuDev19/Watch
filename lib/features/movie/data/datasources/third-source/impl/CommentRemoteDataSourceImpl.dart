@@ -20,6 +20,7 @@ class CommentRemoteDataSourceImpl implements CommentRemoteDataSource {
       'avt': request.avt,
       'name': request.name,
       'comment': request.comment,
+      'movieSlug': request.movieSlug,
       'userId': _firebaseAuth.currentUser!.uid,
       'createdAt': Timestamp.now(),
     });

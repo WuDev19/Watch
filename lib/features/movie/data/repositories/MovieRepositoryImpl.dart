@@ -250,7 +250,7 @@ class MovieRepositoryImpl implements MovieRepository {
   ) async {
     final result = await _isar.favoriteMovies
         .where()
-        .anyCreatedAt()
+        .sortByCreatedAtDesc()
         .offset(page * size)
         .limit(size)
         .findAll();

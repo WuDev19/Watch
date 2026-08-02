@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../core/colors/VColors.dart';
 import '../features/movie/domain/models/EpisodeList.dart';
 
 class MethodHelperUtils {
@@ -24,5 +25,15 @@ class MethodHelperUtils {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(content)));
+  }
+
+  static void showLoadingDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(
+        child: CircularProgressIndicator(color: VColors.colorIcon),
+      ),
+    );
   }
 }

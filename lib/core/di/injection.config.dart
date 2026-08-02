@@ -40,15 +40,25 @@ import '../../features/movie/data/datasources/remote/api/MovieApi.dart'
     as _i500;
 import '../../features/movie/data/datasources/service/ForegroundServiceDataSource.dart'
     as _i17;
+import '../../features/movie/data/datasources/third-source/base/CommentRemoteDataSource.dart'
+    as _i673;
+import '../../features/movie/data/datasources/third-source/impl/CommentRemoteDataSourceImpl.dart'
+    as _i928;
+import '../../features/movie/data/repositories/CommentRepositoryImpl.dart'
+    as _i1021;
 import '../../features/movie/data/repositories/DownloadRepositoryImpl.dart'
     as _i764;
 import '../../features/movie/data/repositories/MovieRepositoryImpl.dart'
     as _i709;
+import '../../features/movie/domain/repositories/CommentRepository.dart'
+    as _i799;
 import '../../features/movie/domain/repositories/DownloadRepository.dart'
     as _i1025;
 import '../../features/movie/domain/repositories/MovieRepository.dart' as _i503;
 import '../../features/movie/domain/usecases/CheckFavoriteMovieUseCase.dart'
     as _i35;
+import '../../features/movie/domain/usecases/DeleteCommentUseCase.dart'
+    as _i236;
 import '../../features/movie/domain/usecases/DeleteFavoriteUseCase.dart'
     as _i380;
 import '../../features/movie/domain/usecases/DeleteListFavoriteMovieUseCase.dart'
@@ -59,6 +69,8 @@ import '../../features/movie/domain/usecases/DownloadMovieUseCase.dart' as _i54;
 import '../../features/movie/domain/usecases/GetAllYearUseCase.dart' as _i414;
 import '../../features/movie/domain/usecases/GetCategoriesUseCase.dart'
     as _i716;
+import '../../features/movie/domain/usecases/GetCommentOfMovieUseCase.dart'
+    as _i799;
 import '../../features/movie/domain/usecases/GetCountryUseCase.dart' as _i253;
 import '../../features/movie/domain/usecases/GetLastWatchedMovieUseCase.dart'
     as _i663;
@@ -74,6 +86,7 @@ import '../../features/movie/domain/usecases/GetWatchedMovieUseCase.dart'
     as _i673;
 import '../../features/movie/domain/usecases/HomePageMovieUseCase.dart'
     as _i755;
+import '../../features/movie/domain/usecases/PostCommentUseCase.dart' as _i514;
 import '../../features/movie/domain/usecases/SaveFavoriteMovieUseCase.dart'
     as _i582;
 import '../../features/movie/domain/usecases/SaveMovieHistoryUseCase.dart'
@@ -194,6 +207,12 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i460.SharedPreferences>(),
       ),
     );
+    gh.lazySingleton<_i673.CommentRemoteDataSource>(
+      () => _i928.CommentRemoteDataSourceImpl(
+        gh<_i974.FirebaseFirestore>(),
+        gh<_i59.FirebaseAuth>(),
+      ),
+    );
     gh.lazySingleton<_i304.CheckVerifiedNewEmailUseCase>(
       () => _i304.CheckVerifiedNewEmailUseCase(gh<_i4.UserRepository>()),
     );
@@ -217,6 +236,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i503.MovieRepository>(
       () => _i709.MovieRepositoryImpl(gh<_i500.MovieApi>(), gh<_i214.Isar>()),
+    );
+    gh.lazySingleton<_i799.CommentRepository>(
+      () => _i1021.CommentRepositoryImpl(gh<_i673.CommentRemoteDataSource>()),
     );
     gh.lazySingleton<_i966.AuthRepository>(
       () => _i763.AuthRepositoryImpl(
@@ -303,15 +325,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i430.SearchMovieHistoryUseCase>(
       () => _i430.SearchMovieHistoryUseCase(gh<_i503.MovieRepository>()),
     );
-    gh.factory<_i816.WatchMovieManagement>(
-      () => _i816.WatchMovieManagement(
-        gh<_i749.SaveMovieHistoryUseCase>(),
-        gh<_i35.CheckFavoriteMovieUseCase>(),
-        gh<_i582.SaveFavoriteMovieUseCase>(),
-        gh<_i380.DeleteFavoriteUseCase>(),
-        gh<_i54.DownloadMovieUseCase>(),
-      ),
-    );
     gh.lazySingleton<_i163.CheckLoginUseCase>(
       () => _i163.CheckLoginUseCase(gh<_i966.AuthRepository>()),
     );
@@ -330,6 +343,15 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i47.SignUpUseCase>(
       () => _i47.SignUpUseCase(gh<_i966.AuthRepository>()),
     );
+    gh.lazySingleton<_i236.DeleteCommentUseCase>(
+      () => _i236.DeleteCommentUseCase(gh<_i799.CommentRepository>()),
+    );
+    gh.lazySingleton<_i799.GetCommentOfMovieUseCase>(
+      () => _i799.GetCommentOfMovieUseCase(gh<_i799.CommentRepository>()),
+    );
+    gh.lazySingleton<_i514.PostCommentUseCase>(
+      () => _i514.PostCommentUseCase(gh<_i799.CommentRepository>()),
+    );
     gh.factory<_i862.MovieDetailManagement>(
       () => _i862.MovieDetailManagement(
         gh<_i244.GetMovieDetailsInfoUseCase>(),
@@ -339,6 +361,19 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i35.CheckFavoriteMovieUseCase>(),
         gh<_i582.SaveFavoriteMovieUseCase>(),
         gh<_i380.DeleteFavoriteUseCase>(),
+      ),
+    );
+    gh.factory<_i816.WatchMovieManagement>(
+      () => _i816.WatchMovieManagement(
+        gh<_i749.SaveMovieHistoryUseCase>(),
+        gh<_i35.CheckFavoriteMovieUseCase>(),
+        gh<_i582.SaveFavoriteMovieUseCase>(),
+        gh<_i380.DeleteFavoriteUseCase>(),
+        gh<_i54.DownloadMovieUseCase>(),
+        gh<_i39.GetMyProfileUseCase>(),
+        gh<_i514.PostCommentUseCase>(),
+        gh<_i236.DeleteCommentUseCase>(),
+        gh<_i799.GetCommentOfMovieUseCase>(),
       ),
     );
     gh.factory<_i964.SearchPageManagement>(

@@ -9,7 +9,6 @@ class FavoriteMovie {
   @Index(unique: true, replace: true, type: IndexType.hash)
   String movieSlug;
   String thumbUrl;
-  @Index()
   DateTime createdAt;
 
   FavoriteMovie({

@@ -5,9 +5,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:movie_app/core/colors/VColors.dart';
 import 'package:movie_app/features/movie/domain/models/CombineDetailAndWatch.dart';
 import 'package:movie_app/features/movie/domain/models/MovieHistoryModel.dart';
+import 'package:movie_app/features/movie/presentation/common_widgets/ErrorHandleWidget.dart';
+import 'package:movie_app/features/movie/presentation/common_widgets/LoadingHandleWidget.dart';
+import 'package:movie_app/features/movie/presentation/watch_movie/state/GetCommentState.dart';
 import 'package:movie_app/features/movie/presentation/watch_movie/state/SelfState.dart';
 import 'package:movie_app/features/movie/presentation/watch_movie/state/WatchMovieState.dart';
 import 'package:movie_app/features/movie/presentation/watch_movie/state_management/WatchMovieManagement.dart';
+import 'package:movie_app/features/movie/presentation/watch_movie/widgets/CommentItem.dart';
 import 'package:movie_app/features/movie/presentation/watch_movie/widgets/WriteComment.dart';
 import 'package:movie_app/utils/MethodHelperUtils.dart';
 
@@ -116,6 +120,9 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
             _isFavorite = value;
           });
       _watchMovieManagement.getMyProfile();
+      _watchMovieManagement.getComments(
+        widget.combineDetailAndWatch!.movieSlug,
+      );
     }
   }
 
@@ -218,7 +225,32 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
                   ),
                   const SizedBox(height: 24),
                   _buildDivider(),
-                  const SizedBox(height: 16),
+                  BlocListener<WatchMovieManagement, WatchMovieState>(
+                    listenWhen: (previous, current) =>
+                        previous.actionCommentState !=
+                        current.actionCommentState,
+                    listener: (context, state) {
+                      if (state.actionCommentState.isLoading) {
+                        MethodHelperUtils.showLoadingDialog(context);
+                      } else if (state.actionCommentState.error != null) {
+                        Navigator.of(context, rootNavigator: true).pop();
+                        MethodHelperUtils.showSnackBar(
+                          context,
+                          state.actionCommentState.error!,
+                        );
+                      } else {
+                        Navigator.of(context, rootNavigator: true).pop();
+                        MethodHelperUtils.showSnackBar(
+                          context,
+                          state.actionCommentState.isPost
+                              ? "Post comment successfully"
+                              : "Delete comment successfully",
+                        );
+                        _watchMovieManagement.getComments(combine.movieSlug);
+                      }
+                    },
+                    child: const SizedBox(height: 16),
+                  ),
                   _buildCommentSection(combine, secondaryTitle),
                   const SizedBox(height: 24),
                 ],
@@ -239,10 +271,7 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            Image.network(
-              Constants.baseImageUrl + combine.moviePoster,
-              fit: BoxFit.cover,
-            ),
+            Image.network(combine.moviePoster, fit: BoxFit.cover),
             BetterPlayer(
               key: _betterPlayerKey,
               controller: _betterPlayerController!,
@@ -411,7 +440,92 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
             },
           ),
           const SizedBox(height: 16),
-          // TODO: Hiển thị bình luận
+          BlocSelector<WatchMovieManagement, WatchMovieState, GetCommentState>(
+            selector: (state) => state.getCommentState,
+            builder: (context, state) {
+              if (state.isLoading) {
+                return const LoadingHandleWidget();
+              }
+              if (state.error != null) {
+                return ErrorHandleWidget(
+                  onTap: () =>
+                      _watchMovieManagement.getComments(combine.movieSlug),
+                );
+              }
+              final commentTotal = state.commentTotal;
+              final comments = commentTotal?.comments ?? [];
+              return ListView.builder(
+                padding: EdgeInsets.zero,
+                itemBuilder: (context, index) {
+                  final comment = comments[index];
+                  return CommentItem(
+                    commentDisplay: comment,
+                    onDelete: (commentId) {
+                      showDialog(
+                        context: context,
+                        builder: (dialogContext) => AlertDialog(
+                          backgroundColor: VColors.blackBackground,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            side: const BorderSide(
+                              color: VColors.colorIcon,
+                              width: 2,
+                            ),
+                          ),
+                          title: Text(
+                            "Delete comment",
+                            style: TextStyle(color: VColors.white),
+                          ),
+                          content: Text(
+                            "Are you sure you want to delete this comment?",
+                            style: TextStyle(
+                              color: VColors.white.withAlpha(155),
+                            ),
+                          ),
+                          actions: [
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: VColors.colorIcon,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              onPressed: () =>
+                                  Navigator.of(dialogContext).pop(),
+                              child: Text(
+                                "Cancel",
+                                style: TextStyle(color: VColors.white),
+                              ),
+                            ),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: VColors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              onPressed: () {
+                                Navigator.of(dialogContext).pop();
+                                _watchMovieManagement.deleteComment(commentId);
+                                comments.remove(comment);
+                              },
+                              child: const Text(
+                                "Delete",
+                                style: TextStyle(color: Colors.redAccent),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: comments.length,
+              );
+            },
+          ),
         ],
       ),
     );

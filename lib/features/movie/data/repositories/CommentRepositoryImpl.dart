@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:injectable/injectable.dart';
 import 'package:movie_app/features/movie/domain/models/Comment.dart';
 import 'package:movie_app/features/movie/domain/models/CommentTotal.dart';
@@ -25,7 +27,7 @@ class CommentRepositoryImpl implements CommentRepository {
   @override
   Future<CommentTotal> getComments(String movieSlug) async {
     final response = await _commentRemoteDataSource.getComments(movieSlug);
-    final result = response.sublist(0, 24).map((e) {
+    final result = response.sublist(0, min(24, response.length)).map((e) {
       return CommentMapper.mapToCommentDisplay(e);
     }).toList();
     return CommentMapper.mapToCommentTotal(result, response.length);

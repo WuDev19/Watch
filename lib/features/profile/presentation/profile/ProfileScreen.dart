@@ -191,7 +191,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                                       : CameraButton(
                                           onTap: () {
                                             if (image != null) {
-                                              _showLoadingDialog(context);
+                                              MethodHelperUtils.showLoadingDialog(context);
                                               _onUploadAvt(context, image!);
                                             }
                                           },
@@ -231,7 +231,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                         previous.updateEmailState != current.updateEmailState,
                     listener: (context, state) {
                       if (state.updateEmailState.isLoading) {
-                        _showLoadingDialog(context);
+                        MethodHelperUtils.showLoadingDialog(context);
                       } else if (state.updateEmailState.error != null) {
                         Navigator.of(context, rootNavigator: true).pop();
                         MethodHelperUtils.showSnackBar(
@@ -273,7 +273,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                   previous.updateNameState != current.updateNameState,
               listener: (context, state) {
                 if (state.updateNameState.isLoading) {
-                  _showLoadingDialog(context);
+                  MethodHelperUtils.showLoadingDialog(context);
                 } else if (state.updateNameState.error != null) {
                   Navigator.of(context, rootNavigator: true).pop();
                   MethodHelperUtils.showSnackBar(
@@ -359,7 +359,7 @@ class _ProfileScreenState extends State<ProfileScreen>
               ),
             ),
             onPressed: () {
-              _showLoadingDialog(dialogContext);
+              MethodHelperUtils.showLoadingDialog(dialogContext);
               _profileManagement
                   .logout()
                   .then((value) {
@@ -409,16 +409,6 @@ class _ProfileScreenState extends State<ProfileScreen>
           );
           Navigator.of(context, rootNavigator: true).pop();
         });
-  }
-
-  void _showLoadingDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => const Center(
-        child: CircularProgressIndicator(color: VColors.colorIcon),
-      ),
-    );
   }
 
   void _onEditProfilePressed(BuildContext context) {
