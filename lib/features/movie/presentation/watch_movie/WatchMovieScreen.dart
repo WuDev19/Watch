@@ -37,7 +37,6 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
   late ValueNotifier<List<EpisodeList>> _episodeListValues;
   late ValueNotifier<bool> _addToFavoriteValues;
 
-  late ValueNotifier<bool> _isPlayerReadyValues;
   late WatchMovieManagement _watchMovieManagement;
   final GlobalKey _betterPlayerKey = GlobalKey();
 
@@ -62,7 +61,6 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
         widget.combineDetailAndWatch!.movieWatch.currentListEpisode,
       );
       _addToFavoriteValues = ValueNotifier(false);
-      _isPlayerReadyValues = ValueNotifier(false);
 
       _betterPlayerController = BetterPlayerController(
         const BetterPlayerConfiguration(
@@ -91,10 +89,6 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
         } else if (event.betterPlayerEventType ==
             BetterPlayerEventType.pipStop) {
           _isInPipMode = false;
-        } else if (event.betterPlayerEventType ==
-            BetterPlayerEventType.initialized) {
-          //video đã sẵn sàng để phát -> ẩn poster/loading overlay
-          if (mounted) _isPlayerReadyValues.value = true;
         }
       });
 
@@ -134,7 +128,6 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
     _betterPlayerController?.dispose();
     _episodeListValues.dispose();
     _paginationEpisodeValues.dispose();
-    _isPlayerReadyValues.dispose();
     _commentController.dispose();
     super.dispose();
   }
@@ -271,22 +264,9 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            Image.network(combine.moviePoster, fit: BoxFit.cover),
             BetterPlayer(
               key: _betterPlayerKey,
               controller: _betterPlayerController!,
-            ),
-            ValueListenableBuilder<bool>(
-              valueListenable: _isPlayerReadyValues,
-              builder: (context, isReady, child) {
-                if (isReady) return const SizedBox.shrink();
-                return Container(
-                  color: Colors.black.withAlpha(90),
-                  child: const Center(
-                    child: CircularProgressIndicator(color: Colors.white),
-                  ),
-                );
-              },
             ),
             Positioned(
               left: 10,
@@ -546,7 +526,6 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
   }
 
   Future<void> _changeEpisode(EpisodeList currentEpisode) async {
-    _isPlayerReadyValues.value = false;
     if (_isInPipMode) {
       await _betterPlayerController?.disablePictureInPicture();
       await Future.delayed(
