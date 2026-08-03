@@ -45,12 +45,8 @@ class TitleMovieItem extends StatelessWidget {
                 ),
                 loadingBuilder: (context, child, loadingProgress) {
                   if (loadingProgress == null) return child;
-                  final percent =
-                      loadingProgress.cumulativeBytesLoaded /
-                      loadingProgress.expectedTotalBytes!;
                   return Center(
                     child: CircularProgressIndicator(
-                      value: percent,
                       color: VColors.colorIcon,
                     ),
                   );

@@ -83,6 +83,7 @@ class _HomePageState extends State<HomePage>
                       );
                     }
                     if (state.$1 == null) {
+                      print("nulllll");
                       return const EmptyDataWidget();
                     }
                     return TitleMovieItem(state.$1!);
@@ -136,7 +137,10 @@ class _HomePageState extends State<HomePage>
                           onPressed: () {
                             context.read<HomeBloc>().getHomePageMovie();
                           },
-                          child: Text("Retry"),
+                          child: Text(
+                            "Retry",
+                            style: TextStyle(color: VColors.white),
+                          ),
                         ),
                       );
                     }
