@@ -29,7 +29,9 @@ class FavoriteMovieWidget extends StatelessWidget {
             Container(
               decoration: _isSelected
                   ? BoxDecoration(
-                      borderRadius: const BorderRadiusGeometry.all(Radius.circular(20)),
+                      borderRadius: const BorderRadiusGeometry.all(
+                        Radius.circular(20),
+                      ),
                       border: BoxBorder.all(width: 2, color: Colors.red),
                     )
                   : null,
@@ -46,12 +48,8 @@ class FavoriteMovieWidget extends StatelessWidget {
                         const Icon(Icons.error, color: VColors.colorIcon),
                     loadingBuilder: (context, child, loadingProgress) {
                       if (loadingProgress == null) return child;
-                      final value =
-                          loadingProgress.cumulativeBytesLoaded /
-                          loadingProgress.expectedTotalBytes!;
-                      return Center(
+                      return const Center(
                         child: CircularProgressIndicator(
-                          value: value,
                           color: VColors.colorIcon,
                         ),
                       );

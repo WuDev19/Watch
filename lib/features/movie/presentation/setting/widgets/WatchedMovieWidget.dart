@@ -52,12 +52,8 @@ class WatchedMovieWidget extends StatelessWidget {
                         const Icon(Icons.error, color: VColors.colorIcon),
                     loadingBuilder: (context, child, loadingProgress) {
                       if (loadingProgress == null) return child;
-                      final value =
-                          loadingProgress.cumulativeBytesLoaded /
-                          loadingProgress.expectedTotalBytes!;
-                      return Center(
+                      return const Center(
                         child: CircularProgressIndicator(
-                          value: value,
                           color: VColors.colorIcon,
                         ),
                       );

@@ -45,10 +45,8 @@ class TitleMovieItem extends StatelessWidget {
                 ),
                 loadingBuilder: (context, child, loadingProgress) {
                   if (loadingProgress == null) return child;
-                  return Center(
-                    child: CircularProgressIndicator(
-                      color: VColors.colorIcon,
-                    ),
+                  return const Center(
+                    child: CircularProgressIndicator(color: VColors.colorIcon),
                   );
                 },
               ),
