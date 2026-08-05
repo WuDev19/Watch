@@ -38,6 +38,7 @@ class TrendingMovieItem extends StatelessWidget {
             child: ClipRRect(
               borderRadius: BorderRadiusGeometry.all(Radius.circular(20)),
               child: Image.network(
+                height: double.infinity,
                 width: double.infinity,
                 _moviePoster,
                 fit: BoxFit.cover,
