@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 class Constants {
   Constants._();
 
-  static const String baseImageUrl = "https://img.ophim.live/uploads/movies/";
   static const String errorImage = "Image loading error";
   static const String favoriteMovie = "Favorite Movie";
   static const String watchingMovie = "Watching Movie";

@@ -4,7 +4,8 @@ class SearchMovieDto {
   String name;
   String originName;
   String slug;
-  String thumbUrl;
+  String? thumbUrl;
+  String? posterUrl;
   int year;
   Tmdb tmdb;
 
@@ -13,6 +14,7 @@ class SearchMovieDto {
     required this.originName,
     required this.slug,
     required this.thumbUrl,
+    required this.posterUrl,
     required this.year,
     required this.tmdb,
   });
@@ -22,6 +24,7 @@ class SearchMovieDto {
     originName: json["origin_name"],
     slug: json["slug"],
     thumbUrl: json["thumb_url"],
+    posterUrl: json["poster_url"],
     year: json["year"],
     tmdb: Tmdb.fromJson(json["tmdb"]),
   );
@@ -31,6 +34,7 @@ class SearchMovieDto {
     "origin_name": originName,
     "slug": slug,
     "thumb_url": thumbUrl,
+    "poster_url": posterUrl,
     "year": year,
     "tmdb": tmdb.toJson(),
   };

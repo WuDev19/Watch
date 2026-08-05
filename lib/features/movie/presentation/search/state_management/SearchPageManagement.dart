@@ -130,6 +130,7 @@ class SearchPageManagement extends Cubit<SearchState> {
         ),
       );
     } catch (e) {
+      print("loi ${e.toString()}");
       emit(state.copyWith(isMoviesLoading: false, errorMovies: e.toString()));
     }
   }
@@ -173,6 +174,7 @@ class SearchPageManagement extends Cubit<SearchState> {
         ),
       );
     } catch (e) {
+      print("loi ${e.toString()}");
       emit(state.copyWith(isMoviesLoading: false, errorMovies: e.toString()));
     }
   }
@@ -214,6 +216,7 @@ class SearchPageManagement extends Cubit<SearchState> {
         ),
       );
     } catch (e) {
+      print("loi ${e.toString()}");
       emit(state.copyWith(isMoviesLoading: false, errorMovies: e.toString()));
     }
   }

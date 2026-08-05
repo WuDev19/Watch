@@ -18,7 +18,7 @@ class MovieDetailsDTO {
   String trailerUrl;
   String time;
   String episodeCurrent;
-  String episodeTotal;
+  int episodeTotal;
   String quality;
   String lang;
   int year;

@@ -15,6 +15,7 @@ class TitleMovieItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final height = Constants.getHeightScreen(context);
     final width = Constants.getWidthScreen(context);
+    print("url ${_movieWatched.thumbUrl}");
     return Stack(
       children: [
         Container(
@@ -33,7 +34,7 @@ class TitleMovieItem extends StatelessWidget {
                 height: height,
                 width: width,
                 _movieWatched.thumbUrl,
-                fit: BoxFit.cover,
+                fit: BoxFit.fill,
                 errorBuilder: (context, error, stackTrace) => Center(
                   child: Text(
                     Constants.errorImage,

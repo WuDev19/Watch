@@ -17,7 +17,7 @@ class MovieApi {
   MovieApi(this._dio);
 
   Future<MovieResponse<Item>> getHomePageMovie() async {
-    final response = await _dio.get("/v1/api/home");
+    final response = await _dio.get("/v1/api/danh-sach");
     return MovieResponse.fromJson(
       response.data,
       (jsonT) => Item.fromJson(jsonT),
@@ -81,8 +81,9 @@ class MovieApi {
     int year,
     Map<String, dynamic> params
   ) async {
+    print("nam: $year");
     final response = await _dio.get(
-      "/v1/api/nam-phat-hanh/$year",
+      "/v1/api/nam/$year",
       queryParameters: params
     );
     return MovieResponse.fromJson(
@@ -118,7 +119,7 @@ class MovieApi {
   }
 
   Future<MovieResponse<Year>> getYears() async {
-    final response = await _dio.get("/v1/api/nam-phat-hanh");
+    final response = await _dio.get("/nam-phat-hanh");
     return MovieResponse.fromJson(
       response.data,
       (jsonT) => Year.fromJson(jsonT),

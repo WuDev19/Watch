@@ -1,14 +1,16 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:intl/intl.dart';
 import 'package:movie_app/features/movie/data/datasources/local/entity/CountryLocal.dart';
 import 'package:movie_app/features/movie/data/datasources/local/entity/YearLocal.dart';
+import 'package:movie_app/features/movie/data/datasources/remote/dto/CategoryOrCountryDTO.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/dto/Year.dart';
+import 'package:movie_app/features/movie/data/datasources/remote/dto/home/Item.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/dto/movie_details/CategoryDTO.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/dto/movie_details/EpisodeDTO.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/dto/movie_details/EpisodeListDTO.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/dto/movie_details/MovieDetailsDTO.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/dto/movie_details/PeopleDTO.dart';
-import 'package:movie_app/features/movie/data/datasources/remote/dto/CategoryOrCountryDTO.dart';
-import 'package:movie_app/features/movie/data/datasources/remote/dto/home/Item.dart';
 import 'package:movie_app/features/movie/data/datasources/remote/dto/search/SearchMovieDTO.dart';
 import 'package:movie_app/features/movie/domain/models/CategoryModel.dart';
 import 'package:movie_app/features/movie/domain/models/CountryModel.dart';
@@ -19,17 +21,20 @@ import 'package:movie_app/features/movie/domain/models/MovieDetails.dart';
 import 'package:movie_app/features/movie/domain/models/MovieDisplay.dart';
 import 'package:movie_app/features/movie/domain/models/SearchMovieDisplay.dart';
 import 'package:movie_app/features/movie/domain/models/YearModel.dart';
-import 'package:movie_app/utils/constants.dart';
-import 'package:intl/intl.dart';
 
 class MovieMapper {
   MovieMapper._();
 
+  static final baseImageUrl = dotenv.get("BASE_IMAGE_URL");
+
   static MovieDisplay mapToMovieDisplay(Item item) {
+    final movieUrl = item.thumbUrl != null
+        ? baseImageUrl + item.thumbUrl!
+        : "";
     return MovieDisplay(
       movieName: item.name,
       movieStar: item.tmdb.voteAverage,
-      moviePoster: Constants.baseImageUrl + item.thumbUrl,
+      moviePoster: movieUrl,
       movieSlug: item.slug,
     );
   }
@@ -38,10 +43,33 @@ class MovieMapper {
     SearchMovieDto item,
     int totalItems,
   ) {
+    final movieUrl = item.posterUrl != null
+        ? baseImageUrl + item.posterUrl!
+        : item.thumbUrl != null
+        ? baseImageUrl + item.thumbUrl!
+        : "";
     return SearchMovieDisplay(
       movieName: item.name,
       movieYear: item.year,
-      moviePoster: Constants.baseImageUrl + item.thumbUrl,
+      moviePoster: movieUrl,
+      movieSlug: item.slug,
+      totalItems: totalItems,
+    );
+  }
+
+  static SearchMovieDisplay mapToSearchKeywordMovieDisplay(
+    SearchMovieDto item,
+    int totalItems,
+  ) {
+    final movieUrl = item.posterUrl != null
+        ? baseImageUrl + item.posterUrl!
+        : item.thumbUrl != null
+        ? baseImageUrl + item.thumbUrl!
+        : "";
+    return SearchMovieDisplay(
+      movieName: item.name,
+      movieYear: item.year,
+      moviePoster: movieUrl,
       movieSlug: item.slug,
       totalItems: totalItems,
     );
@@ -143,7 +171,6 @@ class MovieMapper {
     final created = DateTime.parse(movieDetails.created.time);
     final releaseDate = DateFormat("dd/MM/yyyy").format(created);
     final content = _parseHtmlString(movieDetails.content);
-    final total = int.tryParse(movieDetails.episodeTotal.split(" ")[0].trim());
     return MovieDetails(
       movieStar: movieDetails.tmdb.voteAverage,
       releaseDate: releaseDate,
@@ -167,7 +194,7 @@ class MovieMapper {
       country: country,
       episodes: episodes,
       alternativeNames: movieDetails.alternativeNames,
-      total: total ?? 1,
+      total: movieDetails.episodeTotal,
     );
   }
 

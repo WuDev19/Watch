@@ -5,7 +5,7 @@ class Item {
   String name;
   String slug;
   String originName;
-  String thumbUrl;
+  String? thumbUrl;
 
   Item({
     required this.tmdb,

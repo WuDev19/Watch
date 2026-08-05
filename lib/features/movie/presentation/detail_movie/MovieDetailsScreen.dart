@@ -15,6 +15,7 @@ import 'package:movie_app/features/movie/presentation/common_widgets/LoadingHand
 import 'package:movie_app/features/movie/presentation/detail_movie/state/MovieDetailState.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/state_management/MovieDetailManagement.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/widgets/ActorItem.dart';
+import 'package:movie_app/features/movie/presentation/detail_movie/widgets/AddWatchTogetherDialog.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/widgets/EpisodeItem.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/widgets/EpisodeWidget.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/widgets/ExpandScrollText.dart';
@@ -24,6 +25,8 @@ import 'package:movie_app/features/movie/presentation/detail_movie/widgets/Relat
 import 'package:movie_app/utils/MethodHelperUtils.dart';
 import 'package:movie_app/utils/constants.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import '../../domain/models/RoomMember.dart';
 
 class MovieDetailsScreen extends StatefulWidget {
   final String _movieSlug;
@@ -124,13 +127,35 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
             );
           }
           if (state.$3 != null) {
-            return Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  _movieDetailManagement.getMovieDetailsInfo(widget._movieSlug);
-                },
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.cyan),
-                child: Text("Retry", style: TextStyle(color: Colors.white)),
+            return Container(
+              width: double.infinity,
+              height: double.infinity,
+              color: VColors.blackBackground,
+              child: Center(
+                child: ElevatedButton(
+                  onPressed: () {
+                    _movieDetailManagement.getMovieDetailsInfo(
+                      widget._movieSlug,
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: VColors.colorIcon,
+                  ),
+                  child: Text("Retry", style: TextStyle(color: Colors.white)),
+                ),
+              ),
+            );
+          }
+          if (state.$1 == null) {
+            return Container(
+              width: double.infinity,
+              height: double.infinity,
+              color: VColors.blackBackground,
+              child: const Center(
+                child: Text(
+                  "Oops, some thing went wrong!",
+                  style: TextStyle(color: VColors.white),
+                ),
               ),
             );
           }
@@ -155,15 +180,12 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
           return Stack(
             children: [
               Image.network(
-                Constants.baseImageUrl + movieDetail.posterUrl,
+                movieDetail.posterUrl,
                 height: heightImage,
                 width: _screenWidth,
-                fit: BoxFit.cover,
+                fit: BoxFit.fill,
                 loadingBuilder: (context, child, loadingProgress) {
                   if (loadingProgress == null) return child;
-                  final value =
-                      loadingProgress.cumulativeBytesLoaded /
-                      loadingProgress.expectedTotalBytes!;
                   return Container(
                     width: _screenWidth,
                     height: heightImage,
@@ -171,8 +193,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                     alignment: Alignment.topCenter,
                     child: Container(
                       margin: EdgeInsets.only(top: 0.25 * heightImage),
-                      child: CircularProgressIndicator(
-                        value: value,
+                      child: const CircularProgressIndicator(
                         color: VColors.colorIcon,
                       ),
                     ),
@@ -293,7 +314,17 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                     ),
                     const SizedBox(width: 10),
                     ElevatedButton.icon(
-                      onPressed: () {},
+                      onPressed: () async {
+                        final result = await showDialog<List<RoomMember>>(
+                          context: context,
+                          builder: (context) => const AddWatchTogetherDialog(),
+                        );
+                        if (result != null &&
+                            result.isNotEmpty &&
+                            context.mounted) {
+                          context.push("/watch-together", extra: result);
+                        }
+                      },
                       label: const Text(
                         "Watch together",
                         style: TextStyle(
@@ -600,7 +631,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
           style: TextStyle(color: Colors.white),
         ),
         const SizedBox(width: 20),
-        Text(movieDetail.episodeTotal, style: TextStyle(color: Colors.white)),
+        Text("${movieDetail.episodeTotal} episodes", style: TextStyle(color: Colors.white)),
         const SizedBox(width: 20),
         Text(
           movieDetail.view >= 2
@@ -648,7 +679,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                 FavoriteMovieModel(
                   movieName: movieDetail.name,
                   movieSlug: movieDetail.slug,
-                  thumbUrl: Constants.baseImageUrl + movieDetail.thumbUrl,
+                  thumbUrl: movieDetail.thumbUrl,
                 ),
               );
             }

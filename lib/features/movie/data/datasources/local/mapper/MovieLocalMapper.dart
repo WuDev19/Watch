@@ -17,7 +17,6 @@ import 'package:movie_app/features/movie/domain/models/MovieWatch.dart';
 import 'package:movie_app/features/movie/domain/models/MovieWatched.dart';
 import 'package:movie_app/features/movie/domain/models/MovieWatching.dart';
 import 'package:movie_app/features/movie/domain/models/YearModel.dart';
-import 'package:movie_app/utils/constants.dart';
 
 import '../../../../domain/models/MovieHistoryModel.dart';
 
@@ -116,7 +115,7 @@ abstract class MovieLocalMapper {
       id: history.id,
       name: history.name,
       slug: history.slug,
-      thumbUrl: Constants.baseImageUrl + history.thumbUrl,
+      thumbUrl: history.thumbUrl,
       progress: progress,
       currentEpisode: mapToEpisodeList(history.currentEpisode),
       episodes: episodes,

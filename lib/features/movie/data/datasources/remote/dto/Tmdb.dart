@@ -13,4 +13,10 @@ class Tmdb {
     "vote_average": voteAverage,
   };
 
+  @override
+  String toString() {
+    return 'Tmdb{voteAverage: $voteAverage}';
+  }
+
+
 }

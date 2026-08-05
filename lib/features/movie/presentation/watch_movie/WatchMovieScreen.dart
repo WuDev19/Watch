@@ -91,7 +91,7 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
           _isInPipMode = false;
         }
       });
-
+      print("url: ${widget.combineDetailAndWatch!.movieWatch.currentEpisode.linkM3U8}");
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
         BetterPlayerDataSource betterPlayerDataSource =
             BetterPlayerDataSource.network(
@@ -313,7 +313,7 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
                   FavoriteMovieModel(
                     movieName: combine.movieWatch.movieName,
                     movieSlug: combine.movieSlug,
-                    thumbUrl: Constants.baseImageUrl + combine.moviePoster,
+                    thumbUrl: combine.moviePoster,
                   ),
                 );
               }

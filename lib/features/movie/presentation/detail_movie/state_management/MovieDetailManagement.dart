@@ -50,6 +50,7 @@ class MovieDetailManagement extends Cubit<MovieDetailState> {
         ),
       );
     } catch (e) {
+      print("lỗi ${e.toString()}");
       emit(
         state.copyWith(
           movieDetails: null,

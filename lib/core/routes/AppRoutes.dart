@@ -13,6 +13,8 @@ import 'package:movie_app/features/profile/presentation/favorite/FavoriteScreen.
 import 'package:movie_app/features/profile/presentation/history/HistoryScreen.dart';
 import 'package:movie_app/features/profile/presentation/profile/ProfileScreen.dart';
 
+import '../../features/movie/domain/models/RoomMember.dart';
+import '../../features/movie/presentation/watch-together/WatchTogetherScreen.dart';
 import '../../utils/constants.dart';
 
 class AppRoutes {
@@ -214,6 +216,13 @@ class AppRoutes {
             builder: (context, state) => const HistoryScreen(),
           ),
         ],
+      ),
+      GoRoute(
+        path: "/watch-together",
+        builder: (context, state) {
+          final members = state.extra as List<RoomMember>? ?? [];
+          return WatchTogetherScreen(members: members);
+        },
       ),
     ],
   );

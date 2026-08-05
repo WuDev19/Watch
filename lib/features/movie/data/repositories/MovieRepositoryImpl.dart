@@ -42,7 +42,7 @@ class MovieRepositoryImpl implements MovieRepository {
     return NetworkHelper.callApi(_movieApi.searchMovie(keyword, page), (input) {
       return input.data.items
           .map(
-            (e) => MovieMapper.mapToSearchMovieDisplay(
+            (e) => MovieMapper.mapToSearchKeywordMovieDisplay(
               e,
               input.data.params?.pagination?.totalItems ?? 0,
             ),

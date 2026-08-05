@@ -219,9 +219,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   duration: const Duration(milliseconds: 100),
                   child: HistoryItem(
                     title: movie.combineDetailAndWatch.movieWatch.movieName,
-                    posterUrl:
-                        Constants.baseImageUrl +
-                        movie.combineDetailAndWatch.moviePoster,
+                    posterUrl: movie.combineDetailAndWatch.moviePoster,
                     progress: movie.progress,
                     onTap: () => context.push(
                       "/movie-details/${movie.combineDetailAndWatch.movieSlug}",

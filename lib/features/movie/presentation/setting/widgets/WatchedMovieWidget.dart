@@ -45,8 +45,7 @@ class WatchedMovieWidget extends StatelessWidget {
                 child: AspectRatio(
                   aspectRatio: 2 / 3,
                   child: Image.network(
-                    Constants.baseImageUrl +
-                        _movieWatched.combineDetailAndWatch.moviePoster,
+                    _movieWatched.combineDetailAndWatch.moviePoster,
                     fit: BoxFit.cover,
                     errorBuilder: (context, url, error) =>
                         const Icon(Icons.error, color: VColors.colorIcon),

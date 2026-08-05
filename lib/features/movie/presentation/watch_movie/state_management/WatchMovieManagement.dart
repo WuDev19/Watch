@@ -159,7 +159,6 @@ class WatchMovieManagement extends Cubit<WatchMovieState> {
     );
     try {
       final result = await _getCommentOfMovieUseCase.execute(movieSlug);
-      print("result $result}");
       emit(
         state.copyWith(
           getCommentState: state.getCommentState.copyWith(
@@ -169,7 +168,6 @@ class WatchMovieManagement extends Cubit<WatchMovieState> {
         ),
           );
     } catch (e) {
-      print("lỗi get comment ${e.toString()}");
       emit(
         state.copyWith(
           getCommentState: state.getCommentState.copyWith(
