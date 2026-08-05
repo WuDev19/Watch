@@ -3,17 +3,17 @@ import 'package:cloudinary_public/cloudinary_public.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:injectable/injectable.dart';
 
-import '../base/UserRemoteDataSource.dart';
+import '../base/PersonalRemoteDataSource.dart';
 import '../dto/response/ProfileResponse.dart';
 
-@LazySingleton(as: UserRemoteDataSource)
-class UserRemoteDataSourceImpl implements UserRemoteDataSource {
+@LazySingleton(as: PersonalRemoteDataSource)
+class PersonalRemoteDataSourceImpl implements PersonalRemoteDataSource {
   final FirebaseFirestore _firebaseFirestore;
   final FirebaseAuth _firebaseAuth;
   final CloudinaryPublic cloudinary;
   static const String _users = "users";
 
-  UserRemoteDataSourceImpl(
+  PersonalRemoteDataSourceImpl(
     this._firebaseFirestore,
     this._firebaseAuth,
     this.cloudinary,

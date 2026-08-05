@@ -9,6 +9,7 @@ import 'package:movie_app/features/movie/domain/usecases/GetMovieDetailsInfoUseC
 import 'package:movie_app/features/movie/domain/usecases/SaveFavoriteMovieUseCase.dart';
 import 'package:movie_app/features/movie/domain/usecases/SaveMovieHistoryUseCase.dart';
 import 'package:movie_app/features/movie/domain/usecases/SearchMovieAccordingToCategoryUseCase.dart';
+import 'package:movie_app/features/movie/domain/usecases/SearchUserUseCase.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/state/MovieDetailState.dart';
 
 @injectable
@@ -21,6 +22,7 @@ class MovieDetailManagement extends Cubit<MovieDetailState> {
   final CheckFavoriteMovieUseCase _checkFavoriteMovieUseCase;
   final SaveFavoriteMovieUseCase _saveFavoriteMovieUseCase;
   final DeleteFavoriteUseCase _deleteFavoriteUseCase;
+  final SearchUserUseCase _searchUserUseCase;
 
   MovieDetailManagement(
     this._getMovieDetailsInfoUseCase,
@@ -30,6 +32,7 @@ class MovieDetailManagement extends Cubit<MovieDetailState> {
     this._checkFavoriteMovieUseCase,
     this._saveFavoriteMovieUseCase,
     this._deleteFavoriteUseCase,
+    this._searchUserUseCase,
   ) : super(MovieDetailState());
 
   void getMovieDetailsInfo(String slug) async {
@@ -144,4 +147,32 @@ class MovieDetailManagement extends Cubit<MovieDetailState> {
 
   Future<bool> checkFavoriteMovie(String slug) =>
       _checkFavoriteMovieUseCase.execute(slug);
+
+  void searchUser(String keyword) async {
+    emit(
+      state.copyWith(
+        searchUserState: state.searchUserState.copyWith(isLoading: true),
+      ),
+    );
+    try {
+      final result = await _searchUserUseCase.execute(keyword);
+      emit(
+        state.copyWith(
+          searchUserState: state.searchUserState.copyWith(
+            users: result,
+            isLoading: false,
+          ),
+        ),
+      );
+    } catch (e) {
+      emit(
+        state.copyWith(
+          searchUserState: state.searchUserState.copyWith(
+            error: e.toString(),
+            isLoading: false,
+          ),
+        ),
+      );
+    }
+  }
 }

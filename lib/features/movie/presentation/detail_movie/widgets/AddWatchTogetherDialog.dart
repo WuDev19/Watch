@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:movie_app/core/colors/VColors.dart';
 import 'package:movie_app/features/movie/domain/models/RoomMember.dart';
+import 'package:movie_app/features/movie/presentation/detail_movie/state_management/MovieDetailManagement.dart';
 
 import 'AddedMemberChip.dart';
 import 'SearchResultTile.dart';
@@ -16,7 +18,7 @@ class AddWatchTogetherDialog extends StatefulWidget {
 
 class _AddWatchTogetherDialogState extends State<AddWatchTogetherDialog> {
   final TextEditingController _searchController = TextEditingController();
-
+  late final MovieDetailManagement _movieDetailManagement;
   final List<RoomMember> _searchResult = const [
     RoomMember(id: "1", name: "Minh Anh", avatarUrl: ""),
     RoomMember(id: "2", name: "Quang Huy", avatarUrl: ""),
@@ -25,6 +27,12 @@ class _AddWatchTogetherDialogState extends State<AddWatchTogetherDialog> {
   ];
 
   final List<RoomMember> _addedMembers = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _movieDetailManagement = context.read<MovieDetailManagement>();
+  }
 
   @override
   void dispose() {
@@ -93,9 +101,8 @@ class _AddWatchTogetherDialogState extends State<AddWatchTogetherDialog> {
               child: TextField(
                 controller: _searchController,
                 style: const TextStyle(color: Colors.white),
-                onChanged: (value) {
-                  // TODO: tự triển khai search thật ở đây
-                },
+                onSubmitted: (value) =>
+                    _movieDetailManagement.searchUser(value),
                 decoration: const InputDecoration(
                   hintText: "Search by name...",
                   hintStyle: TextStyle(color: Colors.white54),
@@ -120,10 +127,10 @@ class _AddWatchTogetherDialogState extends State<AddWatchTogetherDialog> {
                 children: _addedMembers
                     .map(
                       (member) => AddedMemberChip(
-                    member: member,
-                    onRemove: () => _removeMember(member),
-                  ),
-                )
+                        member: member,
+                        onRemove: () => _removeMember(member),
+                      ),
+                    )
                     .toList(),
               ),
               const SizedBox(height: 12),
@@ -139,7 +146,7 @@ class _AddWatchTogetherDialogState extends State<AddWatchTogetherDialog> {
                 itemBuilder: (context, index) {
                   final member = _searchResult[index];
                   final alreadyAdded = _addedMembers.any(
-                        (e) => e.id == member.id,
+                    (e) => e.id == member.id,
                   );
                   return SearchResultTile(
                     member: member,
@@ -153,7 +160,6 @@ class _AddWatchTogetherDialogState extends State<AddWatchTogetherDialog> {
 
             const SizedBox(height: 16),
 
-            // Nút hành động
             Row(
               children: [
                 Expanded(

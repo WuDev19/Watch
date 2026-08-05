@@ -1,10 +1,10 @@
 import 'package:injectable/injectable.dart';
 
-import '../repositories/UserRepository.dart';
+import '../repositories/PersonalRepository.dart';
 
 @lazySingleton
 class CheckVerifiedNewEmailUseCase {
-  final UserRepository _userRepository;
+  final PersonalRepository _userRepository;
 
   CheckVerifiedNewEmailUseCase(this._userRepository);
 

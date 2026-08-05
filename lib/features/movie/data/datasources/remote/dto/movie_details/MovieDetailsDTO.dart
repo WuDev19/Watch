@@ -15,7 +15,7 @@ class MovieDetailsDTO {
   String status;
   String thumbUrl;
   String posterUrl;
-  String trailerUrl;
+  String? trailerUrl;
   String time;
   String episodeCurrent;
   int episodeTotal;

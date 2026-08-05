@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:movie_app/features/movie/domain/models/MovieActors.dart';
 import 'package:movie_app/features/movie/domain/models/MovieDetails.dart';
 import 'package:movie_app/features/movie/domain/models/SearchMovieDisplay.dart';
+import 'package:movie_app/features/movie/presentation/detail_movie/state/SearchUserState.dart';
 
 class MovieDetailState extends Equatable {
   final MovieDetails? movieDetails;
@@ -15,6 +16,7 @@ class MovieDetailState extends Equatable {
   final String? errorMovieRelated;
   final int totalItems;
   final int currentPage;
+  final SearchUserState searchUserState;
 
   const MovieDetailState({
     this.movieDetails,
@@ -27,7 +29,8 @@ class MovieDetailState extends Equatable {
     this.isLoadingMovieRelated = false,
     this.errorMovieRelated,
     this.totalItems = 24,
-    this.currentPage = 0
+    this.currentPage = 0,
+    this.searchUserState = const SearchUserState()
   });
 
   MovieDetailState copyWith({
@@ -41,7 +44,8 @@ class MovieDetailState extends Equatable {
     bool? isLoadingMovieRelated,
     String? errorMovieRelated,
     int? totalItems,
-    int? currentPage
+    int? currentPage,
+    SearchUserState? searchUserState
   }) {
     return MovieDetailState(
       movieDetails: movieDetails ?? this.movieDetails,
@@ -57,7 +61,8 @@ class MovieDetailState extends Equatable {
           isLoadingMovieRelated ?? this.isLoadingMovieRelated,
       errorMovieRelated: errorMovieRelated,
       totalItems: totalItems ?? this.totalItems,
-      currentPage: currentPage ?? this.currentPage
+      currentPage: currentPage ?? this.currentPage,
+      searchUserState: searchUserState ?? this.searchUserState
     );
   }
 
@@ -73,6 +78,7 @@ class MovieDetailState extends Equatable {
     isLoadingMovieRelated,
     errorMovieRelated,
     totalItems,
-    currentPage
+    currentPage,
+    searchUserState
   ];
 }

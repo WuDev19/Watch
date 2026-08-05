@@ -33,6 +33,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         .collection("users")
         .doc(userCredential.user!.uid)
         .set({
+          "userId": userCredential.user!.uid,
           "email": request.email,
           "name": request.name,
           "isActive": request.isActive,

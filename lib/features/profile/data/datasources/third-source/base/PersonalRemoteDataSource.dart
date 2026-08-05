@@ -1,6 +1,6 @@
 import '../dto/response/ProfileResponse.dart';
 
-abstract class UserRemoteDataSource {
+abstract class PersonalRemoteDataSource {
   Future<ProfileResponse> getMyProfile();
 
   Future<void> updateAvatar(String file);

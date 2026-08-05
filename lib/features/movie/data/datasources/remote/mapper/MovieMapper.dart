@@ -182,7 +182,7 @@ class MovieMapper {
       status: movieDetails.status,
       thumbUrl: movieDetails.thumbUrl,
       posterUrl: movieDetails.posterUrl,
-      trailerUrl: movieDetails.trailerUrl,
+      trailerUrl: movieDetails.trailerUrl ?? "",
       time: movieDetails.time,
       episodeCurrent: movieDetails.episodeCurrent,
       episodeTotal: movieDetails.episodeTotal,

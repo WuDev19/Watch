@@ -1,11 +1,11 @@
 import 'package:injectable/injectable.dart';
 
 import '../models/Profile.dart';
-import '../repositories/UserRepository.dart';
+import '../repositories/PersonalRepository.dart';
 
 @lazySingleton
 class GetMyProfileUseCase {
-  final UserRepository _userRepository;
+  final PersonalRepository _userRepository;
 
   GetMyProfileUseCase(this._userRepository);
 

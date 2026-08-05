@@ -110,13 +110,13 @@ import '../../features/movie/presentation/setting/state_managment/SettingScreenM
     as _i874;
 import '../../features/movie/presentation/watch_movie/state_management/WatchMovieManagement.dart'
     as _i816;
-import '../../features/profile/data/datasources/third-source/base/UserRemoteDataSource.dart'
+import '../../features/profile/data/datasources/third-source/base/PersonalRemoteDataSource.dart'
     as _i1055;
-import '../../features/profile/data/datasources/third-source/impl/UserRemoteDataSourceImpl.dart'
+import '../../features/profile/data/datasources/third-source/impl/PersonalRemoteDataSourceImpl.dart'
     as _i84;
-import '../../features/profile/data/repositories/UserRepositoryImpl.dart'
+import '../../features/profile/data/repositories/PersonalRepositoryImpl.dart'
     as _i663;
-import '../../features/profile/domain/repositories/UserRepository.dart' as _i4;
+import '../../features/profile/domain/repositories/PersonalRepository.dart' as _i4;
 import '../../features/profile/domain/usecases/CheckVerifiedNewEmailUseCase.dart'
     as _i304;
 import '../../features/profile/domain/usecases/DeleteAllFavoriteMovieUseCase.dart'
@@ -184,8 +184,8 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i17.ForegroundServiceDataSource(),
     );
     gh.lazySingleton<_i281.FileUtils>(() => _i281.FileUtils());
-    gh.lazySingleton<_i1055.UserRemoteDataSource>(
-      () => _i84.UserRemoteDataSourceImpl(
+    gh.lazySingleton<_i1055.PersonalRemoteDataSource>(
+      () => _i84.PersonalRemoteDataSourceImpl(
         gh<_i974.FirebaseFirestore>(),
         gh<_i59.FirebaseAuth>(),
         gh<_i524.CloudinaryPublic>(),
@@ -201,9 +201,9 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i54.DownloadMovieUseCase(gh<_i1025.DownloadRepository>()),
     );
     gh.singleton<_i500.MovieApi>(() => _i500.MovieApi(gh<_i361.Dio>()));
-    gh.lazySingleton<_i4.UserRepository>(
-      () => _i663.UserRepositoryImpl(
-        gh<_i1055.UserRemoteDataSource>(),
+    gh.lazySingleton<_i4.PersonalRepository>(
+      () => _i663.PersonalRepositoryImpl(
+        gh<_i1055.PersonalRemoteDataSource>(),
         gh<_i460.SharedPreferences>(),
       ),
     );
@@ -214,19 +214,19 @@ extension GetItInjectableX on _i174.GetIt {
       ),
     );
     gh.lazySingleton<_i304.CheckVerifiedNewEmailUseCase>(
-      () => _i304.CheckVerifiedNewEmailUseCase(gh<_i4.UserRepository>()),
+      () => _i304.CheckVerifiedNewEmailUseCase(gh<_i4.PersonalRepository>()),
     );
     gh.lazySingleton<_i39.GetMyProfileUseCase>(
-      () => _i39.GetMyProfileUseCase(gh<_i4.UserRepository>()),
+      () => _i39.GetMyProfileUseCase(gh<_i4.PersonalRepository>()),
     );
     gh.lazySingleton<_i69.UpdateAvatarUseCase>(
-      () => _i69.UpdateAvatarUseCase(gh<_i4.UserRepository>()),
+      () => _i69.UpdateAvatarUseCase(gh<_i4.PersonalRepository>()),
     );
     gh.lazySingleton<_i841.UpdateEmailUseCase>(
-      () => _i841.UpdateEmailUseCase(gh<_i4.UserRepository>()),
+      () => _i841.UpdateEmailUseCase(gh<_i4.PersonalRepository>()),
     );
     gh.lazySingleton<_i997.UpdateNameUseCase>(
-      () => _i997.UpdateNameUseCase(gh<_i4.UserRepository>()),
+      () => _i997.UpdateNameUseCase(gh<_i4.PersonalRepository>()),
     );
     gh.lazySingleton<_i633.AuthRemoteDataSource>(
       () => _i50.AuthRemoteDataSourceImpl(
