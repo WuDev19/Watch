@@ -11,16 +11,18 @@ import 'package:movie_app/features/movie/presentation/detail_movie/state_managem
 import 'AddedMemberChip.dart';
 import 'SearchResultTile.dart';
 
-class AddWatchTogetherDialog extends StatefulWidget {
-  const AddWatchTogetherDialog({super.key});
+class AddRoomMemberDialog extends StatefulWidget {
+  final void Function(List<RoomMember> members) onNext;
+
+  const AddRoomMemberDialog({super.key, required this.onNext});
 
   static const int maxMember = 6;
 
   @override
-  State<AddWatchTogetherDialog> createState() => _AddWatchTogetherDialogState();
+  State<AddRoomMemberDialog> createState() => _AddRoomMemberDialogState();
 }
 
-class _AddWatchTogetherDialogState extends State<AddWatchTogetherDialog> {
+class _AddRoomMemberDialogState extends State<AddRoomMemberDialog> {
   final TextEditingController _searchController = TextEditingController();
   final List<RoomMember> _addedMembers = [];
   late final MovieDetailManagement _movieDetailManagement;
@@ -40,7 +42,7 @@ class _AddWatchTogetherDialogState extends State<AddWatchTogetherDialog> {
     super.dispose();
   }
 
-  bool get _isFull => _addedMembers.length >= AddWatchTogetherDialog.maxMember;
+  bool get _isFull => _addedMembers.length >= AddRoomMemberDialog.maxMember;
 
   void _addMember(RoomMember member) {
     if (_isFull) return;
@@ -84,7 +86,7 @@ class _AddWatchTogetherDialogState extends State<AddWatchTogetherDialog> {
                   valueListenable: _roomMemberListener,
                   builder: (context, value, child) {
                     return Text(
-                      "${value.length}/${AddWatchTogetherDialog.maxMember}",
+                      "${value.length}/${AddRoomMemberDialog.maxMember}",
                       style: const TextStyle(
                         color: VColors.colorIcon,
                         fontWeight: FontWeight.bold,
@@ -207,15 +209,14 @@ class _AddWatchTogetherDialogState extends State<AddWatchTogetherDialog> {
                   child: OutlinedButton(
                     onPressed: () => Navigator.of(context).pop(),
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Colors.white24),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      backgroundColor: VColors.colorIcon,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                     ),
                     child: const Text(
                       "Cancel",
-                      style: TextStyle(color: Colors.white),
+                      style: TextStyle(color: VColors.white),
                     ),
                   ),
                 ),
@@ -223,21 +224,17 @@ class _AddWatchTogetherDialogState extends State<AddWatchTogetherDialog> {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.of(context).pop(_addedMembers);
+                      widget.onNext(_addedMembers);
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: VColors.colorIcon,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      backgroundColor: VColors.white,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                     ),
                     child: const Text(
-                      "OK",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      "Next",
+                      style: TextStyle(color: Colors.black),
                     ),
                   ),
                 ),

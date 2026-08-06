@@ -15,7 +15,8 @@ import 'package:movie_app/features/movie/presentation/common_widgets/LoadingHand
 import 'package:movie_app/features/movie/presentation/detail_movie/state/MovieDetailState.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/state_management/MovieDetailManagement.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/widgets/ActorItem.dart';
-import 'package:movie_app/features/movie/presentation/detail_movie/widgets/AddWatchTogetherDialog.dart';
+import 'package:movie_app/features/movie/presentation/detail_movie/widgets/AddRoomMemberDialog.dart';
+import 'package:movie_app/features/movie/presentation/detail_movie/widgets/ChooseEpisodeRoomDialog.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/widgets/ChooseRoomOptionsSheet.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/widgets/EpisodeItem.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/widgets/EpisodeWidget.dart';
@@ -322,28 +323,70 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                           onSelected: (RoomType option) async {
                             switch (option) {
                               case RoomType.create:
-                                final result = await showDialog<List<RoomMember>>(
+                                showDialog(
                                   context: context,
                                   builder: (context) => Provider.value(
                                     value: _movieDetailManagement,
-                                    child:
-                                        const AddWatchTogetherDialog(), //bọc vào cái này để có thể lấy context, ví show dialog tạo context mới dưới navigator
+                                    child: AddRoomMemberDialog(
+                                      onNext: (members) {
+                                        Navigator.of(
+                                          context,
+                                        ).pop(); // đóng dialog chọn thành viên
+                                        ChooseEpisodeRoomDialog.show(
+                                          context,
+                                          movieDetail: movieDetail,
+                                          onConfirm:
+                                              (
+                                                selectedEpisode,
+                                                currentListEpisode,
+                                              ) {
+                                                final movieWatch = MovieWatch(
+                                                  movieName: movieDetail.name,
+                                                  currentEpisode:
+                                                      selectedEpisode,
+                                                  episodes:
+                                                      movieDetail.episodes,
+                                                  currentListEpisode:
+                                                      currentListEpisode,
+                                                );
+                                                final movieCombine =
+                                                    CombineDetailAndWatch(
+                                                      movieWatch: movieWatch,
+                                                      movieSlug:
+                                                          movieDetail.slug,
+                                                      moviePoster:
+                                                          movieDetail.posterUrl,
+                                                      total: movieDetail.total,
+                                                    );
+
+                                                // TODO: gọi service tạo room trên Firestore ở đây,
+                                                // truyền kèm `members` + selectedEpisode.slug làm điểm bắt đầu đồng bộ
+
+                                                context.push(
+                                                  "/watch-together",
+                                                  extra: {
+                                                    "movieCombine":
+                                                        movieCombine,
+                                                    "members": members,
+                                                  },
+                                                );
+                                              },
+                                        );
+                                        // if (members != null &&
+                                        //     members.isNotEmpty &&
+                                        //     context.mounted) {
+                                        //   context.push(
+                                        //     "/watch-together",
+                                        //     extra: members,
+                                        //   );
+                                        // }
+                                      },
+                                    ), //bọc vào cái này để có thể lấy context, ví show dialog tạo context mới dưới navigator
                                   ),
                                 );
-                                if (result != null &&
-                                    result.isNotEmpty &&
-                                    context.mounted) {
-                                  context.push(
-                                    "/watch-together",
-                                    extra: result,
-                                  );
-                                }
                                 break;
                               case RoomType.join:
-                                context.push(
-                                  "/watch-together",
-                                  extra: [],
-                                );
+                                context.push("/watch-together", extra: []);
                                 break;
                             }
                           },

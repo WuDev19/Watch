@@ -62,7 +62,7 @@ class _EpisodeItemState extends State<EpisodeItem> {
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
-                          "Ep ${e.name}",
+                          e.name,
                           style: const TextStyle(color: Colors.white),
                         ),
                       ),
@@ -74,7 +74,7 @@ class _EpisodeItemState extends State<EpisodeItem> {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
-                      "Ep ${e.name}",
+                      e.name,
                       style: const TextStyle(color: Colors.white),
                     ),
                   ),

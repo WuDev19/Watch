@@ -28,9 +28,7 @@ class MovieMapper {
   static final baseImageUrl = dotenv.get("BASE_IMAGE_URL");
 
   static MovieDisplay mapToMovieDisplay(Item item) {
-    final movieUrl = item.thumbUrl != null
-        ? baseImageUrl + item.thumbUrl!
-        : "";
+    final movieUrl = item.thumbUrl != null ? baseImageUrl + item.thumbUrl! : "";
     return MovieDisplay(
       movieName: item.name,
       movieStar: item.tmdb.voteAverage,
@@ -43,11 +41,16 @@ class MovieMapper {
     SearchMovieDto item,
     int totalItems,
   ) {
-    final movieUrl = item.posterUrl != null
-        ? baseImageUrl + item.posterUrl!
+    String movieUrl = item.posterUrl != null
+        ? item.posterUrl!
         : item.thumbUrl != null
-        ? baseImageUrl + item.thumbUrl!
+        ? item.thumbUrl!
         : "";
+    if (movieUrl.startsWith("http")) {
+      movieUrl = baseImageUrl + movieUrl.replaceAll(baseImageUrl, "");
+    } else {
+      movieUrl = baseImageUrl + movieUrl;
+    }
     return SearchMovieDisplay(
       movieName: item.name,
       movieYear: item.year,
@@ -61,11 +64,16 @@ class MovieMapper {
     SearchMovieDto item,
     int totalItems,
   ) {
-    final movieUrl = item.posterUrl != null
-        ? baseImageUrl + item.posterUrl!
+    String movieUrl = item.posterUrl != null
+        ? item.posterUrl!
         : item.thumbUrl != null
-        ? baseImageUrl + item.thumbUrl!
+        ? item.thumbUrl!
         : "";
+    if (movieUrl.startsWith("http")) {
+      movieUrl = baseImageUrl + movieUrl.replaceAll(baseImageUrl, "");
+    } else {
+      movieUrl = baseImageUrl + movieUrl;
+    }
     return SearchMovieDisplay(
       movieName: item.name,
       movieYear: item.year,
