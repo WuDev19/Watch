@@ -1,7 +1,7 @@
 class UserResponse {
-  String userId;
-  String avt;
-  String name;
+  String? userId;
+  String? avt;
+  String? name;
 
   UserResponse(this.userId, this.avt, this.name);
 

@@ -42,19 +42,25 @@ import '../../features/movie/data/datasources/service/ForegroundServiceDataSourc
     as _i17;
 import '../../features/movie/data/datasources/third-source/base/CommentRemoteDataSource.dart'
     as _i673;
+import '../../features/movie/data/datasources/third-source/base/UserRemoteDataSource.dart'
+    as _i792;
 import '../../features/movie/data/datasources/third-source/impl/CommentRemoteDataSourceImpl.dart'
     as _i928;
+import '../../features/movie/data/datasources/third-source/impl/UserRemoteDataSourceImpl.dart'
+    as _i953;
 import '../../features/movie/data/repositories/CommentRepositoryImpl.dart'
     as _i1021;
 import '../../features/movie/data/repositories/DownloadRepositoryImpl.dart'
     as _i764;
 import '../../features/movie/data/repositories/MovieRepositoryImpl.dart'
     as _i709;
+import '../../features/movie/data/repositories/UserRepositoryImpl.dart' as _i54;
 import '../../features/movie/domain/repositories/CommentRepository.dart'
     as _i799;
 import '../../features/movie/domain/repositories/DownloadRepository.dart'
     as _i1025;
 import '../../features/movie/domain/repositories/MovieRepository.dart' as _i503;
+import '../../features/movie/domain/repositories/UserRepository.dart' as _i253;
 import '../../features/movie/domain/usecases/CheckFavoriteMovieUseCase.dart'
     as _i35;
 import '../../features/movie/domain/usecases/DeleteCommentUseCase.dart'
@@ -98,6 +104,7 @@ import '../../features/movie/domain/usecases/SearchMovieAccordingToCountryUseCas
 import '../../features/movie/domain/usecases/SearchMovieAccordingToYearUseCase.dart'
     as _i2;
 import '../../features/movie/domain/usecases/SearchMovieUseCase.dart' as _i68;
+import '../../features/movie/domain/usecases/SearchUserUseCase.dart' as _i316;
 import '../../features/movie/presentation/detail_movie/state_management/MovieDetailManagement.dart'
     as _i862;
 import '../../features/movie/presentation/home/state_management/HomeBloc.dart'
@@ -111,12 +118,13 @@ import '../../features/movie/presentation/setting/state_managment/SettingScreenM
 import '../../features/movie/presentation/watch_movie/state_management/WatchMovieManagement.dart'
     as _i816;
 import '../../features/profile/data/datasources/third-source/base/PersonalRemoteDataSource.dart'
-    as _i1055;
+    as _i957;
 import '../../features/profile/data/datasources/third-source/impl/PersonalRemoteDataSourceImpl.dart'
-    as _i84;
+    as _i779;
 import '../../features/profile/data/repositories/PersonalRepositoryImpl.dart'
-    as _i663;
-import '../../features/profile/domain/repositories/PersonalRepository.dart' as _i4;
+    as _i197;
+import '../../features/profile/domain/repositories/PersonalRepository.dart'
+    as _i11;
 import '../../features/profile/domain/usecases/CheckVerifiedNewEmailUseCase.dart'
     as _i304;
 import '../../features/profile/domain/usecases/DeleteAllFavoriteMovieUseCase.dart'
@@ -184,27 +192,24 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i17.ForegroundServiceDataSource(),
     );
     gh.lazySingleton<_i281.FileUtils>(() => _i281.FileUtils());
-    gh.lazySingleton<_i1055.PersonalRemoteDataSource>(
-      () => _i84.PersonalRemoteDataSourceImpl(
-        gh<_i974.FirebaseFirestore>(),
-        gh<_i59.FirebaseAuth>(),
-        gh<_i524.CloudinaryPublic>(),
-      ),
-    );
     gh.lazySingleton<_i1025.DownloadRepository>(
       () => _i764.DownloadRepositoryImpl(
         gh<_i17.ForegroundServiceDataSource>(),
         gh<_i281.FileUtils>(),
       ),
     );
+    gh.lazySingleton<_i792.UserRemoteDataSource>(
+      () => _i953.UserRemoteDataSourceImpl(gh<_i974.FirebaseFirestore>()),
+    );
     gh.lazySingleton<_i54.DownloadMovieUseCase>(
       () => _i54.DownloadMovieUseCase(gh<_i1025.DownloadRepository>()),
     );
     gh.singleton<_i500.MovieApi>(() => _i500.MovieApi(gh<_i361.Dio>()));
-    gh.lazySingleton<_i4.PersonalRepository>(
-      () => _i663.PersonalRepositoryImpl(
-        gh<_i1055.PersonalRemoteDataSource>(),
-        gh<_i460.SharedPreferences>(),
+    gh.lazySingleton<_i957.PersonalRemoteDataSource>(
+      () => _i779.PersonalRemoteDataSourceImpl(
+        gh<_i974.FirebaseFirestore>(),
+        gh<_i59.FirebaseAuth>(),
+        gh<_i524.CloudinaryPublic>(),
       ),
     );
     gh.lazySingleton<_i673.CommentRemoteDataSource>(
@@ -213,20 +218,8 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i59.FirebaseAuth>(),
       ),
     );
-    gh.lazySingleton<_i304.CheckVerifiedNewEmailUseCase>(
-      () => _i304.CheckVerifiedNewEmailUseCase(gh<_i4.PersonalRepository>()),
-    );
-    gh.lazySingleton<_i39.GetMyProfileUseCase>(
-      () => _i39.GetMyProfileUseCase(gh<_i4.PersonalRepository>()),
-    );
-    gh.lazySingleton<_i69.UpdateAvatarUseCase>(
-      () => _i69.UpdateAvatarUseCase(gh<_i4.PersonalRepository>()),
-    );
-    gh.lazySingleton<_i841.UpdateEmailUseCase>(
-      () => _i841.UpdateEmailUseCase(gh<_i4.PersonalRepository>()),
-    );
-    gh.lazySingleton<_i997.UpdateNameUseCase>(
-      () => _i997.UpdateNameUseCase(gh<_i4.PersonalRepository>()),
+    gh.lazySingleton<_i253.UserRepository>(
+      () => _i54.UserRepositoryImpl(gh<_i792.UserRemoteDataSource>()),
     );
     gh.lazySingleton<_i633.AuthRemoteDataSource>(
       () => _i50.AuthRemoteDataSourceImpl(
@@ -237,6 +230,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i503.MovieRepository>(
       () => _i709.MovieRepositoryImpl(gh<_i500.MovieApi>(), gh<_i214.Isar>()),
     );
+    gh.lazySingleton<_i11.PersonalRepository>(
+      () => _i197.PersonalRepositoryImpl(
+        gh<_i957.PersonalRemoteDataSource>(),
+        gh<_i460.SharedPreferences>(),
+      ),
+    );
     gh.lazySingleton<_i799.CommentRepository>(
       () => _i1021.CommentRepositoryImpl(gh<_i673.CommentRemoteDataSource>()),
     );
@@ -245,6 +244,24 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i633.AuthRemoteDataSource>(),
         gh<_i460.SharedPreferences>(),
       ),
+    );
+    gh.lazySingleton<_i304.CheckVerifiedNewEmailUseCase>(
+      () => _i304.CheckVerifiedNewEmailUseCase(gh<_i11.PersonalRepository>()),
+    );
+    gh.lazySingleton<_i39.GetMyProfileUseCase>(
+      () => _i39.GetMyProfileUseCase(gh<_i11.PersonalRepository>()),
+    );
+    gh.lazySingleton<_i69.UpdateAvatarUseCase>(
+      () => _i69.UpdateAvatarUseCase(gh<_i11.PersonalRepository>()),
+    );
+    gh.lazySingleton<_i841.UpdateEmailUseCase>(
+      () => _i841.UpdateEmailUseCase(gh<_i11.PersonalRepository>()),
+    );
+    gh.lazySingleton<_i997.UpdateNameUseCase>(
+      () => _i997.UpdateNameUseCase(gh<_i11.PersonalRepository>()),
+    );
+    gh.lazySingleton<_i316.SearchUserUseCase>(
+      () => _i316.SearchUserUseCase(gh<_i253.UserRepository>()),
     );
     gh.factory<_i663.GetLastWatchedMovieUseCase>(
       () => _i663.GetLastWatchedMovieUseCase(gh<_i503.MovieRepository>()),
@@ -352,17 +369,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i514.PostCommentUseCase>(
       () => _i514.PostCommentUseCase(gh<_i799.CommentRepository>()),
     );
-    gh.factory<_i862.MovieDetailManagement>(
-      () => _i862.MovieDetailManagement(
-        gh<_i244.GetMovieDetailsInfoUseCase>(),
-        gh<_i392.GetMovieActorsUseCase>(),
-        gh<_i63.SearchMovieAccordingToCategoryUseCase>(),
-        gh<_i749.SaveMovieHistoryUseCase>(),
-        gh<_i35.CheckFavoriteMovieUseCase>(),
-        gh<_i582.SaveFavoriteMovieUseCase>(),
-        gh<_i380.DeleteFavoriteUseCase>(),
-      ),
-    );
     gh.factory<_i816.WatchMovieManagement>(
       () => _i816.WatchMovieManagement(
         gh<_i749.SaveMovieHistoryUseCase>(),
@@ -399,6 +405,18 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i188.DeleteAllFavoriteMovieUseCase>(),
         gh<_i193.DeleteListFavoriteMovieUseCase>(),
         gh<_i809.SearchFavoriteMovieUseCase>(),
+      ),
+    );
+    gh.factory<_i862.MovieDetailManagement>(
+      () => _i862.MovieDetailManagement(
+        gh<_i244.GetMovieDetailsInfoUseCase>(),
+        gh<_i392.GetMovieActorsUseCase>(),
+        gh<_i63.SearchMovieAccordingToCategoryUseCase>(),
+        gh<_i749.SaveMovieHistoryUseCase>(),
+        gh<_i35.CheckFavoriteMovieUseCase>(),
+        gh<_i582.SaveFavoriteMovieUseCase>(),
+        gh<_i380.DeleteFavoriteUseCase>(),
+        gh<_i316.SearchUserUseCase>(),
       ),
     );
     gh.factory<_i582.LoginCubit>(

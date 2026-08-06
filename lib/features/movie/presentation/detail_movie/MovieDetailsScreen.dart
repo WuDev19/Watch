@@ -16,6 +16,7 @@ import 'package:movie_app/features/movie/presentation/detail_movie/state/MovieDe
 import 'package:movie_app/features/movie/presentation/detail_movie/state_management/MovieDetailManagement.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/widgets/ActorItem.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/widgets/AddWatchTogetherDialog.dart';
+import 'package:movie_app/features/movie/presentation/detail_movie/widgets/ChooseRoomOptionsSheet.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/widgets/EpisodeItem.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/widgets/EpisodeWidget.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/widgets/ExpandScrollText.dart';
@@ -24,6 +25,7 @@ import 'package:movie_app/features/movie/presentation/detail_movie/widgets/PageW
 import 'package:movie_app/features/movie/presentation/detail_movie/widgets/RelatedMovieItem.dart';
 import 'package:movie_app/utils/MethodHelperUtils.dart';
 import 'package:movie_app/utils/constants.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../domain/models/RoomMember.dart';
@@ -315,15 +317,37 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                     const SizedBox(width: 10),
                     ElevatedButton.icon(
                       onPressed: () async {
-                        final result = await showDialog<List<RoomMember>>(
-                          context: context,
-                          builder: (context) => const AddWatchTogetherDialog(),
+                        ChooseRoomOptionsSheet.show(
+                          context,
+                          onSelected: (RoomType option) async {
+                            switch (option) {
+                              case RoomType.create:
+                                final result = await showDialog<List<RoomMember>>(
+                                  context: context,
+                                  builder: (context) => Provider.value(
+                                    value: _movieDetailManagement,
+                                    child:
+                                        const AddWatchTogetherDialog(), //bọc vào cái này để có thể lấy context, ví show dialog tạo context mới dưới navigator
+                                  ),
+                                );
+                                if (result != null &&
+                                    result.isNotEmpty &&
+                                    context.mounted) {
+                                  context.push(
+                                    "/watch-together",
+                                    extra: result,
+                                  );
+                                }
+                                break;
+                              case RoomType.join:
+                                context.push(
+                                  "/watch-together",
+                                  extra: [],
+                                );
+                                break;
+                            }
+                          },
                         );
-                        if (result != null &&
-                            result.isNotEmpty &&
-                            context.mounted) {
-                          context.push("/watch-together", extra: result);
-                        }
                       },
                       label: const Text(
                         "Watch together",
@@ -631,7 +655,10 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
           style: TextStyle(color: Colors.white),
         ),
         const SizedBox(width: 20),
-        Text("${movieDetail.episodeTotal} episodes", style: TextStyle(color: Colors.white)),
+        Text(
+          "${movieDetail.episodeTotal} episodes",
+          style: TextStyle(color: Colors.white),
+        ),
         const SizedBox(width: 20),
         Text(
           movieDetail.view >= 2

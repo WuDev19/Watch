@@ -5,8 +5,8 @@ class UserMapper {
   UserMapper._();
 
   static UserSearch mapToUserSearch(UserResponse response) => UserSearch(
-    userId: response.userId,
-    avt: response.avt,
-    name: response.name,
+    userId: response.userId ?? "",
+    avt: response.avt ?? "",
+    name: response.name ?? "Unknown",
   );
 }

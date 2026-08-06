@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:movie_app/core/colors/VColors.dart';
+import 'package:movie_app/features/profile/presentation/profile/widgets/OptionSheet.dart';
 
 enum EditProfileOption { name, email }
 
@@ -9,9 +10,9 @@ class EditProfileOptionsSheet extends StatelessWidget {
   const EditProfileOptionsSheet({super.key, required this.onSelected});
 
   static Future<void> show(
-      BuildContext context, {
-        required void Function(EditProfileOption option) onSelected,
-      }) {
+    BuildContext context, {
+    required void Function(EditProfileOption option) onSelected,
+  }) {
     return showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -62,8 +63,7 @@ class EditProfileOptionsSheet extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              _buildOptionTile(
-                context,
+              OptionSheet(
                 icon: Icons.person_outline,
                 title: "Update Name",
                 onTap: () {
@@ -72,8 +72,7 @@ class EditProfileOptionsSheet extends StatelessWidget {
                 },
               ),
               const SizedBox(height: 8),
-              _buildOptionTile(
-                context,
+              OptionSheet(
                 icon: Icons.email_outlined,
                 title: "Update Email",
                 onTap: () {
@@ -82,41 +81,6 @@ class EditProfileOptionsSheet extends StatelessWidget {
                 },
               ),
               const SizedBox(height: 8),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildOptionTile(
-      BuildContext context, {
-        required IconData icon,
-        required String title,
-        required VoidCallback onTap,
-      }) {
-    return Material(
-      color: Colors.white.withAlpha(15),
-      borderRadius: BorderRadius.circular(14),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(14),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          child: Row(
-            children: [
-              Icon(icon, color: VColors.colorIcon),
-              const SizedBox(width: 14),
-              Text(
-                title,
-                style: TextStyle(
-                  color: VColors.white,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const Spacer(),
-              Icon(Icons.chevron_right, color: VColors.white.withAlpha(120)),
             ],
           ),
         ),

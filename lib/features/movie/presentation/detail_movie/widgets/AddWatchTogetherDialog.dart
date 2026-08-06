@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:movie_app/core/colors/VColors.dart';
 import 'package:movie_app/features/movie/domain/models/RoomMember.dart';
+import 'package:movie_app/features/movie/presentation/common_widgets/ErrorHandleWidget.dart';
+import 'package:movie_app/features/movie/presentation/common_widgets/LoadingHandleWidget.dart';
+import 'package:movie_app/features/movie/presentation/detail_movie/state/MovieDetailState.dart';
+import 'package:movie_app/features/movie/presentation/detail_movie/state/SearchUserState.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/state_management/MovieDetailManagement.dart';
 
 import 'AddedMemberChip.dart';
@@ -18,25 +22,21 @@ class AddWatchTogetherDialog extends StatefulWidget {
 
 class _AddWatchTogetherDialogState extends State<AddWatchTogetherDialog> {
   final TextEditingController _searchController = TextEditingController();
-  late final MovieDetailManagement _movieDetailManagement;
-  final List<RoomMember> _searchResult = const [
-    RoomMember(id: "1", name: "Minh Anh", avatarUrl: ""),
-    RoomMember(id: "2", name: "Quang Huy", avatarUrl: ""),
-    RoomMember(id: "3", name: "Thu Trang", avatarUrl: ""),
-    RoomMember(id: "4", name: "Bảo Ngọc", avatarUrl: ""),
-  ];
-
   final List<RoomMember> _addedMembers = [];
+  late final MovieDetailManagement _movieDetailManagement;
+  late final ValueNotifier<List<RoomMember>> _roomMemberListener;
 
   @override
   void initState() {
     super.initState();
     _movieDetailManagement = context.read<MovieDetailManagement>();
+    _roomMemberListener = ValueNotifier(_addedMembers);
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _roomMemberListener.dispose();
     super.dispose();
   }
 
@@ -45,19 +45,18 @@ class _AddWatchTogetherDialogState extends State<AddWatchTogetherDialog> {
   void _addMember(RoomMember member) {
     if (_isFull) return;
     if (_addedMembers.any((e) => e.id == member.id)) return;
-    setState(() {
-      _addedMembers.add(member);
-    });
+    _addedMembers.add(member);
+    _roomMemberListener.value = List.from(_addedMembers);
   }
 
   void _removeMember(RoomMember member) {
-    setState(() {
-      _addedMembers.removeWhere((e) => e.id == member.id);
-    });
+    _addedMembers.removeWhere((e) => e.id == member.id);
+    _roomMemberListener.value = List.from(_addedMembers);
   }
 
   @override
   Widget build(BuildContext context) {
+    print("revuild");
     return Dialog(
       backgroundColor: VColors.blackBackground,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -81,18 +80,21 @@ class _AddWatchTogetherDialogState extends State<AddWatchTogetherDialog> {
                     fontSize: 18,
                   ),
                 ),
-                Text(
-                  "${_addedMembers.length}/${AddWatchTogetherDialog.maxMember}",
-                  style: const TextStyle(
-                    color: VColors.colorIcon,
-                    fontWeight: FontWeight.bold,
-                  ),
+                ValueListenableBuilder(
+                  valueListenable: _roomMemberListener,
+                  builder: (context, value, child) {
+                    return Text(
+                      "${value.length}/${AddWatchTogetherDialog.maxMember}",
+                      style: const TextStyle(
+                        color: VColors.colorIcon,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
             const SizedBox(height: 12),
-
-            // Thanh tìm kiếm
             Container(
               decoration: BoxDecoration(
                 color: VColors.greySearch,
@@ -103,63 +105,102 @@ class _AddWatchTogetherDialogState extends State<AddWatchTogetherDialog> {
                 style: const TextStyle(color: Colors.white),
                 onSubmitted: (value) =>
                     _movieDetailManagement.searchUser(value),
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   hintText: "Search by name...",
                   hintStyle: TextStyle(color: Colors.white54),
-                  prefixIcon: Icon(Icons.search, color: Colors.white54),
+                  prefixIcon: GestureDetector(
+                    onTap: () => _movieDetailManagement.searchUser(
+                      _searchController.text.trim(),
+                    ),
+                    child: Icon(Icons.search, color: Colors.white54),
+                  ),
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.symmetric(vertical: 12),
                 ),
               ),
             ),
             const SizedBox(height: 12),
-
-            // Danh sách người đã thêm
-            if (_addedMembers.isNotEmpty) ...[
-              const Text(
-                "Added",
-                style: TextStyle(color: Colors.white70, fontSize: 13),
-              ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: _addedMembers
+            const Text(
+              "Added",
+              style: TextStyle(color: Colors.white70, fontSize: 13),
+            ),
+            const SizedBox(height: 8),
+            ValueListenableBuilder(
+              valueListenable: _roomMemberListener,
+              builder: (context, value, child) {
+                return Wrap(
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: _addedMembers
+                      .map(
+                        (member) => AddedMemberChip(
+                          member: member,
+                          onRemove: () => _removeMember(member),
+                        ),
+                      )
+                      .toList(),
+                );
+              },
+            ),
+            const SizedBox(height: 12),
+            const Divider(color: Colors.white24, height: 1),
+            const SizedBox(height: 12),
+            BlocSelector<
+              MovieDetailManagement,
+              MovieDetailState,
+              SearchUserState
+            >(
+              selector: (state) => state.searchUserState,
+              builder: (context, state) {
+                if (state.isLoading) {
+                  return const LoadingHandleWidget();
+                }
+                if (state.error != null) {
+                  return ErrorHandleWidget(
+                    onTap: () => _movieDetailManagement.searchUser(
+                      _searchController.text.trim(),
+                    ),
+                  );
+                }
+                if (state.users.isEmpty) {
+                  return const Center(
+                    child: Text(
+                      "No result",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  );
+                }
+                final searchResult = state.users
                     .map(
-                      (member) => AddedMemberChip(
-                        member: member,
-                        onRemove: () => _removeMember(member),
+                      (e) => RoomMember(
+                        id: e.userId,
+                        name: e.name,
+                        avatarUrl: e.avt,
                       ),
                     )
-                    .toList(),
-              ),
-              const SizedBox(height: 12),
-              const Divider(color: Colors.white24, height: 1),
-              const SizedBox(height: 12),
-            ],
+                    .toList();
+                return Flexible(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: searchResult.length,
+                    itemBuilder: (context, index) {
+                      final member = searchResult[index];
+                      final alreadyAdded = _addedMembers.any(
+                        (e) => e.id == member.id,
+                      );
 
-            // Danh sách kết quả tìm kiếm
-            Flexible(
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: _searchResult.length,
-                itemBuilder: (context, index) {
-                  final member = _searchResult[index];
-                  final alreadyAdded = _addedMembers.any(
-                    (e) => e.id == member.id,
-                  );
-                  return SearchResultTile(
-                    member: member,
-                    isAdded: alreadyAdded,
-                    disabled: _isFull && !alreadyAdded,
-                    onTap: () => _addMember(member),
-                  );
-                },
-              ),
+                      return SearchResultTile(
+                        member: member,
+                        isAdded: alreadyAdded,
+                        disabled: _isFull && !alreadyAdded,
+                        onTap: () => _addMember(member),
+                      );
+                    },
+                  ),
+                );
+              },
             ),
-
             const SizedBox(height: 16),
-
             Row(
               children: [
                 Expanded(
@@ -182,7 +223,6 @@ class _AddWatchTogetherDialogState extends State<AddWatchTogetherDialog> {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      // TODO: trả về danh sách _addedMembers cho màn cha xử lý logic
                       Navigator.of(context).pop(_addedMembers);
                     },
                     style: ElevatedButton.styleFrom(

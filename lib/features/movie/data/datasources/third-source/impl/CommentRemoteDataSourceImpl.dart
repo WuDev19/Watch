@@ -49,7 +49,7 @@ class CommentRemoteDataSourceImpl implements CommentRemoteDataSource {
         createdAt: e.get('createdAt'),
       );
     }).toList();
-    final userId = _firebaseAuth.currentUser!.uid;
+    final userId = _firebaseAuth.currentUser?.uid ?? "";
     final myComments = comments
         .where((element) => element.userId == userId)
         .toList();
