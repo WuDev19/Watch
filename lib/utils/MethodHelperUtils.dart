@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import '../core/colors/VColors.dart';
@@ -35,5 +37,14 @@ class MethodHelperUtils {
         child: CircularProgressIndicator(color: VColors.colorIcon),
       ),
     );
+  }
+
+  static String randomString(int length) {
+    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    final random = Random();
+    return List.generate(
+      length,
+      (index) => chars[random.nextInt(chars.length)],
+    ).join();
   }
 }

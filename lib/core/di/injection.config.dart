@@ -115,6 +115,8 @@ import '../../features/movie/presentation/search/state_management/SearchPageMana
     as _i964;
 import '../../features/movie/presentation/setting/state_managment/SettingScreenManagement.dart'
     as _i874;
+import '../../features/movie/presentation/watch-together/state_management/WatchTogetherManagement.dart'
+    as _i670;
 import '../../features/movie/presentation/watch_movie/state_management/WatchMovieManagement.dart'
     as _i816;
 import '../../features/profile/data/datasources/third-source/base/PersonalRemoteDataSource.dart'
@@ -424,6 +426,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i934.LoginUseCase>(),
         gh<_i1054.SendEmailResetPasswordUseCase>(),
       ),
+    );
+    gh.factory<_i670.WatchTogetherManagement>(
+      () => _i670.WatchTogetherManagement(gh<_i749.SaveMovieHistoryUseCase>()),
     );
     gh.factory<_i874.SettingScreenManagement>(
       () => _i874.SettingScreenManagement(

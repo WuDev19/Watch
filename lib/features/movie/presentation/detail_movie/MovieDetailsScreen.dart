@@ -29,7 +29,7 @@ import 'package:movie_app/utils/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../domain/models/RoomMember.dart';
+import '../../domain/models/RoomCreation.dart';
 
 class MovieDetailsScreen extends StatefulWidget {
   final String _movieSlug;
@@ -202,7 +202,28 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                     ),
                   );
                 },
-                errorBuilder: (context, url, error) => const Icon(Icons.error),
+                errorBuilder: (context, url, error) {
+                  return Container(
+                    height: double.infinity,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          VColors.greySearch.withValues(alpha: 0.6),
+                          VColors.greySearch.withValues(alpha: 0.9),
+                        ],
+                      ),
+                    ),
+                    alignment: Alignment.center,
+                    child: Icon(
+                      Icons.image_outlined,
+                      color: Colors.white.withValues(alpha: 0.25),
+                      size: 36,
+                    ),
+                  );
+                },
               ),
               Container(
                 margin: EdgeInsets.only(top: 0.4 * heightImage),
@@ -315,7 +336,26 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                         elevation: WidgetStatePropertyAll(10),
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    BlocListener<MovieDetailManagement, MovieDetailState>(
+                      listenWhen: (previous, current) =>
+                          previous.createRoomState != current.createRoomState,
+                      listener: (context, state) {
+                        if (state.createRoomState.isLoading) {
+                          MethodHelperUtils.showLoadingDialog(context);
+                        } else if (state.createRoomState.error != null) {
+                          MethodHelperUtils.showSnackBar(
+                            context,
+                            "Create room unsuccessfully",
+                          );
+                        } else {
+                          context.push(
+                            "/watch-together",
+                            extra: state.createRoomState.roomCreation,
+                          );
+                        }
+                      },
+                      child: const SizedBox(width: 10),
+                    ),
                     ElevatedButton.icon(
                       onPressed: () async {
                         ChooseRoomOptionsSheet.show(
@@ -325,13 +365,17 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                               case RoomType.create:
                                 showDialog(
                                   context: context,
-                                  builder: (context) => Provider.value(
+                                  builder: (dialogContext) => Provider.value(
                                     value: _movieDetailManagement,
                                     child: AddRoomMemberDialog(
                                       onNext: (members) {
+                                        if (members.isEmpty) {
+                                          return;
+                                        }
                                         Navigator.of(
-                                          context,
+                                          dialogContext,
                                         ).pop(); // đóng dialog chọn thành viên
+                                        if (!context.mounted) return;
                                         ChooseEpisodeRoomDialog.show(
                                           context,
                                           movieDetail: movieDetail,
@@ -358,35 +402,26 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                                                           movieDetail.posterUrl,
                                                       total: movieDetail.total,
                                                     );
-
-                                                // TODO: gọi service tạo room trên Firestore ở đây,
-                                                // truyền kèm `members` + selectedEpisode.slug làm điểm bắt đầu đồng bộ
-
-                                                context.push(
-                                                  "/watch-together",
-                                                  extra: {
-                                                    "movieCombine":
-                                                        movieCombine,
-                                                    "members": members,
-                                                  },
+                                                final roomCreation = RoomCreation(
+                                                  combine: movieCombine,
+                                                  members: members,
+                                                  isHost: true,
+                                                  roomId:
+                                                      MethodHelperUtils.randomString(
+                                                        10,
+                                                      ),
                                                 );
+                                                _movieDetailManagement
+                                                    .createRoom(roomCreation);
                                               },
                                         );
-                                        // if (members != null &&
-                                        //     members.isNotEmpty &&
-                                        //     context.mounted) {
-                                        //   context.push(
-                                        //     "/watch-together",
-                                        //     extra: members,
-                                        //   );
-                                        // }
                                       },
                                     ), //bọc vào cái này để có thể lấy context, ví show dialog tạo context mới dưới navigator
                                   ),
                                 );
                                 break;
                               case RoomType.join:
-                                context.push("/watch-together", extra: []);
+                                showJoinDialog(context);
                                 break;
                             }
                           },
@@ -838,5 +873,89 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
       success = false;
     }
     return success;
+  }
+
+  void showJoinDialog(BuildContext context) {
+    final TextEditingController roomCodeController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: VColors.blackBackground,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: VColors.colorIcon, width: 2),
+        ),
+        icon: Icon(Icons.movie_creation_outlined, color: VColors.colorIcon),
+        title: Text("Join room", style: TextStyle(color: VColors.white)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              "Enter the room code to join",
+              style: TextStyle(color: VColors.white.withAlpha(155)),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: roomCodeController,
+              autofocus: true,
+              style: TextStyle(color: VColors.white),
+              cursorColor: VColors.colorIcon,
+              decoration: InputDecoration(
+                hintText: "Room code",
+                hintStyle: TextStyle(color: VColors.white.withAlpha(100)),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: VColors.white.withAlpha(80)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(
+                    color: VColors.colorIcon,
+                    width: 2,
+                  ),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: VColors.colorIcon,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text("Cancel", style: TextStyle(color: VColors.white)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: VColors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            onPressed: () {
+              final code = roomCodeController.text.trim();
+              if (code.isEmpty) return;
+              Navigator.of(dialogContext).pop();
+              context.push(
+                "/watch-together",
+                extra: RoomCreation(isHost: false, roomId: code),
+              );
+            },
+            child: const Text(
+              "Join",
+              style: TextStyle(color: Colors.redAccent),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

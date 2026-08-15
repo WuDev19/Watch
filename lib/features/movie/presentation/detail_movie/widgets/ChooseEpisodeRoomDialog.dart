@@ -80,7 +80,7 @@ class _ChooseEpisodeRoomDialogState extends State<ChooseEpisodeRoomDialog> {
         padding: const EdgeInsets.all(16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const Text(
               "Choose episode to watch together",

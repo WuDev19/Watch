@@ -4,6 +4,7 @@ import 'package:movie_app/core/colors/VColors.dart';
 import 'package:movie_app/features/auth/presentation/auth/screen/LoginScreen.dart';
 import 'package:movie_app/features/auth/presentation/auth/screen/SignUpScreen.dart';
 import 'package:movie_app/features/movie/domain/models/CombineDetailAndWatch.dart';
+import 'package:movie_app/features/movie/domain/models/RoomCreation.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/MovieDetailsScreen.dart';
 import 'package:movie_app/features/movie/presentation/home/HomePage.dart';
 import 'package:movie_app/features/movie/presentation/search/SearchPage.dart';
@@ -13,7 +14,6 @@ import 'package:movie_app/features/profile/presentation/favorite/FavoriteScreen.
 import 'package:movie_app/features/profile/presentation/history/HistoryScreen.dart';
 import 'package:movie_app/features/profile/presentation/profile/ProfileScreen.dart';
 
-import '../../features/movie/domain/models/RoomMember.dart';
 import '../../features/movie/presentation/watch-together/WatchTogetherScreen.dart';
 import '../../utils/constants.dart';
 
@@ -220,8 +220,8 @@ class AppRoutes {
       GoRoute(
         path: "/watch-together",
         builder: (context, state) {
-          final members = state.extra as List<RoomMember>? ?? [];
-          return WatchTogetherScreen(members: members);
+          final roomCreation = state.extra as RoomCreation;
+          return WatchTogetherScreen(roomCreation: roomCreation);
         },
       ),
     ],

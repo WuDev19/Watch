@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:movie_app/features/movie/domain/models/MovieActors.dart';
 import 'package:movie_app/features/movie/domain/models/MovieDetails.dart';
 import 'package:movie_app/features/movie/domain/models/SearchMovieDisplay.dart';
+import 'package:movie_app/features/movie/presentation/detail_movie/state/CreateRoomState.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/state/SearchUserState.dart';
 
 class MovieDetailState extends Equatable {
@@ -17,6 +18,7 @@ class MovieDetailState extends Equatable {
   final int totalItems;
   final int currentPage;
   final SearchUserState searchUserState;
+  final CreateRoomState createRoomState;
 
   const MovieDetailState({
     this.movieDetails,
@@ -30,7 +32,8 @@ class MovieDetailState extends Equatable {
     this.errorMovieRelated,
     this.totalItems = 24,
     this.currentPage = 0,
-    this.searchUserState = const SearchUserState()
+    this.searchUserState = const SearchUserState(),
+    this.createRoomState = const CreateRoomState()
   });
 
   MovieDetailState copyWith({
@@ -45,7 +48,8 @@ class MovieDetailState extends Equatable {
     String? errorMovieRelated,
     int? totalItems,
     int? currentPage,
-    SearchUserState? searchUserState
+    SearchUserState? searchUserState,
+    CreateRoomState? createRoomState
   }) {
     return MovieDetailState(
       movieDetails: movieDetails ?? this.movieDetails,
@@ -62,7 +66,8 @@ class MovieDetailState extends Equatable {
       errorMovieRelated: errorMovieRelated,
       totalItems: totalItems ?? this.totalItems,
       currentPage: currentPage ?? this.currentPage,
-      searchUserState: searchUserState ?? this.searchUserState
+      searchUserState: searchUserState ?? this.searchUserState,
+      createRoomState: createRoomState ?? this.createRoomState
     );
   }
 
@@ -79,6 +84,8 @@ class MovieDetailState extends Equatable {
     errorMovieRelated,
     totalItems,
     currentPage,
-    searchUserState
+    searchUserState,
+    createRoomState
   ];
+
 }

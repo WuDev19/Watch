@@ -23,6 +23,7 @@ class TrendingMovieItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print("movie url: $_moviePoster");
     return Stack(
       children: [
         GestureDetector(
@@ -45,19 +46,30 @@ class TrendingMovieItem extends StatelessWidget {
                 cacheWidth: 500,
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
-                    color: Colors.black,
-                    child: Text(
-                      "Internet issues",
-                      style: TextStyle(color: Colors.white),
+                    height: double.infinity,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          VColors.greySearch.withValues(alpha: 0.6),
+                          VColors.greySearch.withValues(alpha: 0.9),
+                        ],
+                      ),
+                    ),
+                    alignment: Alignment.center,
+                    child: Icon(
+                      Icons.image_outlined,
+                      color: Colors.white.withValues(alpha: 0.25),
+                      size: 36,
                     ),
                   );
                 },
                 loadingBuilder: (context, child, loadingProgress) {
                   if (loadingProgress == null) return child;
                   return const Center(
-                    child: CircularProgressIndicator(
-                      color: VColors.colorIcon,
-                    ),
+                    child: CircularProgressIndicator(color: VColors.colorIcon),
                   );
                 },
               ),

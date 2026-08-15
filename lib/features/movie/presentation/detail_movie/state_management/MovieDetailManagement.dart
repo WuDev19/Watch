@@ -3,6 +3,7 @@ import 'package:injectable/injectable.dart';
 import 'package:movie_app/features/movie/domain/models/FavoriteMovieModel.dart';
 import 'package:movie_app/features/movie/domain/models/MovieHistoryModel.dart';
 import 'package:movie_app/features/movie/domain/usecases/CheckFavoriteMovieUseCase.dart';
+import 'package:movie_app/features/movie/domain/usecases/CreateRoomUseCase.dart';
 import 'package:movie_app/features/movie/domain/usecases/DeleteFavoriteUseCase.dart';
 import 'package:movie_app/features/movie/domain/usecases/GetMovieActorsUseCase.dart';
 import 'package:movie_app/features/movie/domain/usecases/GetMovieDetailsInfoUseCase.dart';
@@ -11,6 +12,8 @@ import 'package:movie_app/features/movie/domain/usecases/SaveMovieHistoryUseCase
 import 'package:movie_app/features/movie/domain/usecases/SearchMovieAccordingToCategoryUseCase.dart';
 import 'package:movie_app/features/movie/domain/usecases/SearchUserUseCase.dart';
 import 'package:movie_app/features/movie/presentation/detail_movie/state/MovieDetailState.dart';
+
+import '../../../domain/models/RoomCreation.dart';
 
 @injectable
 class MovieDetailManagement extends Cubit<MovieDetailState> {
@@ -23,6 +26,7 @@ class MovieDetailManagement extends Cubit<MovieDetailState> {
   final SaveFavoriteMovieUseCase _saveFavoriteMovieUseCase;
   final DeleteFavoriteUseCase _deleteFavoriteUseCase;
   final SearchUserUseCase _searchUserUseCase;
+  final CreateRoomUseCase _createRoomUseCase;
 
   MovieDetailManagement(
     this._getMovieDetailsInfoUseCase,
@@ -33,6 +37,7 @@ class MovieDetailManagement extends Cubit<MovieDetailState> {
     this._saveFavoriteMovieUseCase,
     this._deleteFavoriteUseCase,
     this._searchUserUseCase,
+    this._createRoomUseCase,
   ) : super(MovieDetailState());
 
   void getMovieDetailsInfo(String slug) async {
@@ -168,6 +173,34 @@ class MovieDetailManagement extends Cubit<MovieDetailState> {
       emit(
         state.copyWith(
           searchUserState: state.searchUserState.copyWith(
+            error: e.toString(),
+            isLoading: false,
+          ),
+        ),
+      );
+    }
+  }
+
+  void createRoom(RoomCreation roomCreation) async {
+    emit(
+      state.copyWith(
+        createRoomState: state.createRoomState.copyWith(isLoading: true),
+      ),
+    );
+    try {
+      await _createRoomUseCase.execute(roomCreation);
+      emit(
+        state.copyWith(
+          createRoomState: state.createRoomState.copyWith(
+            roomCreation: roomCreation,
+            isLoading: false,
+          ),
+        ),
+      );
+    } catch (e) {
+      emit(
+        state.copyWith(
+          createRoomState: state.createRoomState.copyWith(
             error: e.toString(),
             isLoading: false,
           ),

@@ -14,6 +14,7 @@ import 'package:movie_app/utils/constants.dart';
 
 import 'features/movie/presentation/detail_movie/state_management/MovieDetailManagement.dart';
 import 'features/movie/presentation/home/state_management/ScalePageBloc.dart';
+import 'features/movie/presentation/watch-together/state_management/WatchTogetherManagement.dart';
 import 'features/profile/presentation/profile/state_management/ProfileManagement.dart';
 import 'features/movie/presentation/splash/SplashScreen.dart';
 
@@ -40,6 +41,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => getIt.get<ProfileManagement>()),
         BlocProvider(create: (context) => getIt.get<HistoryManagement>()),
         BlocProvider(create: (context) => getIt.get<FavoriteManagement>()),
+        BlocProvider(create: (context) => getIt.get<WatchTogetherManagement>()),
       ],
       child: MaterialApp.router(
         routerConfig: AppRoutes.routes,

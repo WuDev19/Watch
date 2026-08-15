@@ -7,6 +7,8 @@ import 'package:movie_app/features/movie/domain/models/CombineDetailAndWatch.dar
 import 'package:movie_app/features/movie/domain/models/MovieHistoryModel.dart';
 import 'package:movie_app/features/movie/presentation/common_widgets/ErrorHandleWidget.dart';
 import 'package:movie_app/features/movie/presentation/common_widgets/LoadingHandleWidget.dart';
+import 'package:movie_app/features/movie/presentation/common_widgets/watch/function/MovieFunctions.dart';
+import 'package:movie_app/features/movie/presentation/common_widgets/watch/widgets/MoviePlayer.dart';
 import 'package:movie_app/features/movie/presentation/watch_movie/state/GetCommentState.dart';
 import 'package:movie_app/features/movie/presentation/watch_movie/state/SelfState.dart';
 import 'package:movie_app/features/movie/presentation/watch_movie/state/WatchMovieState.dart';
@@ -91,7 +93,9 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
           _isInPipMode = false;
         }
       });
-      print("url: ${widget.combineDetailAndWatch!.movieWatch.currentEpisode.linkM3U8}");
+      print(
+        "url: ${widget.combineDetailAndWatch!.movieWatch.currentEpisode.linkM3U8}",
+      );
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
         BetterPlayerDataSource betterPlayerDataSource =
             BetterPlayerDataSource.network(
@@ -143,7 +147,14 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildPlayer(combine),
+                  MoviePlayer(
+                    betterPlayerController: _betterPlayerController!,
+                    betterPlayerKey: _betterPlayerKey,
+                    enterPipMode: () => MovieFunctions.enterPipMode(
+                      betterPlayerController: _betterPlayerController!,
+                      betterPlayerKey: _betterPlayerKey,
+                    ),
+                  ),
                   const SizedBox(height: 16),
                   _buildTitleAndActions(combine, secondaryTitle),
                   const SizedBox(height: 20),
@@ -191,7 +202,12 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
                                   combineDetailAndWatch: combine,
                                 ),
                               );
-                              _changeEpisode(currentEpisode);
+                              MovieFunctions.changeEpisode(
+                                currentEpisode: currentEpisode,
+                                isInPipMode: _isInPipMode,
+                                betterPlayerController:
+                                    _betterPlayerController!,
+                              );
                             },
                             isInWatch: true,
                           ),
@@ -250,34 +266,6 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
               ),
             )
           : const Center(child: CircularProgressIndicator()),
-    );
-  }
-
-  Widget _buildPlayer(CombineDetailAndWatch combine) {
-    return ClipRRect(
-      borderRadius: const BorderRadius.only(
-        bottomRight: Radius.circular(20),
-        bottomLeft: Radius.circular(20),
-      ),
-      child: AspectRatio(
-        aspectRatio: 16 / 9,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            BetterPlayer(
-              key: _betterPlayerKey,
-              controller: _betterPlayerController!,
-            ),
-            Positioned(
-              left: 10,
-              child: GestureDetector(
-                onTap: _enterPipMode,
-                child: Icon(Icons.picture_in_picture, color: VColors.colorIcon),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -509,39 +497,5 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
         ],
       ),
     );
-  }
-
-  void _enterPipMode() async {
-    bool isSupported =
-        await _betterPlayerController?.isPictureInPictureSupported() ?? false;
-    if (isSupported) {
-      if (_betterPlayerController!.isPlaying() == true) {
-        if (_betterPlayerController!.isFullScreen) {
-          _betterPlayerController!.exitFullScreen();
-          await Future.delayed(const Duration(milliseconds: 400));
-        }
-        await _betterPlayerController?.enablePictureInPicture(_betterPlayerKey);
-      }
-    }
-  }
-
-  Future<void> _changeEpisode(EpisodeList currentEpisode) async {
-    if (_isInPipMode) {
-      await _betterPlayerController?.disablePictureInPicture();
-      await Future.delayed(
-        const Duration(milliseconds: 600),
-      ); //đợi một chút sau khi đóng pip
-    }
-    await _betterPlayerController?.pause(); //dừng video cũ để tránh lỗi
-    BetterPlayerDataSource dataSource = BetterPlayerDataSource.network(
-      currentEpisode.linkM3U8,
-      cacheConfiguration: BetterPlayerCacheConfiguration(
-        useCache: true,
-        maxCacheSize: 100 * 1024 * 1024,
-        maxCacheFileSize: 10 * 1024 * 1024,
-      ),
-    );
-    await _betterPlayerController!.setupDataSource(dataSource);
-    _betterPlayerController!.play();
   }
 }
