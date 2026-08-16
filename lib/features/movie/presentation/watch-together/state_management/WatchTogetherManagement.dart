@@ -27,7 +27,7 @@ class WatchTogetherManagement extends Cubit<TogetherState> {
     await _saveMovieHistoryUseCase.execute(model);
   }
 
-  Future<void> getRoomWatching(String roomId) async {
+  void getRoomWatching(String roomId) async {
     emit(
       state.copyWith(
         getRoomState: state.getRoomState.copyWith(isLoading: true),

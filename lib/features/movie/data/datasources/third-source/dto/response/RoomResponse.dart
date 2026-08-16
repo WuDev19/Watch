@@ -1,6 +1,7 @@
 import 'package:movie_app/features/movie/data/datasources/third-source/dto/response/MemberResponse.dart';
 
 class RoomResponse {
+  final String movieName;
   final String roomId;
   final bool isPlaying;
   final num playbackRate;
@@ -10,6 +11,7 @@ class RoomResponse {
   final List<MemberResponse> members;
 
   const RoomResponse({
+    required this.movieName,
     required this.roomId,
     required this.isPlaying,
     required this.playbackRate,
@@ -20,6 +22,7 @@ class RoomResponse {
   });
 
   factory RoomResponse.fromJson(Map<String, dynamic> json) => RoomResponse(
+    movieName: json["movieName"],
     roomId: json["roomId"],
     isPlaying: json["isPlaying"],
     playbackRate: json["playbackRate"],

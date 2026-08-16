@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:movie_app/core/colors/VColors.dart';
 import 'package:movie_app/features/movie/domain/models/RoomCreation.dart';
+import 'package:movie_app/features/movie/domain/models/RoomMember.dart';
 import 'package:movie_app/features/movie/presentation/common_widgets/watch/function/MovieFunctions.dart';
 import 'package:movie_app/features/movie/presentation/common_widgets/watch/widgets/MoviePlayer.dart';
 import 'package:movie_app/features/movie/presentation/watch-together/state/TogetherState.dart';
@@ -36,6 +37,7 @@ class _WatchTogetherScreenState extends State<WatchTogetherScreen> {
   final GlobalKey _betterPlayerKey = GlobalKey();
 
   bool _isInPipMode = false;
+  num cacheCurrentTime = 0;
 
   @override
   void initState() {
@@ -89,17 +91,18 @@ class _WatchTogetherScreenState extends State<WatchTogetherScreen> {
     });
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-      BetterPlayerDataSource betterPlayerDataSource =
-          BetterPlayerDataSource.network(
-            widget.roomCreation.combine?.movieWatch.currentEpisode.linkM3U8 ??
-                "",
-            cacheConfiguration: BetterPlayerCacheConfiguration(
-              useCache: true,
-              maxCacheSize: 100 * 1024 * 1024,
-              maxCacheFileSize: 10 * 1024 * 1024,
-            ),
-          );
-      await _betterPlayerController.setupDataSource(betterPlayerDataSource);
+      if (widget.roomCreation.isHost) {
+        BetterPlayerDataSource betterPlayerDataSource =
+            BetterPlayerDataSource.network(
+              widget.roomCreation.combine!.movieWatch.currentEpisode.linkM3U8,
+              cacheConfiguration: BetterPlayerCacheConfiguration(
+                useCache: true,
+                maxCacheSize: 100 * 1024 * 1024,
+                maxCacheFileSize: 10 * 1024 * 1024,
+              ),
+            );
+        await _betterPlayerController.setupDataSource(betterPlayerDataSource);
+      }
     });
   }
 
@@ -161,74 +164,129 @@ class _WatchTogetherScreenState extends State<WatchTogetherScreen> {
               } else {
                 videoController?.play();
               }
-
-              if (roomWatching.currentTime != 0) {
+              if (cacheCurrentTime != roomWatching.currentTime) {
+                cacheCurrentTime = roomWatching.currentTime;
                 videoController?.seekTo(
                   Duration(milliseconds: roomWatching.currentTime.toInt()),
+                );
+              }
+              videoController?.setSpeed(roomWatching.playbackRate.toDouble());
+              if (roomWatching.movieUrl !=
+                  _betterPlayerController.betterPlayerDataSource?.url) {
+                _betterPlayerController.setupDataSource(
+                  BetterPlayerDataSource.network(
+                    roomWatching.movieUrl,
+                    cacheConfiguration: _buildBetterPlayerConfiguration(),
+                  ),
                 );
               }
             },
             child: const SizedBox(height: 16),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Text(
-              "Watching: ${roomCreation.combine.movieWatch.movieName}",
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: secondaryTitle,
-              ),
-              textAlign: TextAlign.start,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
+          BlocSelector<WatchTogetherManagement, TogetherState, String?>(
+            selector: (state) => state.getRoomState.roomWatching?.movieName,
+            builder: (context, movieName) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Text(
+                  "Watching: ${movieName ?? "Unknown"}",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: secondaryTitle,
+                  ),
+                  textAlign: TextAlign.start,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              );
+            },
           ),
-          const SizedBox(height: 20),
+          BlocListener<WatchTogetherManagement, TogetherState>(
+            listenWhen: (previous, current) =>
+                previous.getRoomState.roomWatching?.movieUrl !=
+                current.getRoomState.roomWatching?.movieUrl,
+            listener: (context, state) {
+              final roomWatching = state.getRoomState.roomWatching;
+              if (roomWatching != null) {
+                _betterPlayerController.setupDataSource(
+                  BetterPlayerDataSource.network(
+                    roomWatching.movieUrl,
+                    cacheConfiguration: _buildBetterPlayerConfiguration(),
+                  ),
+                );
+              }
+            },
+            child: const SizedBox(height: 20),
+          ),
           ValueListenableBuilder(
             valueListenable: _isHostListener,
             builder: (context, isHost, child) {
               if (child == null) return const SizedBox();
-              return isHost ? child : const SizedBox();
+              return isHost
+                  ? _buildEpisodeHost(
+                      secondaryTitle: secondaryTitle,
+                      roomCreation: roomCreation,
+                    )
+                  : const SizedBox();
             },
-            child: _buildEpisodeHost(
-              secondaryTitle: secondaryTitle,
-              roomCreation: roomCreation,
-            ),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                const Icon(Icons.groups, color: VColors.colorIcon, size: 18),
-                const SizedBox(width: 6),
-                Text(
-                  "In room (${widget.roomCreation.members.length})",
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
+          BlocSelector<
+            WatchTogetherManagement,
+            TogetherState,
+            List<RoomMember>?
+          >(
+            selector: (state) => state.getRoomState.roomWatching?.members,
+            builder: (context, state) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.groups,
+                      color: VColors.colorIcon,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      "In room (${state != null ? state.length : 0})",
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              );
+            },
           ),
           const SizedBox(height: 8),
 
           // Phần dưới: danh sách người trong phòng, grid 2 cột
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            padding: const EdgeInsets.all(16),
-            itemCount: widget.roomCreation.members.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              mainAxisSpacing: 12,
-              crossAxisSpacing: 12,
-              childAspectRatio: 3,
-            ),
-            itemBuilder: (context, index) {
-              final member = widget.roomCreation.members[index];
-              return RoomMemberCard(member: member);
+          BlocSelector<
+            WatchTogetherManagement,
+            TogetherState,
+            List<RoomMember>?
+          >(
+            selector: (state) => state.getRoomState.roomWatching?.members,
+            builder: (context, members) {
+              if (members == null || members.isEmpty) return const SizedBox();
+              return GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(16),
+                itemCount: members.length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 12,
+                  crossAxisSpacing: 12,
+                  childAspectRatio: 3,
+                ),
+                itemBuilder: (context, index) {
+                  final member = members[index];
+                  return RoomMemberCard(member: member);
+                },
+              );
             },
           ),
         ],
@@ -323,6 +381,14 @@ class _WatchTogetherScreenState extends State<WatchTogetherScreen> {
         ),
         const SizedBox(height: 24),
       ],
+    );
+  }
+
+  BetterPlayerCacheConfiguration _buildBetterPlayerConfiguration() {
+    return BetterPlayerCacheConfiguration(
+      useCache: true,
+      maxCacheSize: 100 * 1024 * 1024,
+      maxCacheFileSize: 10 * 1024 * 1024,
     );
   }
 }

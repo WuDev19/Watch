@@ -27,9 +27,9 @@ class RoomRemoteDataSourceImpl implements RoomRemoteDataSource {
   Future<RoomResponse> getRoomDetail(String roomId) async {
     final response = await _firebaseFirestore
         .collection(_roomCollection)
-        .doc(roomId)
+        .where("roomId", isEqualTo: roomId)
         .get();
-    return RoomResponse.fromJson(response.data()!);
+    return RoomResponse.fromJson(response.docs.first.data());
   }
 
   @override

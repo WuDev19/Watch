@@ -1,6 +1,7 @@
 import 'package:movie_app/features/movie/data/datasources/third-source/dto/request/MemberRequest.dart';
 
 class CreateRoomRequest {
+  String movieName;
   String roomId;
   bool isPlaying;
   num playbackRate;
@@ -10,6 +11,7 @@ class CreateRoomRequest {
   List<MemberRequest> members;
 
   CreateRoomRequest({
+    required this.movieName,
     required this.roomId,
     required this.isPlaying,
     required this.playbackRate,
@@ -20,6 +22,7 @@ class CreateRoomRequest {
   });
 
   Map<String, dynamic> toJson() => {
+    "movieName": movieName,
     "roomId": roomId,
     "isPlaying": isPlaying,
     "playbackRate": playbackRate,

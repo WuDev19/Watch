@@ -343,11 +343,13 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                         if (state.createRoomState.isLoading) {
                           MethodHelperUtils.showLoadingDialog(context);
                         } else if (state.createRoomState.error != null) {
+                          Navigator.of(context, rootNavigator: true).pop();
                           MethodHelperUtils.showSnackBar(
                             context,
                             "Create room unsuccessfully",
                           );
                         } else {
+                          Navigator.of(context, rootNavigator: true).pop();
                           context.push(
                             "/watch-together",
                             extra: state.createRoomState.roomCreation,

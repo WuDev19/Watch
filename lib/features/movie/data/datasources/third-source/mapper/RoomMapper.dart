@@ -26,6 +26,7 @@ class RoomMapper {
               )
               .toList();
     return CreateRoomRequest(
+      movieName: roomCreate.combine!.movieWatch.movieName,
       roomId: roomCreate.roomId,
       isPlaying: false,
       playbackRate: 1,
@@ -38,6 +39,7 @@ class RoomMapper {
 
   static RoomWatching mapToRoomWatching(RoomResponse roomResponse) {
     return RoomWatching(
+      movieName: roomResponse.movieName,
       roomId: roomResponse.roomId,
       isPlaying: roomResponse.isPlaying,
       playbackRate: roomResponse.playbackRate,

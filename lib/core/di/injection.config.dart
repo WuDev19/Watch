@@ -42,10 +42,14 @@ import '../../features/movie/data/datasources/service/ForegroundServiceDataSourc
     as _i17;
 import '../../features/movie/data/datasources/third-source/base/CommentRemoteDataSource.dart'
     as _i673;
+import '../../features/movie/data/datasources/third-source/base/RoomRemoteDataSource.dart'
+    as _i430;
 import '../../features/movie/data/datasources/third-source/base/UserRemoteDataSource.dart'
     as _i792;
 import '../../features/movie/data/datasources/third-source/impl/CommentRemoteDataSourceImpl.dart'
     as _i928;
+import '../../features/movie/data/datasources/third-source/impl/RoomRemoteDataSourceImpl.dart'
+    as _i415;
 import '../../features/movie/data/datasources/third-source/impl/UserRemoteDataSourceImpl.dart'
     as _i953;
 import '../../features/movie/data/repositories/CommentRepositoryImpl.dart'
@@ -54,15 +58,18 @@ import '../../features/movie/data/repositories/DownloadRepositoryImpl.dart'
     as _i764;
 import '../../features/movie/data/repositories/MovieRepositoryImpl.dart'
     as _i709;
+import '../../features/movie/data/repositories/RoomRepositoryImpl.dart' as _i50;
 import '../../features/movie/data/repositories/UserRepositoryImpl.dart' as _i54;
 import '../../features/movie/domain/repositories/CommentRepository.dart'
     as _i799;
 import '../../features/movie/domain/repositories/DownloadRepository.dart'
     as _i1025;
 import '../../features/movie/domain/repositories/MovieRepository.dart' as _i503;
+import '../../features/movie/domain/repositories/RoomRepository.dart' as _i1053;
 import '../../features/movie/domain/repositories/UserRepository.dart' as _i253;
 import '../../features/movie/domain/usecases/CheckFavoriteMovieUseCase.dart'
     as _i35;
+import '../../features/movie/domain/usecases/CreateRoomUseCase.dart' as _i17;
 import '../../features/movie/domain/usecases/DeleteCommentUseCase.dart'
     as _i236;
 import '../../features/movie/domain/usecases/DeleteFavoriteUseCase.dart'
@@ -88,6 +95,8 @@ import '../../features/movie/domain/usecases/GetMovieWatchingUseCase.dart'
     as _i332;
 import '../../features/movie/domain/usecases/GetMyFavoriteMovieUseCase.dart'
     as _i357;
+import '../../features/movie/domain/usecases/GetRoomWatchingUseCase.dart'
+    as _i586;
 import '../../features/movie/domain/usecases/GetWatchedMovieUseCase.dart'
     as _i673;
 import '../../features/movie/domain/usecases/HomePageMovieUseCase.dart'
@@ -105,6 +114,8 @@ import '../../features/movie/domain/usecases/SearchMovieAccordingToYearUseCase.d
     as _i2;
 import '../../features/movie/domain/usecases/SearchMovieUseCase.dart' as _i68;
 import '../../features/movie/domain/usecases/SearchUserUseCase.dart' as _i316;
+import '../../features/movie/domain/usecases/WatchingRoomChangeUseCase.dart'
+    as _i67;
 import '../../features/movie/presentation/detail_movie/state_management/MovieDetailManagement.dart'
     as _i862;
 import '../../features/movie/presentation/home/state_management/HomeBloc.dart'
@@ -220,6 +231,12 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i59.FirebaseAuth>(),
       ),
     );
+    gh.lazySingleton<_i430.RoomRemoteDataSource>(
+      () => _i415.RoomRemoteDataSourceImpl(
+        gh<_i974.FirebaseFirestore>(),
+        gh<_i59.FirebaseAuth>(),
+      ),
+    );
     gh.lazySingleton<_i253.UserRepository>(
       () => _i54.UserRepositoryImpl(gh<_i792.UserRemoteDataSource>()),
     );
@@ -238,6 +255,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i460.SharedPreferences>(),
       ),
     );
+    gh.lazySingleton<_i1053.RoomRepository>(
+      () => _i50.RoomRepositoryImpl(gh<_i430.RoomRemoteDataSource>()),
+    );
     gh.lazySingleton<_i799.CommentRepository>(
       () => _i1021.CommentRepositoryImpl(gh<_i673.CommentRemoteDataSource>()),
     );
@@ -246,6 +266,15 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i633.AuthRemoteDataSource>(),
         gh<_i460.SharedPreferences>(),
       ),
+    );
+    gh.factory<_i17.CreateRoomUseCase>(
+      () => _i17.CreateRoomUseCase(gh<_i1053.RoomRepository>()),
+    );
+    gh.factory<_i586.GetRoomWatchingUseCase>(
+      () => _i586.GetRoomWatchingUseCase(gh<_i1053.RoomRepository>()),
+    );
+    gh.factory<_i67.WatchingRoomChangeUseCase>(
+      () => _i67.WatchingRoomChangeUseCase(gh<_i1053.RoomRepository>()),
     );
     gh.lazySingleton<_i304.CheckVerifiedNewEmailUseCase>(
       () => _i304.CheckVerifiedNewEmailUseCase(gh<_i11.PersonalRepository>()),
@@ -371,6 +400,13 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i514.PostCommentUseCase>(
       () => _i514.PostCommentUseCase(gh<_i799.CommentRepository>()),
     );
+    gh.factory<_i670.WatchTogetherManagement>(
+      () => _i670.WatchTogetherManagement(
+        gh<_i749.SaveMovieHistoryUseCase>(),
+        gh<_i586.GetRoomWatchingUseCase>(),
+        gh<_i67.WatchingRoomChangeUseCase>(),
+      ),
+    );
     gh.factory<_i816.WatchMovieManagement>(
       () => _i816.WatchMovieManagement(
         gh<_i749.SaveMovieHistoryUseCase>(),
@@ -382,6 +418,19 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i514.PostCommentUseCase>(),
         gh<_i236.DeleteCommentUseCase>(),
         gh<_i799.GetCommentOfMovieUseCase>(),
+      ),
+    );
+    gh.factory<_i862.MovieDetailManagement>(
+      () => _i862.MovieDetailManagement(
+        gh<_i244.GetMovieDetailsInfoUseCase>(),
+        gh<_i392.GetMovieActorsUseCase>(),
+        gh<_i63.SearchMovieAccordingToCategoryUseCase>(),
+        gh<_i749.SaveMovieHistoryUseCase>(),
+        gh<_i35.CheckFavoriteMovieUseCase>(),
+        gh<_i582.SaveFavoriteMovieUseCase>(),
+        gh<_i380.DeleteFavoriteUseCase>(),
+        gh<_i316.SearchUserUseCase>(),
+        gh<_i17.CreateRoomUseCase>(),
       ),
     );
     gh.factory<_i964.SearchPageManagement>(
@@ -409,26 +458,11 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i809.SearchFavoriteMovieUseCase>(),
       ),
     );
-    gh.factory<_i862.MovieDetailManagement>(
-      () => _i862.MovieDetailManagement(
-        gh<_i244.GetMovieDetailsInfoUseCase>(),
-        gh<_i392.GetMovieActorsUseCase>(),
-        gh<_i63.SearchMovieAccordingToCategoryUseCase>(),
-        gh<_i749.SaveMovieHistoryUseCase>(),
-        gh<_i35.CheckFavoriteMovieUseCase>(),
-        gh<_i582.SaveFavoriteMovieUseCase>(),
-        gh<_i380.DeleteFavoriteUseCase>(),
-        gh<_i316.SearchUserUseCase>(),
-      ),
-    );
     gh.factory<_i582.LoginCubit>(
       () => _i582.LoginCubit(
         gh<_i934.LoginUseCase>(),
         gh<_i1054.SendEmailResetPasswordUseCase>(),
       ),
-    );
-    gh.factory<_i670.WatchTogetherManagement>(
-      () => _i670.WatchTogetherManagement(gh<_i749.SaveMovieHistoryUseCase>()),
     );
     gh.factory<_i874.SettingScreenManagement>(
       () => _i874.SettingScreenManagement(
