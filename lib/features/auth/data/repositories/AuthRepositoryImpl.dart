@@ -35,7 +35,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<void> signIn(String email, String password) async {
     await _sharedPreferences.setString(Constants.emailKey, email);
     await _sharedPreferences.setString(Constants.passwordKey, password);
-    _authRemoteDataSource.signInEmailPassword(email, password);
+    await _authRemoteDataSource.signInEmailPassword(email, password);
   }
 
   @override
