@@ -4,7 +4,7 @@ import 'package:movie_app/features/movie/data/datasources/third-source/dto/respo
 abstract class RoomRemoteDataSource {
   Future<void> createRoom(CreateRoomRequest request);
 
-  Future<RoomResponse> getRoomDetail(String roomId);
+  Future<bool> checkRoom(String roomId);
 
   String getHostId();
 

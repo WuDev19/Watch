@@ -15,7 +15,7 @@ class WatchTogetherManagement extends Cubit<TogetherState> {
   final SaveMovieHistoryUseCase _saveMovieHistoryUseCase;
   final GetRoomWatchingUseCase _getRoomWatchingUseCase;
   final WatchingRoomChangeUseCase _watchingRoomChangeUseCase;
-  late final StreamSubscription<RoomWatching?>? _listenMovie;
+  StreamSubscription<RoomWatching?>? _listenMovie;
 
   WatchTogetherManagement(
     this._saveMovieHistoryUseCase,
@@ -27,35 +27,11 @@ class WatchTogetherManagement extends Cubit<TogetherState> {
     await _saveMovieHistoryUseCase.execute(model);
   }
 
-  void getRoomWatching(String roomId) async {
-    emit(
-      state.copyWith(
-        getRoomState: state.getRoomState.copyWith(isLoading: true),
-      ),
-    );
-    try {
-      final result = await _getRoomWatchingUseCase.execute(roomId);
-      emit(
-        state.copyWith(
-          getRoomState: state.getRoomState.copyWith(
-            roomWatching: result,
-            isLoading: false,
-          ),
-        ),
-      );
-    } catch (e) {
-      emit(
-        state.copyWith(
-          getRoomState: state.getRoomState.copyWith(
-            error: e.toString(),
-            isLoading: false,
-          ),
-        ),
-      );
-    }
-  }
+  Future<bool> getRoomWatching(String roomId) =>
+      _getRoomWatchingUseCase.execute(roomId);
 
   void watching(String roomId) {
+    _listenMovie?.cancel();
     _listenMovie = _watchingRoomChangeUseCase.watching(roomId).listen((room) {
       emit(state.copyWith(roomWatching: room));
     });

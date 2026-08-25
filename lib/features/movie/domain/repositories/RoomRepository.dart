@@ -5,7 +5,7 @@ import '../models/RoomWatching.dart';
 abstract class RoomRepository {
   Future<void> createRoom(RoomCreation roomCreate);
 
-  Future<RoomWatching> getRoomDetail(String roomId);
+  Future<bool> checkRoom(String roomId);
 
   Stream<RoomWatching> watching(String roomId);
 }

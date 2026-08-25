@@ -76,6 +76,13 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _screenHeight = Constants.getHeightScreen(context);
+    _screenWidth = Constants.getWidthScreen(context);
+  }
+
+  @override
   void dispose() {
     _relatedMovieController.removeListener(_onLoadMore);
     _relatedMovieController.dispose();
@@ -103,8 +110,6 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    _screenHeight = Constants.getHeightScreen(context);
-    _screenWidth = Constants.getWidthScreen(context);
     final heightImage = 0.4 * _screenHeight;
     final marginContent = 0.65 * _screenHeight / _screenHeight;
     final secondaryTitle = Constants.calculateFontSize(context, 1.1);
@@ -119,6 +124,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
           state.errorMovieDetails,
         ),
         builder: (context, state) {
+          print("Rebuild");
           if (state.$2 == true && state.$3 == null && state.$1 == null) {
             return Container(
               width: double.infinity,

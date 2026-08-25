@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:movie_app/core/colors/VColors.dart';
 import 'package:movie_app/features/movie/domain/models/RoomCreation.dart';
 import 'package:movie_app/features/movie/domain/models/RoomMember.dart';
+import 'package:movie_app/features/movie/presentation/common_widgets/LoadingHandleWidget.dart';
 import 'package:movie_app/features/movie/presentation/common_widgets/watch/function/MovieFunctions.dart';
 import 'package:movie_app/features/movie/presentation/common_widgets/watch/widgets/MoviePlayer.dart';
 import 'package:movie_app/features/movie/presentation/watch-together/state/TogetherState.dart';
@@ -38,62 +39,77 @@ class _WatchTogetherScreenState extends State<WatchTogetherScreen> {
 
   bool _isInPipMode = false;
   num cacheCurrentTime = 0;
+  bool exist = false;
+  bool loading = true;
 
   @override
   void initState() {
     super.initState();
     _watchMovieManagement = context.read<WatchTogetherManagement>();
-    _watchMovieManagement.getRoomWatching(widget.roomCreation.roomId);
+    _watchMovieManagement.getRoomWatching(widget.roomCreation.roomId).then((
+      roomExist,
+    ) {
+      if (roomExist) {
+        _watchMovieManagement.watching(widget.roomCreation.roomId);
 
-    if (widget.roomCreation.isHost) {
-      _paginationEpisodeValues = ValueNotifier(
-        widget
-            .roomCreation
-            .combine!
-            .movieWatch
-            .episodes
-            .first
-            .paginationEpisode,
-      );
-      _episodeListValues = ValueNotifier(
-        widget.roomCreation.combine!.movieWatch.currentListEpisode,
-      );
-      _isHostListener.value = true;
-    }
+        if (widget.roomCreation.isHost) {
+          _paginationEpisodeValues = ValueNotifier(
+            widget
+                .roomCreation
+                .combine!
+                .movieWatch
+                .episodes
+                .first
+                .paginationEpisode,
+          );
+          _episodeListValues = ValueNotifier(
+            widget.roomCreation.combine!.movieWatch.currentListEpisode,
+          );
+          _isHostListener.value = true;
+        }
 
-    _betterPlayerController = BetterPlayerController(
-      const BetterPlayerConfiguration(
-        autoPlay: false,
-        allowedScreenSleep: false,
-        fit: BoxFit.cover,
-        handleLifecycle: false,
-        deviceOrientationsOnFullScreen: [
-          //khi fullscreen thì chỉ cho ngang
-          DeviceOrientation.landscapeLeft,
-          DeviceOrientation.landscapeRight,
-        ],
-        deviceOrientationsAfterFullScreen: [DeviceOrientation.portraitUp],
-        //khi hết phim hoặc thu nhỏ thì sẽ cho quay về dọc
-        systemOverlaysAfterFullScreen: [],
-        controlsConfiguration: BetterPlayerControlsConfiguration(
-          enablePip: true,
-          pipMenuIcon: Icons.picture_in_picture,
-        ),
-      ),
-    );
+        _betterPlayerController = BetterPlayerController(
+          const BetterPlayerConfiguration(
+            autoPlay: false,
+            allowedScreenSleep: false,
+            fit: BoxFit.cover,
+            handleLifecycle: false,
+            deviceOrientationsOnFullScreen: [
+              //khi fullscreen thì chỉ cho ngang
+              DeviceOrientation.landscapeLeft,
+              DeviceOrientation.landscapeRight,
+            ],
+            deviceOrientationsAfterFullScreen: [DeviceOrientation.portraitUp],
+            //khi hết phim hoặc thu nhỏ thì sẽ cho quay về dọc
+            systemOverlaysAfterFullScreen: [],
+            controlsConfiguration: BetterPlayerControlsConfiguration(
+              enablePip: true,
+              pipMenuIcon: Icons.picture_in_picture,
+            ),
+          ),
+        );
 
-    _betterPlayerController.addEventsListener((event) {
-      if (event.betterPlayerEventType == BetterPlayerEventType.pipStart) {
-        _isInPipMode = true;
-      } else if (event.betterPlayerEventType == BetterPlayerEventType.pipStop) {
-        _isInPipMode = false;
-      }
-    });
+        _betterPlayerController.addEventsListener((event) {
+          if (event.betterPlayerEventType == BetterPlayerEventType.pipStart) {
+            _isInPipMode = true;
+          } else if (event.betterPlayerEventType ==
+              BetterPlayerEventType.pipStop) {
+            _isInPipMode = false;
+          } else if (event.betterPlayerEventType ==
+              BetterPlayerEventType.pause) {
 
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-      if (widget.roomCreation.isHost) {
-        BetterPlayerDataSource betterPlayerDataSource =
-            BetterPlayerDataSource.network(
+          } else if (event.betterPlayerEventType ==
+              BetterPlayerEventType.play) {
+          } else if (event.betterPlayerEventType ==
+              BetterPlayerEventType.seekTo) {
+          } else if (event.betterPlayerEventType ==
+              BetterPlayerEventType.setSpeed) {}
+        });
+
+        WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+          if (widget.roomCreation.isHost) {
+            BetterPlayerDataSource
+            betterPlayerDataSource = BetterPlayerDataSource.network(
               widget.roomCreation.combine!.movieWatch.currentEpisode.linkM3U8,
               cacheConfiguration: BetterPlayerCacheConfiguration(
                 useCache: true,
@@ -101,7 +117,19 @@ class _WatchTogetherScreenState extends State<WatchTogetherScreen> {
                 maxCacheFileSize: 10 * 1024 * 1024,
               ),
             );
-        await _betterPlayerController.setupDataSource(betterPlayerDataSource);
+            await _betterPlayerController.setupDataSource(
+              betterPlayerDataSource,
+            );
+          }
+        });
+        setState(() {
+          exist = true;
+          loading = false;
+        });
+      } else {
+        setState(() {
+          loading = false;
+        });
       }
     });
   }
@@ -122,176 +150,199 @@ class _WatchTogetherScreenState extends State<WatchTogetherScreen> {
   Widget build(BuildContext context) {
     final roomCreation = widget.roomCreation;
     final secondaryTitle = Constants.calculateFontSize(context, 1.1);
-    return Scaffold(
-      backgroundColor: VColors.blackBackground,
-      appBar: AppBar(
-        backgroundColor: VColors.blackBackground,
-        elevation: 0,
-        title: const Text(
-          "Watch together",
-          style: TextStyle(color: Colors.white),
-        ),
-        iconTheme: const IconThemeData(color: Colors.white),
-      ),
-      body: ListView(
-        children: [
-          MoviePlayer(
-            betterPlayerController: _betterPlayerController,
-            betterPlayerKey: _betterPlayerKey,
-            enterPipMode: () => MovieFunctions.enterPipMode(
-              betterPlayerController: _betterPlayerController,
-              betterPlayerKey: _betterPlayerKey,
+    return loading
+        ? LoadingHandleWidget()
+        : !exist
+        ? Scaffold(
+            body: Container(
+              width: double.infinity,
+              height: double.infinity,
+              color: VColors.blackBackground,
+              child: Center(
+                child: Text("No Room", style: TextStyle(color: VColors.white)),
+              ),
             ),
-          ),
-          BlocListener<WatchTogetherManagement, TogetherState>(
-            listenWhen: (previous, current) {
-              final oldData = previous.roomWatching;
-              final newData = current.roomWatching;
-              return (oldData?.isPlaying != newData?.isPlaying ||
-                  oldData?.currentTime != newData?.currentTime ||
-                  oldData?.movieUrl != newData?.movieUrl ||
-                  oldData?.playbackRate != newData?.playbackRate);
-            },
-            listener: (context, state) {
-              final roomWatching = state.roomWatching;
-              if (roomWatching == null) return;
-              final videoController =
-                  _betterPlayerController.videoPlayerController;
-              if (!roomWatching.isPlaying &&
-                  _betterPlayerController.isPlaying() != null &&
-                  _betterPlayerController.isPlaying()!) {
-                videoController?.pause();
-              } else {
-                videoController?.play();
-              }
-              if (cacheCurrentTime != roomWatching.currentTime) {
-                cacheCurrentTime = roomWatching.currentTime;
-                videoController?.seekTo(
-                  Duration(milliseconds: roomWatching.currentTime.toInt()),
-                );
-              }
-              videoController?.setSpeed(roomWatching.playbackRate.toDouble());
-              if (roomWatching.movieUrl !=
-                  _betterPlayerController.betterPlayerDataSource?.url) {
-                _betterPlayerController.setupDataSource(
-                  BetterPlayerDataSource.network(
-                    roomWatching.movieUrl,
-                    cacheConfiguration: _buildBetterPlayerConfiguration(),
+          )
+        : Scaffold(
+            backgroundColor: VColors.blackBackground,
+            appBar: AppBar(
+              backgroundColor: VColors.blackBackground,
+              elevation: 0,
+              title: const Text(
+                "Watch together",
+                style: TextStyle(color: Colors.white),
+              ),
+              iconTheme: const IconThemeData(color: Colors.white),
+            ),
+            body: ListView(
+              children: [
+                MoviePlayer(
+                  betterPlayerController: _betterPlayerController,
+                  betterPlayerKey: _betterPlayerKey,
+                  enterPipMode: () => MovieFunctions.enterPipMode(
+                    betterPlayerController: _betterPlayerController,
+                    betterPlayerKey: _betterPlayerKey,
                   ),
-                );
-              }
-            },
-            child: const SizedBox(height: 16),
-          ),
-          BlocSelector<WatchTogetherManagement, TogetherState, String?>(
-            selector: (state) => state.getRoomState.roomWatching?.movieName,
-            builder: (context, movieName) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: Text(
-                  "Watching: ${movieName ?? "Unknown"}",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: secondaryTitle,
-                  ),
-                  textAlign: TextAlign.start,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
                 ),
-              );
-            },
-          ),
-          BlocListener<WatchTogetherManagement, TogetherState>(
-            listenWhen: (previous, current) =>
-                previous.getRoomState.roomWatching?.movieUrl !=
-                current.getRoomState.roomWatching?.movieUrl,
-            listener: (context, state) {
-              final roomWatching = state.getRoomState.roomWatching;
-              if (roomWatching != null) {
-                _betterPlayerController.setupDataSource(
-                  BetterPlayerDataSource.network(
-                    roomWatching.movieUrl,
-                    cacheConfiguration: _buildBetterPlayerConfiguration(),
-                  ),
-                );
-              }
-            },
-            child: const SizedBox(height: 20),
-          ),
-          ValueListenableBuilder(
-            valueListenable: _isHostListener,
-            builder: (context, isHost, child) {
-              if (child == null) return const SizedBox();
-              return isHost
-                  ? _buildEpisodeHost(
-                      secondaryTitle: secondaryTitle,
-                      roomCreation: roomCreation,
-                    )
-                  : const SizedBox();
-            },
-          ),
-          BlocSelector<
-            WatchTogetherManagement,
-            TogetherState,
-            List<RoomMember>?
-          >(
-            selector: (state) => state.getRoomState.roomWatching?.members,
-            builder: (context, state) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  children: [
-                    const Icon(
-                      Icons.groups,
-                      color: VColors.colorIcon,
-                      size: 18,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      "In room (${state != null ? state.length : 0})",
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-          const SizedBox(height: 8),
+                BlocListener<WatchTogetherManagement, TogetherState>(
+                  listenWhen: (previous, current) {
+                    final oldData = previous.roomWatching;
+                    final newData = current.roomWatching;
+                    return (oldData?.isPlaying != newData?.isPlaying ||
+                        oldData?.currentTime != newData?.currentTime ||
+                        oldData?.movieUrl != newData?.movieUrl ||
+                        oldData?.playbackRate != newData?.playbackRate);
+                  },
+                  listener: (context, state) {
+                    final roomWatching = state.roomWatching;
+                    if (roomWatching == null) return;
+                    final videoController =
+                        _betterPlayerController.videoPlayerController;
 
-          // Phần dưới: danh sách người trong phòng, grid 2 cột
-          BlocSelector<
-            WatchTogetherManagement,
-            TogetherState,
-            List<RoomMember>?
-          >(
-            selector: (state) => state.getRoomState.roomWatching?.members,
-            builder: (context, members) {
-              if (members == null || members.isEmpty) return const SizedBox();
-              return GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(16),
-                itemCount: members.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 12,
-                  crossAxisSpacing: 12,
-                  childAspectRatio: 3,
+                    if (!roomWatching.isPlaying &&
+                        _betterPlayerController.isPlaying() != null &&
+                        _betterPlayerController.isPlaying()!) {
+                      videoController?.pause();
+                    } else {
+                      videoController?.play();
+                    }
+
+                    if (cacheCurrentTime != roomWatching.currentTime) {
+                      cacheCurrentTime = roomWatching.currentTime;
+                      videoController?.seekTo(
+                        Duration(
+                          milliseconds: roomWatching.currentTime.toInt(),
+                        ),
+                      );
+                    }
+
+                    videoController?.setSpeed(
+                      roomWatching.playbackRate.toDouble(),
+                    );
+
+                    if (roomWatching.movieUrl !=
+                        _betterPlayerController.betterPlayerDataSource?.url) {
+                      _betterPlayerController.setupDataSource(
+                        BetterPlayerDataSource.network(
+                          roomWatching.movieUrl,
+                          cacheConfiguration: _buildBetterPlayerConfiguration(),
+                        ),
+                      );
+                    }
+                  },
+                  child: const SizedBox(height: 16),
                 ),
-                itemBuilder: (context, index) {
-                  final member = members[index];
-                  return RoomMemberCard(member: member);
-                },
-              );
-            },
-          ),
-        ],
-      ),
-    );
+                BlocSelector<WatchTogetherManagement, TogetherState, String?>(
+                  selector: (state) => state.roomWatching?.movieName,
+                  builder: (context, movieName) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: Text(
+                        "Watching: ${movieName ?? "Unknown"}",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: secondaryTitle,
+                        ),
+                        textAlign: TextAlign.start,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    );
+                  },
+                ),
+                BlocListener<WatchTogetherManagement, TogetherState>(
+                  listenWhen: (previous, current) =>
+                      previous.roomWatching?.movieUrl !=
+                      current.roomWatching?.movieUrl,
+                  listener: (context, state) {
+                    final roomWatching = state.roomWatching;
+                    print("join ${roomWatching?.movieUrl}");
+                    if (roomWatching != null) {
+                      _betterPlayerController.setupDataSource(
+                        BetterPlayerDataSource.network(
+                          roomWatching.movieUrl,
+                          cacheConfiguration: _buildBetterPlayerConfiguration(),
+                        ),
+                      );
+                    }
+                  },
+                  child: const SizedBox(height: 20),
+                ),
+                ValueListenableBuilder(
+                  valueListenable: _isHostListener,
+                  builder: (context, isHost, child) {
+                    return isHost
+                        ? _buildEpisodeHost(
+                            secondaryTitle: secondaryTitle,
+                            roomCreation: roomCreation,
+                          )
+                        : const SizedBox();
+                  },
+                ),
+                BlocSelector<
+                  WatchTogetherManagement,
+                  TogetherState,
+                  List<RoomMember>?
+                >(
+                  selector: (state) => state.roomWatching?.members,
+                  builder: (context, state) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.groups,
+                            color: VColors.colorIcon,
+                            size: 18,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            "In room (${state != null ? state.length : 0})",
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 8),
+
+                // Phần dưới: danh sách người trong phòng, grid 2 cột
+                BlocSelector<
+                  WatchTogetherManagement,
+                  TogetherState,
+                  List<RoomMember>?
+                >(
+                  selector: (state) => state.roomWatching?.members,
+                  builder: (context, members) {
+                    if (members == null || members.isEmpty)
+                      return const SizedBox();
+                    return GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      padding: const EdgeInsets.all(16),
+                      itemCount: members.length,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            mainAxisSpacing: 12,
+                            crossAxisSpacing: 12,
+                            childAspectRatio: 3,
+                          ),
+                      itemBuilder: (context, index) {
+                        final member = members[index];
+                        return RoomMemberCard(member: member);
+                      },
+                    );
+                  },
+                ),
+              ],
+            ),
+          );
   }
 
   Widget _buildEpisodeHost({

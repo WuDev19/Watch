@@ -22,9 +22,8 @@ class RoomRepositoryImpl implements RoomRepository {
   }
 
   @override
-  Future<RoomWatching> getRoomDetail(String roomId) async {
-    final response = await _roomRemoteDataSource.getRoomDetail(roomId);
-    return RoomMapper.mapToRoomWatching(response);
+  Future<bool> checkRoom(String roomId) async {
+    return _roomRemoteDataSource.checkRoom(roomId);
   }
 
   @override

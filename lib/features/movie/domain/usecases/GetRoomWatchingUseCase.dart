@@ -1,6 +1,5 @@
 import 'package:injectable/injectable.dart';
 
-import '../models/RoomWatching.dart';
 import '../repositories/RoomRepository.dart';
 
 @injectable
@@ -9,6 +8,6 @@ class GetRoomWatchingUseCase {
 
   GetRoomWatchingUseCase(this._roomRepository);
 
-  Future<RoomWatching> execute(String roomId) =>
-      _roomRepository.getRoomDetail(roomId);
+  Future<bool> execute(String roomId) =>
+      _roomRepository.checkRoom(roomId);
 }

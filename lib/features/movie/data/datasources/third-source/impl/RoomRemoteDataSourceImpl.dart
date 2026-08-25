@@ -24,20 +24,21 @@ class RoomRemoteDataSourceImpl implements RoomRemoteDataSource {
   }
 
   @override
-  Future<RoomResponse> getRoomDetail(String roomId) async {
+  Future<bool> checkRoom(String roomId) async {
     final response = await _firebaseFirestore
         .collection(_roomCollection)
         .where("roomId", isEqualTo: roomId)
+        .limit(1)
         .get();
-    return RoomResponse.fromJson(response.docs.first.data());
+    return response.docs.isNotEmpty;
   }
 
   @override
   Stream<RoomResponse> watching(String roomId) {
     return _firebaseFirestore
         .collection(_roomCollection)
-        .doc(roomId)
+        .where("roomId", isEqualTo: roomId)
         .snapshots()
-        .map((event) => RoomResponse.fromJson(event.data()!));
+        .map((event) => RoomResponse.fromJson(event.docs.first.data()));
   }
 }
