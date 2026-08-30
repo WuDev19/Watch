@@ -1,5 +1,6 @@
 import 'package:injectable/injectable.dart';
 import 'package:movie_app/features/movie/domain/models/RoomCreation.dart';
+import 'package:movie_app/features/movie/domain/models/RoomUpdate.dart';
 import 'package:movie_app/features/movie/domain/models/RoomWatching.dart';
 import 'package:movie_app/features/movie/domain/repositories/RoomRepository.dart';
 
@@ -31,5 +32,11 @@ class RoomRepositoryImpl implements RoomRepository {
     return _roomRemoteDataSource
         .watching(roomId)
         .map(RoomMapper.mapToRoomWatching);
+  }
+
+  @override
+  Future<void> updateRoom(RoomUpdate roomUpdate) {
+    final request = RoomMapper.mapToRoomUpdateRequest(roomUpdate);
+    return _roomRemoteDataSource.updateRoom(request);
   }
 }

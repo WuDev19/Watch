@@ -4,8 +4,10 @@ import 'package:movie_app/features/movie/domain/models/RoomMember.dart';
 import 'package:movie_app/features/movie/domain/models/RoomWatching.dart';
 
 import '../../../../domain/models/RoomCreation.dart';
+import '../../../../domain/models/RoomUpdate.dart';
 import '../dto/request/MemberRequest.dart';
 import '../dto/response/MemberResponse.dart';
+import '../dto/response/RoomUpdateRequest.dart';
 
 class RoomMapper {
   RoomMapper._();
@@ -55,6 +57,16 @@ class RoomMapper {
       id: memberResponse.id,
       name: memberResponse.name,
       avatarUrl: memberResponse.avatarUrl,
+    );
+  }
+
+  static RoomUpdateRequest mapToRoomUpdateRequest(RoomUpdate roomUpdate) {
+    return RoomUpdateRequest(
+      roomId: roomUpdate.roomId,
+      playing: roomUpdate.playing,
+      playbackRate: roomUpdate.playbackRate,
+      movieUrl: roomUpdate.movieUrl,
+      currentTime: roomUpdate.currentTime,
     );
   }
 }

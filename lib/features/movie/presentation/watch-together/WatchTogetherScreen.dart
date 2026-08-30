@@ -46,7 +46,7 @@ class _WatchTogetherScreenState extends State<WatchTogetherScreen> {
   void initState() {
     super.initState();
     _watchMovieManagement = context.read<WatchTogetherManagement>();
-    _watchMovieManagement.getRoomWatching(widget.roomCreation.roomId).then((
+    _watchMovieManagement.checkRoomWatching(widget.roomCreation.roomId).then((
       roomExist,
     ) {
       if (roomExist) {
@@ -97,7 +97,6 @@ class _WatchTogetherScreenState extends State<WatchTogetherScreen> {
             _isInPipMode = false;
           } else if (event.betterPlayerEventType ==
               BetterPlayerEventType.pause) {
-
           } else if (event.betterPlayerEventType ==
               BetterPlayerEventType.play) {
           } else if (event.betterPlayerEventType ==
@@ -106,22 +105,6 @@ class _WatchTogetherScreenState extends State<WatchTogetherScreen> {
               BetterPlayerEventType.setSpeed) {}
         });
 
-        WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-          if (widget.roomCreation.isHost) {
-            BetterPlayerDataSource
-            betterPlayerDataSource = BetterPlayerDataSource.network(
-              widget.roomCreation.combine!.movieWatch.currentEpisode.linkM3U8,
-              cacheConfiguration: BetterPlayerCacheConfiguration(
-                useCache: true,
-                maxCacheSize: 100 * 1024 * 1024,
-                maxCacheFileSize: 10 * 1024 * 1024,
-              ),
-            );
-            await _betterPlayerController.setupDataSource(
-              betterPlayerDataSource,
-            );
-          }
-        });
         setState(() {
           exist = true;
           loading = false;
@@ -200,13 +183,14 @@ class _WatchTogetherScreenState extends State<WatchTogetherScreen> {
                         _betterPlayerController.videoPlayerController;
 
                     if (!roomWatching.isPlaying &&
+                        _betterPlayerController.betterPlayerDataSource !=
+                            null &&
                         _betterPlayerController.isPlaying() != null &&
                         _betterPlayerController.isPlaying()!) {
                       videoController?.pause();
                     } else {
                       videoController?.play();
                     }
-
                     if (cacheCurrentTime != roomWatching.currentTime) {
                       cacheCurrentTime = roomWatching.currentTime;
                       videoController?.seekTo(
@@ -257,7 +241,6 @@ class _WatchTogetherScreenState extends State<WatchTogetherScreen> {
                       current.roomWatching?.movieUrl,
                   listener: (context, state) {
                     final roomWatching = state.roomWatching;
-                    print("join ${roomWatching?.movieUrl}");
                     if (roomWatching != null) {
                       _betterPlayerController.setupDataSource(
                         BetterPlayerDataSource.network(
@@ -319,8 +302,9 @@ class _WatchTogetherScreenState extends State<WatchTogetherScreen> {
                 >(
                   selector: (state) => state.roomWatching?.members,
                   builder: (context, members) {
-                    if (members == null || members.isEmpty)
+                    if (members == null || members.isEmpty) {
                       return const SizedBox();
+                    }
                     return GridView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
@@ -404,6 +388,7 @@ class _WatchTogetherScreenState extends State<WatchTogetherScreen> {
                       currentEpisode: currentEpisode,
                       isInPipMode: _isInPipMode,
                       betterPlayerController: _betterPlayerController,
+                      isInTogether: true,
                     );
                   },
                   isInWatch: true,

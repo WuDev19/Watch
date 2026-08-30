@@ -114,6 +114,7 @@ import '../../features/movie/domain/usecases/SearchMovieAccordingToYearUseCase.d
     as _i2;
 import '../../features/movie/domain/usecases/SearchMovieUseCase.dart' as _i68;
 import '../../features/movie/domain/usecases/SearchUserUseCase.dart' as _i316;
+import '../../features/movie/domain/usecases/UpdateRoomUseCase.dart' as _i214;
 import '../../features/movie/domain/usecases/WatchingRoomChangeUseCase.dart'
     as _i67;
 import '../../features/movie/presentation/detail_movie/state_management/MovieDetailManagement.dart'
@@ -276,6 +277,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i67.WatchingRoomChangeUseCase>(
       () => _i67.WatchingRoomChangeUseCase(gh<_i1053.RoomRepository>()),
     );
+    gh.factory<_i214.UpdateRoomUseCase>(
+      () => _i214.UpdateRoomUseCase(gh<_i1053.RoomRepository>()),
+    );
     gh.lazySingleton<_i304.CheckVerifiedNewEmailUseCase>(
       () => _i304.CheckVerifiedNewEmailUseCase(gh<_i11.PersonalRepository>()),
     );
@@ -400,13 +404,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i514.PostCommentUseCase>(
       () => _i514.PostCommentUseCase(gh<_i799.CommentRepository>()),
     );
-    gh.factory<_i670.WatchTogetherManagement>(
-      () => _i670.WatchTogetherManagement(
-        gh<_i749.SaveMovieHistoryUseCase>(),
-        gh<_i586.GetRoomWatchingUseCase>(),
-        gh<_i67.WatchingRoomChangeUseCase>(),
-      ),
-    );
     gh.factory<_i816.WatchMovieManagement>(
       () => _i816.WatchMovieManagement(
         gh<_i749.SaveMovieHistoryUseCase>(),
@@ -448,6 +445,14 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i309.HomeBloc(
         gh<_i755.HomePageMovieUseCase>(),
         gh<_i663.GetLastWatchedMovieUseCase>(),
+      ),
+    );
+    gh.factory<_i670.WatchTogetherManagement>(
+      () => _i670.WatchTogetherManagement(
+        gh<_i749.SaveMovieHistoryUseCase>(),
+        gh<_i586.GetRoomWatchingUseCase>(),
+        gh<_i67.WatchingRoomChangeUseCase>(),
+        gh<_i214.UpdateRoomUseCase>(),
       ),
     );
     gh.factory<_i751.FavoriteManagement>(

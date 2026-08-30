@@ -27,6 +27,7 @@ class MovieFunctions {
     required EpisodeList currentEpisode,
     required bool isInPipMode,
     required BetterPlayerController betterPlayerController,
+    required bool isInTogether
   }) async {
     if (isInPipMode) {
       await betterPlayerController.disablePictureInPicture();
@@ -44,6 +45,8 @@ class MovieFunctions {
       ),
     );
     await betterPlayerController.setupDataSource(dataSource);
-    betterPlayerController.play();
+    if(!isInTogether){
+      betterPlayerController.play();
+    }
   }
 }

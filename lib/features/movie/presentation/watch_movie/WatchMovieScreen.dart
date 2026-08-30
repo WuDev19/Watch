@@ -207,6 +207,7 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
                                 isInPipMode: _isInPipMode,
                                 betterPlayerController:
                                     _betterPlayerController!,
+                                isInTogether: false
                               );
                             },
                             isInWatch: true,
