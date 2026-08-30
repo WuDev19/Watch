@@ -207,7 +207,7 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
                                 isInPipMode: _isInPipMode,
                                 betterPlayerController:
                                     _betterPlayerController!,
-                                isInTogether: false
+                                isInTogether: false,
                               );
                             },
                             isInWatch: true,
@@ -396,6 +396,7 @@ class _WatchMovieScreenState extends State<WatchMovieScreen> {
               return WriteComment(
                 controller: _commentController,
                 onSend: (comment) {
+                  if (comment.isEmpty) return;
                   _watchMovieManagement.postComment(
                     state.avt,
                     state.name!,

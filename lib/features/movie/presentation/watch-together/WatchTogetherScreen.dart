@@ -89,21 +89,7 @@ class _WatchTogetherScreenState extends State<WatchTogetherScreen> {
           ),
         );
 
-        _betterPlayerController.addEventsListener((event) {
-          if (event.betterPlayerEventType == BetterPlayerEventType.pipStart) {
-            _isInPipMode = true;
-          } else if (event.betterPlayerEventType ==
-              BetterPlayerEventType.pipStop) {
-            _isInPipMode = false;
-          } else if (event.betterPlayerEventType ==
-              BetterPlayerEventType.pause) {
-          } else if (event.betterPlayerEventType ==
-              BetterPlayerEventType.play) {
-          } else if (event.betterPlayerEventType ==
-              BetterPlayerEventType.seekTo) {
-          } else if (event.betterPlayerEventType ==
-              BetterPlayerEventType.setSpeed) {}
-        });
+        _betterPlayerController.addEventsListener(_onPlayerEvent);
 
         setState(() {
           exist = true;
@@ -115,6 +101,39 @@ class _WatchTogetherScreenState extends State<WatchTogetherScreen> {
         });
       }
     });
+  }
+
+  void _onPlayerEvent(BetterPlayerEvent event) {
+    if (event.betterPlayerEventType == BetterPlayerEventType.pipStart) {
+      _isInPipMode = true;
+    } else if (event.betterPlayerEventType == BetterPlayerEventType.pipStop) {
+      _isInPipMode = false;
+    } else if (event.betterPlayerEventType == BetterPlayerEventType.pause) {
+      _watchMovieManagement.updateRoom(
+        roomId: widget.roomCreation.roomId,
+        isPlaying: false,
+      );
+    } else if (event.betterPlayerEventType == BetterPlayerEventType.play) {
+      _watchMovieManagement.updateRoom(
+        roomId: widget.roomCreation.roomId,
+        isPlaying: true,
+      );
+    } else if (event.betterPlayerEventType == BetterPlayerEventType.seekTo) {
+      _watchMovieManagement.updateRoom(
+        roomId: widget.roomCreation.roomId,
+        currentTime: _betterPlayerController
+            .videoPlayerController
+            ?.value
+            .position
+            .inMilliseconds,
+      );
+    } else if (event.betterPlayerEventType == BetterPlayerEventType.setSpeed) {
+      _watchMovieManagement.updateRoom(
+        roomId: widget.roomCreation.roomId,
+        playbackRate:
+            _betterPlayerController.videoPlayerController?.value.speed,
+      );
+    }
   }
 
   @override
@@ -142,7 +161,10 @@ class _WatchTogetherScreenState extends State<WatchTogetherScreen> {
               height: double.infinity,
               color: VColors.blackBackground,
               child: Center(
-                child: Text("No Room", style: TextStyle(color: VColors.white)),
+                child: Text(
+                  "No Room",
+                  style: TextStyle(color: VColors.white),
+                ), //sửa lại giao diện ở đây cho đẹp hơn
               ),
             ),
           )
@@ -182,15 +204,6 @@ class _WatchTogetherScreenState extends State<WatchTogetherScreen> {
                     final videoController =
                         _betterPlayerController.videoPlayerController;
 
-                    if (!roomWatching.isPlaying &&
-                        _betterPlayerController.betterPlayerDataSource !=
-                            null &&
-                        _betterPlayerController.isPlaying() != null &&
-                        _betterPlayerController.isPlaying()!) {
-                      videoController?.pause();
-                    } else {
-                      videoController?.play();
-                    }
                     if (cacheCurrentTime != roomWatching.currentTime) {
                       cacheCurrentTime = roomWatching.currentTime;
                       videoController?.seekTo(
@@ -206,12 +219,19 @@ class _WatchTogetherScreenState extends State<WatchTogetherScreen> {
 
                     if (roomWatching.movieUrl !=
                         _betterPlayerController.betterPlayerDataSource?.url) {
+                      print("url mới: ${roomWatching.movieUrl}");
                       _betterPlayerController.setupDataSource(
                         BetterPlayerDataSource.network(
                           roomWatching.movieUrl,
                           cacheConfiguration: _buildBetterPlayerConfiguration(),
                         ),
                       );
+                    }
+
+                    if (roomWatching.isPlaying) {
+                      videoController?.play();
+                    } else {
+                      videoController?.pause();
                     }
                   },
                   child: const SizedBox(height: 16),
@@ -235,23 +255,7 @@ class _WatchTogetherScreenState extends State<WatchTogetherScreen> {
                     );
                   },
                 ),
-                BlocListener<WatchTogetherManagement, TogetherState>(
-                  listenWhen: (previous, current) =>
-                      previous.roomWatching?.movieUrl !=
-                      current.roomWatching?.movieUrl,
-                  listener: (context, state) {
-                    final roomWatching = state.roomWatching;
-                    if (roomWatching != null) {
-                      _betterPlayerController.setupDataSource(
-                        BetterPlayerDataSource.network(
-                          roomWatching.movieUrl,
-                          cacheConfiguration: _buildBetterPlayerConfiguration(),
-                        ),
-                      );
-                    }
-                  },
-                  child: const SizedBox(height: 20),
-                ),
+                const SizedBox(height: 20),
                 ValueListenableBuilder(
                   valueListenable: _isHostListener,
                   builder: (context, isHost, child) {
@@ -389,6 +393,15 @@ class _WatchTogetherScreenState extends State<WatchTogetherScreen> {
                       isInPipMode: _isInPipMode,
                       betterPlayerController: _betterPlayerController,
                       isInTogether: true,
+                      onNewEpisode: (movieUrl) {
+                        print("update - screen: $movieUrl");
+                        _watchMovieManagement.updateRoom(
+                          roomId: roomCreation.roomId,
+                          movieUrl: movieUrl,
+                          isPlaying: false,
+                          currentTime: 0,
+                        );
+                      },
                     );
                   },
                   isInWatch: true,

@@ -27,7 +27,8 @@ class MovieFunctions {
     required EpisodeList currentEpisode,
     required bool isInPipMode,
     required BetterPlayerController betterPlayerController,
-    required bool isInTogether
+    required bool isInTogether,
+    void Function(String movieUrl)? onNewEpisode,
   }) async {
     if (isInPipMode) {
       await betterPlayerController.disablePictureInPicture();
@@ -36,7 +37,11 @@ class MovieFunctions {
       ); //đợi một chút sau khi đóng pip
     }
     await betterPlayerController.pause(); //dừng video cũ để tránh lỗi
-    BetterPlayerDataSource dataSource = BetterPlayerDataSource.network(
+    if (isInTogether) {
+      onNewEpisode?.call(currentEpisode.linkM3U8);
+      return;
+    }
+    final dataSource = BetterPlayerDataSource.network(
       currentEpisode.linkM3U8,
       cacheConfiguration: BetterPlayerCacheConfiguration(
         useCache: true,
@@ -45,8 +50,6 @@ class MovieFunctions {
       ),
     );
     await betterPlayerController.setupDataSource(dataSource);
-    if(!isInTogether){
-      betterPlayerController.play();
-    }
+    await betterPlayerController.play();
   }
 }

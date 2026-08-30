@@ -41,8 +41,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => getIt.get<ProfileManagement>()),
         BlocProvider(create: (context) => getIt.get<HistoryManagement>()),
         BlocProvider(create: (context) => getIt.get<FavoriteManagement>()),
-        BlocProvider(create: (context) => getIt.get<WatchTogetherManagement>()),
-      ],
+     ],
       child: MaterialApp.router(
         routerConfig: AppRoutes.routes,
         title: Constants.appName,

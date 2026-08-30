@@ -55,6 +55,8 @@ class WatchTogetherManagement extends Cubit<TogetherState> {
       playbackRate: playbackRate,
       playing: isPlaying,
     );
+    print("update - vm: $movieUrl");
+
     await _updateRoomUseCase.execute(roomUpdate);
   }
 

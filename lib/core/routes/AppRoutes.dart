@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:movie_app/core/colors/VColors.dart';
 import 'package:movie_app/features/auth/presentation/auth/screen/LoginScreen.dart';
@@ -15,7 +16,9 @@ import 'package:movie_app/features/profile/presentation/history/HistoryScreen.da
 import 'package:movie_app/features/profile/presentation/profile/ProfileScreen.dart';
 
 import '../../features/movie/presentation/watch-together/WatchTogetherScreen.dart';
+import '../../features/movie/presentation/watch-together/state_management/WatchTogetherManagement.dart';
 import '../../utils/constants.dart';
+import '../di/injection.dart';
 
 class AppRoutes {
   AppRoutes._();
@@ -221,7 +224,10 @@ class AppRoutes {
         path: "/watch-together",
         builder: (context, state) {
           final roomCreation = state.extra as RoomCreation;
-          return WatchTogetherScreen(roomCreation: roomCreation);
+          return BlocProvider(
+            create: (context) => getIt.get<WatchTogetherManagement>(),
+            child: WatchTogetherScreen(roomCreation: roomCreation),
+          );
         },
       ),
     ],
