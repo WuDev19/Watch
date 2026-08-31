@@ -3,13 +3,13 @@ import 'package:movie_app/features/movie/domain/models/RoomMember.dart';
 
 class RoomCreation {
   CombineDetailAndWatch? combine;
-  List<RoomMember>? members;
+  List<RoomMember>? reserveMembers;
   bool isHost;
   String roomId;
 
   RoomCreation({
     this.combine,
-    this.members,
+    this.reserveMembers,
     required this.isHost,
     required this.roomId,
   });

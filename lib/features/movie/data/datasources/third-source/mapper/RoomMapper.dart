@@ -16,9 +16,9 @@ class RoomMapper {
     RoomCreation roomCreate,
     String hostId,
   ) {
-    final members = roomCreate.members!.isEmpty
+    final members = roomCreate.reserveMembers!.isEmpty
         ? <MemberRequest>[]
-        : roomCreate.members!
+        : roomCreate.reserveMembers!
               .map(
                 (e) => MemberRequest(
                   id: e.id,
@@ -35,7 +35,7 @@ class RoomMapper {
       movieUrl: roomCreate.combine!.movieWatch.currentEpisode.linkM3U8,
       currentTime: 0,
       hostId: hostId,
-      members: members,
+      reserveMembers: members,
     );
   }
 

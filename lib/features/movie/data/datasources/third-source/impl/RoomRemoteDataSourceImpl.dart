@@ -61,7 +61,6 @@ class RoomRemoteDataSourceImpl implements RoomRemoteDataSource {
     if (request.currentTime != null) {
       updateData['currentTime'] = request.currentTime;
     }
-    print("update - datasource: ${request.movieUrl}");
     return _firebaseFirestore
         .collection(_roomCollection)
         .doc(roomId)

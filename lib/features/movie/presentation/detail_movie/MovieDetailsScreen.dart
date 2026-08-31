@@ -412,7 +412,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                                                     );
                                                 final roomCreation = RoomCreation(
                                                   combine: movieCombine,
-                                                  members: members,
+                                                  reserveMembers: members,
                                                   isHost: true,
                                                   roomId:
                                                       MethodHelperUtils.randomString(

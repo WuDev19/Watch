@@ -40,7 +40,7 @@ class MethodHelperUtils {
   }
 
   static String randomString(int length) {
-    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     final random = Random();
     return List.generate(
       length,

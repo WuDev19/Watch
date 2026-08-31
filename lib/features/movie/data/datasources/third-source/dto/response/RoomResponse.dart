@@ -29,7 +29,7 @@ class RoomResponse {
     movieUrl: json["movieUrl"],
     currentTime: json["currentTime"],
     hostId: json["hostId"],
-    members: List<MemberResponse>.from(
+    members: json["members"] == null ? [] : List<MemberResponse>.from(
       json["members"].map((x) => MemberResponse.fromJson(x)),
     ),
   );

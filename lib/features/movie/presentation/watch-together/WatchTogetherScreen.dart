@@ -50,8 +50,6 @@ class _WatchTogetherScreenState extends State<WatchTogetherScreen> {
       roomExist,
     ) {
       if (roomExist) {
-        _watchMovieManagement.watching(widget.roomCreation.roomId);
-
         if (widget.roomCreation.isHost) {
           _paginationEpisodeValues = ValueNotifier(
             widget
@@ -91,6 +89,8 @@ class _WatchTogetherScreenState extends State<WatchTogetherScreen> {
 
         _betterPlayerController.addEventsListener(_onPlayerEvent);
 
+        _watchMovieManagement.watching(widget.roomCreation.roomId);
+
         setState(() {
           exist = true;
           loading = false;
@@ -103,7 +103,7 @@ class _WatchTogetherScreenState extends State<WatchTogetherScreen> {
     });
   }
 
-  void _onPlayerEvent(BetterPlayerEvent event) {
+  void _onPlayerEvent(BetterPlayerEvent event) async {
     if (event.betterPlayerEventType == BetterPlayerEventType.pipStart) {
       _isInPipMode = true;
     } else if (event.betterPlayerEventType == BetterPlayerEventType.pipStop) {
@@ -117,6 +117,11 @@ class _WatchTogetherScreenState extends State<WatchTogetherScreen> {
       _watchMovieManagement.updateRoom(
         roomId: widget.roomCreation.roomId,
         isPlaying: true,
+        currentTime: _betterPlayerController
+            .videoPlayerController
+            ?.value
+            .position
+            .inMilliseconds,
       );
     } else if (event.betterPlayerEventType == BetterPlayerEventType.seekTo) {
       _watchMovieManagement.updateRoom(
@@ -133,6 +138,24 @@ class _WatchTogetherScreenState extends State<WatchTogetherScreen> {
         playbackRate:
             _betterPlayerController.videoPlayerController?.value.speed,
       );
+    } else if (event.betterPlayerEventType ==
+        BetterPlayerEventType.initialized) {
+
+      final roomWatching = _watchMovieManagement.state.roomWatching;
+      if (roomWatching == null) return;
+      final controller = _betterPlayerController.videoPlayerController;
+
+      print("set up url mới: ${roomWatching.movieUrl}");
+      if (cacheCurrentTime != roomWatching.currentTime) {
+        cacheCurrentTime = roomWatching.currentTime;
+        await controller?.seekTo(
+          Duration(milliseconds: roomWatching.currentTime.toInt()),
+        );
+      }
+      await controller?.setSpeed(roomWatching.playbackRate.toDouble());
+      if (roomWatching.isPlaying) {
+        await controller?.play();
+      }
     }
   }
 
@@ -198,40 +221,42 @@ class _WatchTogetherScreenState extends State<WatchTogetherScreen> {
                         oldData?.movieUrl != newData?.movieUrl ||
                         oldData?.playbackRate != newData?.playbackRate);
                   },
-                  listener: (context, state) {
+                  listener: (context, state) async {
                     final roomWatching = state.roomWatching;
                     if (roomWatching == null) return;
+
+                    if (roomWatching.movieUrl !=
+                        _betterPlayerController.betterPlayerDataSource?.url) {
+                      print("new url");
+                      await _betterPlayerController.setupDataSource(
+                        BetterPlayerDataSource.network(
+                          roomWatching.movieUrl,
+                          cacheConfiguration: _buildBetterPlayerConfiguration(),
+                        ),
+                      );
+                      return;
+                    }
+
                     final videoController =
                         _betterPlayerController.videoPlayerController;
 
                     if (cacheCurrentTime != roomWatching.currentTime) {
                       cacheCurrentTime = roomWatching.currentTime;
-                      videoController?.seekTo(
+                      await videoController?.seekTo(
                         Duration(
                           milliseconds: roomWatching.currentTime.toInt(),
                         ),
                       );
                     }
 
-                    videoController?.setSpeed(
+                    await videoController?.setSpeed(
                       roomWatching.playbackRate.toDouble(),
                     );
 
-                    if (roomWatching.movieUrl !=
-                        _betterPlayerController.betterPlayerDataSource?.url) {
-                      print("url mới: ${roomWatching.movieUrl}");
-                      _betterPlayerController.setupDataSource(
-                        BetterPlayerDataSource.network(
-                          roomWatching.movieUrl,
-                          cacheConfiguration: _buildBetterPlayerConfiguration(),
-                        ),
-                      );
-                    }
-
                     if (roomWatching.isPlaying) {
-                      videoController?.play();
+                      await _betterPlayerController.play();
                     } else {
-                      videoController?.pause();
+                      await _betterPlayerController.pause();
                     }
                   },
                   child: const SizedBox(height: 16),
@@ -394,7 +419,6 @@ class _WatchTogetherScreenState extends State<WatchTogetherScreen> {
                       betterPlayerController: _betterPlayerController,
                       isInTogether: true,
                       onNewEpisode: (movieUrl) {
-                        print("update - screen: $movieUrl");
                         _watchMovieManagement.updateRoom(
                           roomId: roomCreation.roomId,
                           movieUrl: movieUrl,

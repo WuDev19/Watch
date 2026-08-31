@@ -8,7 +8,7 @@ class CreateRoomRequest {
   String movieUrl;
   num currentTime;
   String hostId;
-  List<MemberRequest> members;
+  List<MemberRequest> reserveMembers;
 
   CreateRoomRequest({
     required this.movieName,
@@ -18,7 +18,7 @@ class CreateRoomRequest {
     required this.movieUrl,
     required this.currentTime,
     required this.hostId,
-    required this.members,
+    required this.reserveMembers,
   });
 
   Map<String, dynamic> toJson() => {
@@ -29,6 +29,6 @@ class CreateRoomRequest {
     "movieUrl": movieUrl,
     "currentTime": currentTime,
     "hostId": hostId,
-    "members": members.map((e) => e.toJson()).toList(),
+    "reserveMembers": reserveMembers.map((e) => e.toJson()).toList(),
   };
 }
