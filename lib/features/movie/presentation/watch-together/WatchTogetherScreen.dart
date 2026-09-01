@@ -177,17 +177,7 @@ class _WatchTogetherScreenState extends State<WatchTogetherScreen> {
         ? LoadingHandleWidget()
         : !exist
         ? Scaffold(
-            body: Container(
-              width: double.infinity,
-              height: double.infinity,
-              color: VColors.blackBackground,
-              child: Center(
-                child: Text(
-                  "No Room",
-                  style: TextStyle(color: VColors.white),
-                ), //sửa lại giao diện ở đây cho đẹp hơn
-              ),
-            ),
+            body: _buildEmptyRoom(),
           )
         : PopScope(
             canPop: !roomCreation.isHost,
@@ -534,6 +524,76 @@ class _WatchTogetherScreenState extends State<WatchTogetherScreen> {
         ),
         const SizedBox(height: 24),
       ],
+    );
+  }
+
+  Widget _buildEmptyRoom(){
+    return Container(
+      width: double.infinity,
+      height: double.infinity,
+      color: VColors.blackBackground,
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: VColors.colorIcon.withAlpha(30),
+                ),
+                child: Icon(
+                  Icons.meeting_room_outlined,
+                  size: 64,
+                  color: VColors.colorIcon,
+                ),
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                "Room not found",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                "This room may have been deleted or no longer exists",
+                style: TextStyle(
+                  color: Colors.white.withAlpha(150),
+                  fontSize: 14,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 32),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: VColors.colorIcon,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 32,
+                    vertical: 14,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text(
+                  "Back",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

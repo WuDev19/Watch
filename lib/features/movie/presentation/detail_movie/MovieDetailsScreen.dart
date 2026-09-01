@@ -124,7 +124,6 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
           state.errorMovieDetails,
         ),
         builder: (context, state) {
-          print("Rebuild");
           if (state.$2 == true && state.$3 == null && state.$1 == null) {
             return Container(
               width: double.infinity,
@@ -369,6 +368,8 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                         ChooseRoomOptionsSheet.show(
                           context,
                           onSelected: (RoomType option) async {
+                            Navigator.of(context).pop();
+                            if (!context.mounted) return;
                             switch (option) {
                               case RoomType.create:
                                 showDialog(
