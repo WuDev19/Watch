@@ -39,8 +39,8 @@ class RoomMapper {
     );
   }
 
-  static RoomWatching mapToRoomWatching(RoomResponse roomResponse) {
-    return RoomWatching(
+  static RoomWatching? mapToRoomWatching(RoomResponse? roomResponse) {
+    return roomResponse == null ? null : RoomWatching(
       movieName: roomResponse.movieName,
       roomId: roomResponse.roomId,
       isPlaying: roomResponse.isPlaying,

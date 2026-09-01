@@ -8,7 +8,9 @@ abstract class RoomRepository {
 
   Future<bool> checkRoom(String roomId);
 
-  Stream<RoomWatching> watching(String roomId);
+  Stream<RoomWatching?> watching(String roomId);
 
   Future<void> updateRoom(RoomUpdate roomUpdate);
+
+  Future<void> deleteRoom(String roomId);
 }

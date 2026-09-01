@@ -21,16 +21,23 @@ class RoomResponse {
     required this.members,
   });
 
-  factory RoomResponse.fromJson(Map<String, dynamic> json) => RoomResponse(
-    movieName: json["movieName"],
-    roomId: json["roomId"],
-    isPlaying: json["isPlaying"],
-    playbackRate: json["playbackRate"],
-    movieUrl: json["movieUrl"],
-    currentTime: json["currentTime"],
-    hostId: json["hostId"],
-    members: json["members"] == null ? [] : List<MemberResponse>.from(
-      json["members"].map((x) => MemberResponse.fromJson(x)),
-    ),
-  );
+  static RoomResponse? fromJson(Map<String, dynamic>? json) {
+    if (json == null) return null;
+
+    return RoomResponse(
+      movieName: json["movieName"] as String? ?? "",
+      roomId: json["roomId"] as String? ?? "",
+      isPlaying: json["isPlaying"] as bool? ?? false,
+      playbackRate: (json["playbackRate"] as num?)?.toDouble() ?? 1.0,
+      movieUrl: json["movieUrl"] as String? ?? "",
+      currentTime: (json["currentTime"] as num?)?.toDouble() ?? 0,
+      hostId: json["hostId"] as String? ?? "",
+      members: json["members"] == null
+          ? []
+          : List<MemberResponse>.from(
+        (json["members"] as List).map((x) => MemberResponse.fromJson(x)),
+      ),
+    );
+  }
+
 }

@@ -78,6 +78,7 @@ import '../../features/movie/domain/usecases/DeleteListFavoriteMovieUseCase.dart
     as _i193;
 import '../../features/movie/domain/usecases/DeleteMovieHistoryUseCase.dart'
     as _i559;
+import '../../features/movie/domain/usecases/DeleteRoomUseCase.dart' as _i1045;
 import '../../features/movie/domain/usecases/DownloadMovieUseCase.dart' as _i54;
 import '../../features/movie/domain/usecases/GetAllYearUseCase.dart' as _i414;
 import '../../features/movie/domain/usecases/GetCategoriesUseCase.dart'
@@ -280,6 +281,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i214.UpdateRoomUseCase>(
       () => _i214.UpdateRoomUseCase(gh<_i1053.RoomRepository>()),
     );
+    gh.factory<_i1045.DeleteRoomUseCase>(
+      () => _i1045.DeleteRoomUseCase(gh<_i1053.RoomRepository>()),
+    );
     gh.lazySingleton<_i304.CheckVerifiedNewEmailUseCase>(
       () => _i304.CheckVerifiedNewEmailUseCase(gh<_i11.PersonalRepository>()),
     );
@@ -447,14 +451,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i663.GetLastWatchedMovieUseCase>(),
       ),
     );
-    gh.factory<_i670.WatchTogetherManagement>(
-      () => _i670.WatchTogetherManagement(
-        gh<_i749.SaveMovieHistoryUseCase>(),
-        gh<_i586.GetRoomWatchingUseCase>(),
-        gh<_i67.WatchingRoomChangeUseCase>(),
-        gh<_i214.UpdateRoomUseCase>(),
-      ),
-    );
     gh.factory<_i751.FavoriteManagement>(
       () => _i751.FavoriteManagement(
         gh<_i357.GetMyFavoriteMovieUseCase>(),
@@ -467,6 +463,15 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i582.LoginCubit(
         gh<_i934.LoginUseCase>(),
         gh<_i1054.SendEmailResetPasswordUseCase>(),
+      ),
+    );
+    gh.factory<_i670.WatchTogetherManagement>(
+      () => _i670.WatchTogetherManagement(
+        gh<_i749.SaveMovieHistoryUseCase>(),
+        gh<_i586.GetRoomWatchingUseCase>(),
+        gh<_i67.WatchingRoomChangeUseCase>(),
+        gh<_i214.UpdateRoomUseCase>(),
+        gh<_i1045.DeleteRoomUseCase>(),
       ),
     );
     gh.factory<_i874.SettingScreenManagement>(

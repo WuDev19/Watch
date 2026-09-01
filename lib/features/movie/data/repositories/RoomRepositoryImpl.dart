@@ -28,7 +28,7 @@ class RoomRepositoryImpl implements RoomRepository {
   }
 
   @override
-  Stream<RoomWatching> watching(String roomId) {
+  Stream<RoomWatching?> watching(String roomId) {
     return _roomRemoteDataSource
         .watching(roomId)
         .map(RoomMapper.mapToRoomWatching);
@@ -38,5 +38,10 @@ class RoomRepositoryImpl implements RoomRepository {
   Future<void> updateRoom(RoomUpdate roomUpdate) {
     final request = RoomMapper.mapToRoomUpdateRequest(roomUpdate);
     return _roomRemoteDataSource.updateRoom(request);
+  }
+
+  @override
+  Future<void> deleteRoom(String roomId) {
+    return _roomRemoteDataSource.deleteRoom(roomId);
   }
 }

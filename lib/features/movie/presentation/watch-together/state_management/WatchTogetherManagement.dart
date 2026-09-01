@@ -9,6 +9,7 @@ import 'package:movie_app/features/movie/presentation/watch-together/state/Toget
 
 import '../../../domain/models/MovieHistoryModel.dart';
 import '../../../domain/models/RoomUpdate.dart';
+import '../../../domain/usecases/DeleteRoomUseCase.dart';
 import '../../../domain/usecases/GetRoomWatchingUseCase.dart';
 import '../../../domain/usecases/SaveMovieHistoryUseCase.dart';
 
@@ -18,6 +19,7 @@ class WatchTogetherManagement extends Cubit<TogetherState> {
   final GetRoomWatchingUseCase _getRoomWatchingUseCase;
   final WatchingRoomChangeUseCase _watchingRoomChangeUseCase;
   final UpdateRoomUseCase _updateRoomUseCase;
+  final DeleteRoomUseCase _deleteRoomUseCase;
   StreamSubscription<RoomWatching?>? _listenMovie;
 
   WatchTogetherManagement(
@@ -25,6 +27,7 @@ class WatchTogetherManagement extends Cubit<TogetherState> {
     this._getRoomWatchingUseCase,
     this._watchingRoomChangeUseCase,
     this._updateRoomUseCase,
+    this._deleteRoomUseCase,
   ) : super(TogetherState());
 
   void saveMovieHistory(MovieHistoryModel model) async {
@@ -37,7 +40,12 @@ class WatchTogetherManagement extends Cubit<TogetherState> {
   void watching(String roomId) {
     _listenMovie?.cancel();
     _listenMovie = _watchingRoomChangeUseCase.watching(roomId).listen((room) {
-      emit(state.copyWith(roomWatching: room));
+      if(room == null){
+        emit(state.copyWith(roomWatching: null, roomDeleted: true));
+      }
+      else {
+        emit(state.copyWith(roomWatching: room));
+      }
     });
   }
 
@@ -57,6 +65,8 @@ class WatchTogetherManagement extends Cubit<TogetherState> {
     );
     await _updateRoomUseCase.execute(roomUpdate);
   }
+
+  Future<void> deleteRoom(String roomId) => _deleteRoomUseCase.execute(roomId);
 
   @override
   Future<void> close() {

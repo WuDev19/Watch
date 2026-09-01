@@ -37,12 +37,12 @@ class RoomRemoteDataSourceImpl implements RoomRemoteDataSource {
   }
 
   @override
-  Stream<RoomResponse> watching(String roomId) {
+  Stream<RoomResponse?> watching(String roomId) {
     return _firebaseFirestore
         .collection(_roomCollection)
         .doc(roomId)
         .snapshots()
-        .map((event) => RoomResponse.fromJson(event.data()!));
+        .map((event) => RoomResponse.fromJson(event.data()));
   }
 
   @override
@@ -65,5 +65,10 @@ class RoomRemoteDataSourceImpl implements RoomRemoteDataSource {
         .collection(_roomCollection)
         .doc(roomId)
         .update(updateData);
+  }
+
+  @override
+  Future<void> deleteRoom(String roomId) {
+    return _firebaseFirestore.collection(_roomCollection).doc(roomId).delete();
   }
 }

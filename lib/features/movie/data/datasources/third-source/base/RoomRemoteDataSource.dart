@@ -9,7 +9,9 @@ abstract class RoomRemoteDataSource {
 
   String getHostId();
 
-  Stream<RoomResponse> watching(String roomId);
+  Stream<RoomResponse?> watching(String roomId);
 
   Future<void> updateRoom(RoomUpdateRequest request);
+
+  Future<void> deleteRoom(String roomId);
 }

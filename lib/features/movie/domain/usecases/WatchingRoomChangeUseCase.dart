@@ -9,6 +9,6 @@ class WatchingRoomChangeUseCase {
 
   WatchingRoomChangeUseCase(this._roomRepository);
 
-  Stream<RoomWatching> watching(String roomId) =>
+  Stream<RoomWatching?> watching(String roomId) =>
       _roomRepository.watching(roomId);
 }
