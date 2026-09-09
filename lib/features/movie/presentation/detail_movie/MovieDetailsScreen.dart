@@ -351,7 +351,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                           Navigator.of(context, rootNavigator: true).pop();
                           MethodHelperUtils.showSnackBar(
                             context,
-                            "Create room unsuccessfully",
+                            "Create room unsuccessfully because of ${state.createRoomState.error?.replaceAll("Exception: ", "")}",
                           );
                         } else {
                           Navigator.of(context, rootNavigator: true).pop();

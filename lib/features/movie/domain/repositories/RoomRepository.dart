@@ -1,6 +1,7 @@
 import 'package:movie_app/features/movie/domain/models/RoomCreation.dart';
 import 'package:movie_app/features/movie/domain/models/RoomUpdate.dart';
 
+import '../models/RoomInvited.dart';
 import '../models/RoomWatching.dart';
 
 abstract class RoomRepository {
@@ -13,4 +14,6 @@ abstract class RoomRepository {
   Future<void> updateRoom(RoomUpdate roomUpdate);
 
   Future<void> deleteRoom(String roomId);
+
+  Stream<List<RoomInvited>> inviteListen();
 }

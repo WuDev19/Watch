@@ -1,5 +1,6 @@
 import 'package:injectable/injectable.dart';
 import 'package:movie_app/features/movie/domain/models/RoomCreation.dart';
+import 'package:movie_app/features/movie/domain/models/RoomInvited.dart';
 import 'package:movie_app/features/movie/domain/models/RoomUpdate.dart';
 import 'package:movie_app/features/movie/domain/models/RoomWatching.dart';
 import 'package:movie_app/features/movie/domain/repositories/RoomRepository.dart';
@@ -14,10 +15,15 @@ class RoomRepositoryImpl implements RoomRepository {
   RoomRepositoryImpl(this._roomRemoteDataSource);
 
   @override
-  Future<void> createRoom(RoomCreation roomCreate) {
+  Future<void> createRoom(RoomCreation roomCreate) async {
+    final hostInfo = await _roomRemoteDataSource.getHost();
+    if(hostInfo.isEmpty){
+      throw Exception("You need to login to use this feature");
+    }
     final request = RoomMapper.mapToCreateRoomRequest(
       roomCreate,
-      _roomRemoteDataSource.getHostId(),
+      hostInfo["hostId"]!,
+      hostInfo["hostName"]!,
     );
     return _roomRemoteDataSource.createRoom(request);
   }
@@ -43,5 +49,12 @@ class RoomRepositoryImpl implements RoomRepository {
   @override
   Future<void> deleteRoom(String roomId) {
     return _roomRemoteDataSource.deleteRoom(roomId);
+  }
+
+  @override
+  Stream<List<RoomInvited>> inviteListen() {
+    return _roomRemoteDataSource.inviteListen().map(
+      RoomMapper.mapToRoomInvited,
+    );
   }
 }

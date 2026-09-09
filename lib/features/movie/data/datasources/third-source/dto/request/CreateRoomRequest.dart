@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:movie_app/features/movie/data/datasources/third-source/dto/request/MemberRequest.dart';
 
 class CreateRoomRequest {
@@ -8,6 +9,7 @@ class CreateRoomRequest {
   String movieUrl;
   num currentTime;
   String hostId;
+  String hostName;
   List<MemberRequest> reserveMembers;
 
   CreateRoomRequest({
@@ -18,6 +20,7 @@ class CreateRoomRequest {
     required this.movieUrl,
     required this.currentTime,
     required this.hostId,
+    required this.hostName,
     required this.reserveMembers,
   });
 
@@ -29,6 +32,8 @@ class CreateRoomRequest {
     "movieUrl": movieUrl,
     "currentTime": currentTime,
     "hostId": hostId,
+    "hostName": hostName,
     "reserveMembers": reserveMembers.map((e) => e.toJson()).toList(),
+    "createdAt": Timestamp.now(),
   };
 }

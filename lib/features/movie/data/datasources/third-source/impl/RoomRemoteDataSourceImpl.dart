@@ -11,6 +11,7 @@ class RoomRemoteDataSourceImpl implements RoomRemoteDataSource {
   final FirebaseFirestore _firebaseFirestore;
   final FirebaseAuth _firebaseAuth;
   static final String _roomCollection = "rooms";
+  static final String _userCollection = "users";
 
   RoomRemoteDataSourceImpl(this._firebaseFirestore, this._firebaseAuth);
 
@@ -23,8 +24,16 @@ class RoomRemoteDataSourceImpl implements RoomRemoteDataSource {
   }
 
   @override
-  String getHostId() {
-    return _firebaseAuth.currentUser!.uid;
+  Future<Map<String, String>> getHost() async {
+    final hostId = _firebaseAuth.currentUser?.uid;
+    if(hostId == null) return {};
+    final result = await _firebaseFirestore.collection(_userCollection).doc(
+        hostId).get();
+    final hostName = result.data()!['name'];
+    return {
+      "hostId": hostId,
+      "hostName": hostName
+    };
   }
 
   @override
@@ -33,7 +42,9 @@ class RoomRemoteDataSourceImpl implements RoomRemoteDataSource {
         .collection(_roomCollection)
         .doc(roomId)
         .get();
-    return response.data()?.isNotEmpty ?? false;
+    return response
+        .data()
+        ?.isNotEmpty ?? false;
   }
 
   @override
@@ -70,5 +81,24 @@ class RoomRemoteDataSourceImpl implements RoomRemoteDataSource {
   @override
   Future<void> deleteRoom(String roomId) {
     return _firebaseFirestore.collection(_roomCollection).doc(roomId).delete();
+  }
+
+  @override
+  Stream<List<RoomResponse>> inviteListen() {
+    final userId = _firebaseAuth.currentUser!.uid;
+    return _firebaseFirestore
+        .collection(_roomCollection)
+        .where('reserveMembers', arrayContains: userId)
+        .snapshots()
+        .map((event) {
+      final invites = <RoomResponse>[];
+      for (final change in event.docChanges) {
+        if (change.type != DocumentChangeType.added) continue;
+        final room = RoomResponse.fromJson(change.doc.data());
+        if (room == null) continue;
+        invites.add(room);
+      }
+      return invites;
+    });
   }
 }

@@ -4,6 +4,7 @@ import 'package:movie_app/features/movie/domain/models/RoomMember.dart';
 import 'package:movie_app/features/movie/domain/models/RoomWatching.dart';
 
 import '../../../../domain/models/RoomCreation.dart';
+import '../../../../domain/models/RoomInvited.dart';
 import '../../../../domain/models/RoomUpdate.dart';
 import '../dto/request/MemberRequest.dart';
 import '../dto/response/MemberResponse.dart';
@@ -15,6 +16,7 @@ class RoomMapper {
   static CreateRoomRequest mapToCreateRoomRequest(
     RoomCreation roomCreate,
     String hostId,
+    String hostName,
   ) {
     final members = roomCreate.reserveMembers!.isEmpty
         ? <MemberRequest>[]
@@ -35,21 +37,24 @@ class RoomMapper {
       movieUrl: roomCreate.combine!.movieWatch.currentEpisode.linkM3U8,
       currentTime: 0,
       hostId: hostId,
+      hostName: hostName,
       reserveMembers: members,
     );
   }
 
   static RoomWatching? mapToRoomWatching(RoomResponse? roomResponse) {
-    return roomResponse == null ? null : RoomWatching(
-      movieName: roomResponse.movieName,
-      roomId: roomResponse.roomId,
-      isPlaying: roomResponse.isPlaying,
-      playbackRate: roomResponse.playbackRate,
-      movieUrl: roomResponse.movieUrl,
-      currentTime: roomResponse.currentTime,
-      hostId: roomResponse.hostId,
-      members: roomResponse.members.map(mapToRoomMember).toList(),
-    );
+    return roomResponse == null
+        ? null
+        : RoomWatching(
+            movieName: roomResponse.movieName,
+            roomId: roomResponse.roomId,
+            isPlaying: roomResponse.isPlaying,
+            playbackRate: roomResponse.playbackRate,
+            movieUrl: roomResponse.movieUrl,
+            currentTime: roomResponse.currentTime,
+            hostId: roomResponse.hostId,
+            members: roomResponse.members.map(mapToRoomMember).toList(),
+          );
   }
 
   static RoomMember mapToRoomMember(MemberResponse memberResponse) {
@@ -68,5 +73,11 @@ class RoomMapper {
       movieUrl: roomUpdate.movieUrl,
       currentTime: roomUpdate.currentTime,
     );
+  }
+
+  static List<RoomInvited> mapToRoomInvited(List<RoomResponse> roomResponse) {
+    return roomResponse
+        .map((e) => RoomInvited(movieName: e.movieName, roomId: e.roomId))
+        .toList();
   }
 }

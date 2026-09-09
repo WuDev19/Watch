@@ -7,11 +7,13 @@ abstract class RoomRemoteDataSource {
 
   Future<bool> checkRoom(String roomId);
 
-  String getHostId();
+  Future<Map<String, String>> getHost();
 
   Stream<RoomResponse?> watching(String roomId);
 
   Future<void> updateRoom(RoomUpdateRequest request);
 
   Future<void> deleteRoom(String roomId);
+
+  Stream<List<RoomResponse>> inviteListen();
 }
