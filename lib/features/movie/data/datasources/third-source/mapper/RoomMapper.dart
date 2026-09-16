@@ -38,6 +38,7 @@ class RoomMapper {
       currentTime: 0,
       hostId: hostId,
       hostName: hostName,
+      moviePoster: roomCreate.combine!.moviePoster,
       reserveMembers: members,
     );
   }
@@ -77,7 +78,15 @@ class RoomMapper {
 
   static List<RoomInvited> mapToRoomInvited(List<RoomResponse> roomResponse) {
     return roomResponse
-        .map((e) => RoomInvited(movieName: e.movieName, roomId: e.roomId))
+        .map(
+          (e) => RoomInvited(
+            movieName: e.movieName,
+            roomId: e.roomId,
+            hostName: e.hostName,
+            posterUrl: e.moviePoster,
+            createdAt: e.createdAt.toDate(),
+          ),
+        )
         .toList();
   }
 }

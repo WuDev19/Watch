@@ -67,6 +67,8 @@ import '../../features/movie/domain/repositories/DownloadRepository.dart'
 import '../../features/movie/domain/repositories/MovieRepository.dart' as _i503;
 import '../../features/movie/domain/repositories/RoomRepository.dart' as _i1053;
 import '../../features/movie/domain/repositories/UserRepository.dart' as _i253;
+import '../../features/movie/domain/usecases/AcceptInvitationUseCase.dart'
+    as _i679;
 import '../../features/movie/domain/usecases/CheckFavoriteMovieUseCase.dart'
     as _i35;
 import '../../features/movie/domain/usecases/CreateRoomUseCase.dart' as _i17;
@@ -115,9 +117,13 @@ import '../../features/movie/domain/usecases/SearchMovieAccordingToYearUseCase.d
     as _i2;
 import '../../features/movie/domain/usecases/SearchMovieUseCase.dart' as _i68;
 import '../../features/movie/domain/usecases/SearchUserUseCase.dart' as _i316;
+import '../../features/movie/domain/usecases/SkipInvitationUseCase.dart'
+    as _i317;
 import '../../features/movie/domain/usecases/UpdateRoomUseCase.dart' as _i214;
 import '../../features/movie/domain/usecases/WatchingRoomChangeUseCase.dart'
     as _i67;
+import '../../features/movie/domain/usecases/WatchingRoomInvitedUseCase.dart'
+    as _i544;
 import '../../features/movie/presentation/detail_movie/state_management/MovieDetailManagement.dart'
     as _i862;
 import '../../features/movie/presentation/home/state_management/HomeBloc.dart'
@@ -128,6 +134,8 @@ import '../../features/movie/presentation/search/state_management/SearchPageMana
     as _i964;
 import '../../features/movie/presentation/setting/state_managment/SettingScreenManagement.dart'
     as _i874;
+import '../../features/movie/presentation/shared_management/state_management/RoomInvitationManagement.dart'
+    as _i82;
 import '../../features/movie/presentation/watch-together/state_management/WatchTogetherManagement.dart'
     as _i670;
 import '../../features/movie/presentation/watch_movie/state_management/WatchMovieManagement.dart'
@@ -283,6 +291,22 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i1045.DeleteRoomUseCase>(
       () => _i1045.DeleteRoomUseCase(gh<_i1053.RoomRepository>()),
+    );
+    gh.factory<_i544.WatchingRoomInvitedUseCase>(
+      () => _i544.WatchingRoomInvitedUseCase(gh<_i1053.RoomRepository>()),
+    );
+    gh.factory<_i679.AcceptInvitationUseCase>(
+      () => _i679.AcceptInvitationUseCase(gh<_i1053.RoomRepository>()),
+    );
+    gh.factory<_i317.SkipInvitationUseCase>(
+      () => _i317.SkipInvitationUseCase(gh<_i1053.RoomRepository>()),
+    );
+    gh.factory<_i82.RoomInvitationManagement>(
+      () => _i82.RoomInvitationManagement(
+        gh<_i544.WatchingRoomInvitedUseCase>(),
+        gh<_i679.AcceptInvitationUseCase>(),
+        gh<_i317.SkipInvitationUseCase>(),
+      ),
     );
     gh.lazySingleton<_i304.CheckVerifiedNewEmailUseCase>(
       () => _i304.CheckVerifiedNewEmailUseCase(gh<_i11.PersonalRepository>()),

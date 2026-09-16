@@ -16,4 +16,8 @@ abstract class RoomRepository {
   Future<void> deleteRoom(String roomId);
 
   Stream<List<RoomInvited>> inviteListen();
+
+  Future<void> skipInvitation(String roomId);
+
+  Future<void> acceptInvitation(String roomId);
 }

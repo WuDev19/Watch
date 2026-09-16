@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../core/colors/VColors.dart';
-import '../../../../../utils/constants.dart';
 import '../../../domain/models/CombineDetailAndWatch.dart';
 import '../../../domain/models/MovieWatching.dart';
 

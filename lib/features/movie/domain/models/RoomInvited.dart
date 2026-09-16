@@ -1,6 +1,15 @@
 class RoomInvited {
-  String movieName;
-  String roomId;
+  final String roomId;
+  final String movieName;
+  final String hostName;
+  final String posterUrl;
+  final DateTime createdAt;
 
-  RoomInvited({required this.movieName, required this.roomId});
+  RoomInvited({
+    required this.roomId,
+    required this.movieName,
+    required this.hostName,
+    required this.posterUrl,
+    required this.createdAt,
+  });
 }

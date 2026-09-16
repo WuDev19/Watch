@@ -47,4 +47,21 @@ class MethodHelperUtils {
       (index) => chars[random.nextInt(chars.length)],
     ).join();
   }
+
+  static String formatTimeAgo(DateTime dateTime) {
+    final diff = DateTime.now().difference(dateTime);
+    final diffInSeconds = diff.inSeconds;
+    final diffInMinutes = diff.inMinutes;
+    final diffInHours = diff.inHours;
+    final diffInDays = diff.inDays;
+    if (diffInSeconds < 60) {
+      return "Just now";
+    } else if (diffInMinutes < 60) {
+      return diffInMinutes > 1 ? "$diffInMinutes minutes ago" : "1 minute ago";
+    } else if (diffInHours < 24) {
+      return diffInHours > 1 ? "$diffInHours hours ago" : "1 hour ago";
+    } else {
+      return diffInDays > 1 ? "$diffInDays days ago" : "1 day ago";
+    }
+  }
 }

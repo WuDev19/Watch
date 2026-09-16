@@ -1,44 +1,16 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:movie_app/core/colors/VColors.dart';
 import 'package:movie_app/features/movie/domain/models/RoomCreation.dart';
 import 'package:movie_app/features/movie/domain/models/RoomInvited.dart';
+import 'package:movie_app/features/movie/presentation/shared_management/state/RoomInviteState.dart';
+import 'package:movie_app/features/movie/presentation/shared_management/state_management/RoomInvitationManagement.dart';
+import 'package:movie_app/utils/MethodHelperUtils.dart';
 
-class RoomInviteItemUI {
-  final String roomId;
-  final String movieName;
-  final String hostName;
-  final String posterUrl;
-  final DateTime createdAt;
-
-  const RoomInviteItemUI({
-    required this.roomId,
-    required this.movieName,
-    required this.hostName,
-    required this.posterUrl,
-    required this.createdAt,
-  });
-
-  factory RoomInviteItemUI.fromRoomInvited(
-    RoomInvited invited, {
-    int indexOffset = 0,
-  }) {
-    return RoomInviteItemUI(
-      roomId: invited.roomId,
-      movieName: invited.movieName,
-      hostName:
-          "Người dùng #${invited.roomId.substring(0, invited.roomId.length > 4 ? 4 : invited.roomId.length)}",
-      posterUrl:
-          "https://image.tmdb.org/t/p/w500/8cdWjvZQUExUUTzyp4t6EDMubfO.jpg",
-      createdAt: DateTime.now().subtract(
-        Duration(minutes: (indexOffset + 1) * 5),
-      ),
-    );
-  }
-}
-
+//TODO: cập nhật thời gian khi có member join vào
 class RoomInvitationOverlay extends StatefulWidget {
   const RoomInvitationOverlay({super.key});
 
@@ -47,135 +19,108 @@ class RoomInvitationOverlay extends StatefulWidget {
 }
 
 class _RoomInvitationOverlayState extends State<RoomInvitationOverlay> {
-  late List<RoomInviteItemUI> _invites;
   String? _selectedRoomId;
   bool _isClosed = false;
+  final ValueNotifier<bool> _isProcessing = ValueNotifier(false);
+  late final RoomInvitationManagement _roomInvitationManagement;
 
   @override
   void initState() {
     super.initState();
-    _initMockData();
+    _roomInvitationManagement = context.read<RoomInvitationManagement>();
+    _roomInvitationManagement.watchingRoomInvited();
   }
 
-  void _initMockData() {
-    final now = DateTime.now();
-    _invites = [
-      RoomInviteItemUI(
-        roomId: "ROOM-101",
-        movieName: "Deadpool & Wolverine",
-        hostName: "Minh Anh (Host)",
-        posterUrl:
-            "https://image.tmdb.org/t/p/w500/8cdWjvZQUExUUTzyp4t6EDMubfO.jpg",
-        createdAt: now.subtract(const Duration(minutes: 2)),
-      ),
-      RoomInviteItemUI(
-        roomId: "ROOM-102",
-        movieName: "Spider-Man: Across the Spider-Verse",
-        hostName: "Hoàng Nam",
-        posterUrl:
-            "https://image.tmdb.org/t/p/w500/8Vt6mAwTZWMGGKGfFsvMAtug5Wp.jpg",
-        createdAt: now.subtract(const Duration(minutes: 15)),
-      ),
-      RoomInviteItemUI(
-        roomId: "ROOM-103",
-        movieName: "Oppenheimer",
-        hostName: "Trần Tuấn",
-        posterUrl:
-            "https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg",
-        createdAt: now.subtract(const Duration(minutes: 42)),
-      ),
-      RoomInviteItemUI(
-        roomId: "ROOM-104",
-        movieName: "Dune: Part Two",
-        hostName: "Bảo Ngọc",
-        posterUrl:
-            "https://image.tmdb.org/t/p/w500/1pdfLPoL6VFi8zPjLSpAozch0vI.jpg",
-        createdAt: now.subtract(const Duration(hours: 2)),
-      ),
-    ];
-
-    _invites.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-    _selectedRoomId = _invites.isNotEmpty ? _invites.first.roomId : null;
+  @override
+  void dispose() {
+    _isProcessing.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final overlayWidget = _isClosed || _invites.isEmpty
-        ? const SizedBox.shrink()
-        : Material(
-            color: Colors.transparent,
-            child: Stack(
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _isClosed = true;
-                    });
-                  },
-                  child: Container(
-                    color: Colors.black.withOpacity(0.65),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-                      child: const SizedBox.expand(),
-                    ),
-                  ),
-                ),
-
-                Center(
-                  child: Container(
-                    constraints: const BoxConstraints(
-                      maxWidth: 760,
-                      maxHeight: 480,
-                    ),
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 24,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF161824),
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.12),
-                        width: 1.5,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.6),
-                          blurRadius: 32,
-                          spreadRadius: 4,
-                          offset: const Offset(0, 12),
+    return BlocBuilder<RoomInvitationManagement, RoomInviteState>(
+      builder: (context, state) {
+        final invites = state.roomInvited;
+        _selectedRoomId ??= invites.isNotEmpty ? invites.first.roomId : null;
+        // Nếu invite đang chọn bị xóa (do bị host huỷ chẳng hạn), fallback về đầu list
+        if (invites.isNotEmpty &&
+            !invites.any((e) => e.roomId == _selectedRoomId)) {
+          _selectedRoomId = invites.first.roomId;
+        }
+        return _isClosed || invites.isEmpty
+            ? const SizedBox.shrink()
+            : Material(
+                color: Colors.transparent,
+                child: Stack(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _isClosed = true;
+                        });
+                      },
+                      child: Container(
+                        color: Colors.black.withAlpha(166),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+                          child: const SizedBox.expand(),
                         ),
-                      ],
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(24),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          // 1. Thanh Tiêu Đề Dialog Header
-                          _buildDialogHeader(context),
-                          // 2. Nội Dung Chia 2 Phần (Bên trái: Main Invite | Bên phải: Pending List)
-                          Flexible(child: _buildSplitContent(context)),
-                        ],
                       ),
                     ),
-                  ),
+                    Center(
+                      child: Container(
+                        constraints: const BoxConstraints(
+                          maxWidth: 760,
+                          maxHeight: 480,
+                        ),
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 24,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF161824),
+                          borderRadius: BorderRadius.circular(24),
+                          border: Border.all(
+                            color: Colors.white.withAlpha(31),
+                            width: 1.5,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withAlpha(153),
+                              blurRadius: 32,
+                              spreadRadius: 4,
+                              offset: const Offset(0, 12),
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(24),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              _buildDialogHeader(context, invites),
+                              Flexible(
+                                child: _buildSplitContent(context, invites),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          );
-
-    return overlayWidget;
+              );
+      },
+    );
   }
 
-  Widget _buildDialogHeader(BuildContext context) {
+  Widget _buildDialogHeader(BuildContext context, List<RoomInvited> invites) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
       decoration: BoxDecoration(
         color: const Color(0xFF1E2132),
-        border: Border(
-          bottom: BorderSide(color: Colors.white.withOpacity(0.08)),
-        ),
+        border: Border(bottom: BorderSide(color: Colors.white.withAlpha(20))),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -183,7 +128,7 @@ class _RoomInvitationOverlayState extends State<RoomInvitationOverlay> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: VColors.colorIcon.withOpacity(0.15),
+              color: VColors.colorIcon.withAlpha(38),
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -195,12 +140,12 @@ class _RoomInvitationOverlayState extends State<RoomInvitationOverlay> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: VColors.colorIcon.withOpacity(0.2),
+              color: VColors.colorIcon.withAlpha(51),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: VColors.colorIcon.withOpacity(0.4)),
+              border: Border.all(color: VColors.colorIcon.withAlpha(102)),
             ),
             child: Text(
-              "${_invites.length} invitation",
+              "${invites.length} invitation",
               style: const TextStyle(
                 color: VColors.colorIcon,
                 fontSize: 12,
@@ -227,27 +172,33 @@ class _RoomInvitationOverlayState extends State<RoomInvitationOverlay> {
     );
   }
 
-  Widget _buildSplitContent(BuildContext context) {
-    final mainInvite = _invites.firstWhere(
+  Widget _buildSplitContent(BuildContext context, List<RoomInvited> invites) {
+    final mainInvite = invites.firstWhere(
       (element) => element.roomId == _selectedRoomId,
-      orElse: () => _invites.first,
+      orElse: () => invites.first,
     );
-    final olderInvites = _invites
+    final olderInvites = invites
         .where((element) => element.roomId != mainInvite.roomId)
         .toList();
     olderInvites.sort((a, b) => b.createdAt.compareTo(a.createdAt));
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Expanded(flex: 60, child: _buildLeftMainInvitePanel(mainInvite)),
-        Container(width: 1, color: Colors.white.withOpacity(0.08)),
+        Expanded(
+          flex: 60,
+          child: _buildLeftMainInvitePanel(mainInvite, invites),
+        ),
+        Container(width: 1, color: Colors.white.withAlpha(20)),
         Expanded(flex: 40, child: _buildRightOlderInvitesPanel(olderInvites)),
       ],
     );
   }
 
-  Widget _buildLeftMainInvitePanel(RoomInviteItemUI mainInvite) {
-    final timeFormatted = _formatTimeAgo(mainInvite.createdAt);
+  Widget _buildLeftMainInvitePanel(
+    RoomInvited mainInvite,
+    List<RoomInvited> invites,
+  ) {
+    final timeFormatted = MethodHelperUtils.formatTimeAgo(mainInvite.createdAt);
     return Container(
       padding: const EdgeInsets.all(20),
       color: const Color(0xFF161824),
@@ -286,14 +237,14 @@ class _RoomInvitationOverlayState extends State<RoomInvitationOverlay> {
             children: [
               Icon(
                 Icons.access_time_rounded,
-                color: Colors.white.withOpacity(0.4),
+                color: Colors.white.withAlpha(102),
                 size: 14,
               ),
               const SizedBox(width: 4),
               Text(
                 timeFormatted,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.5),
+                  color: Colors.white.withAlpha(128),
                   fontSize: 12,
                 ),
               ),
@@ -363,7 +314,7 @@ class _RoomInvitationOverlayState extends State<RoomInvitationOverlay> {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
-                                color: Colors.white.withOpacity(0.85),
+                                color: Colors.white.withAlpha(217),
                                 fontSize: 13,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -378,16 +329,14 @@ class _RoomInvitationOverlayState extends State<RoomInvitationOverlay> {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.06),
+                          color: Colors.white.withAlpha(15),
                           borderRadius: BorderRadius.circular(6),
-                          border: Border.all(
-                            color: Colors.white.withOpacity(0.1),
-                          ),
+                          border: Border.all(color: Colors.white.withAlpha(26)),
                         ),
                         child: Text(
                           "Room ID: ${mainInvite.roomId}",
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.7),
+                            color: Colors.white.withAlpha(179),
                             fontSize: 12,
                             fontFamily: 'monospace',
                           ),
@@ -406,12 +355,12 @@ class _RoomInvitationOverlayState extends State<RoomInvitationOverlay> {
                 child: OutlinedButton.icon(
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 12),
-                    side: BorderSide(color: Colors.white.withOpacity(0.2)),
+                    side: BorderSide(color: Colors.white.withAlpha(51)),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  onPressed: () => _handleDismissInvite(mainInvite),
+                  onPressed: () => _handleDismissInvite(mainInvite, invites),
                   icon: const Icon(Icons.close_rounded, color: Colors.white70),
                   label: const Text(
                     "Skip",
@@ -425,26 +374,33 @@ class _RoomInvitationOverlayState extends State<RoomInvitationOverlay> {
               const SizedBox(width: 12),
               Expanded(
                 flex: 1,
-                child: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: VColors.colorIcon,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    elevation: 4,
-                    shadowColor: VColors.colorIcon.withOpacity(0.5),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  onPressed: () => _handleAcceptInvite(mainInvite),
-                  icon: const Icon(
-                    Icons.play_arrow_rounded,
-                    color: Colors.white,
-                  ),
-                  label: const Text(
-                    "Join",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
+                child: ValueListenableBuilder(
+                  valueListenable: _isProcessing,
+                  builder: (context, isProcessing, child) {
+                    return ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: VColors.colorIcon,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        elevation: 4,
+                        shadowColor: VColors.colorIcon.withAlpha(128),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: () => isProcessing
+                          ? null
+                          : _handleAcceptInvite(mainInvite, invites),
+                      icon: const Icon(
+                        Icons.play_arrow_rounded,
+                        color: Colors.white,
+                      ),
+                      label: const Text(
+                        "Join",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    );
+                  },
                 ),
               ),
             ],
@@ -454,7 +410,7 @@ class _RoomInvitationOverlayState extends State<RoomInvitationOverlay> {
     );
   }
 
-  Widget _buildRightOlderInvitesPanel(List<RoomInviteItemUI> olderInvites) {
+  Widget _buildRightOlderInvitesPanel(List<RoomInvited> olderInvites) {
     return Container(
       color: const Color(0xFF1B1D2C),
       padding: const EdgeInsets.all(16),
@@ -478,14 +434,14 @@ class _RoomInvitationOverlayState extends State<RoomInvitationOverlay> {
                   children: [
                     Icon(
                       Icons.inbox_rounded,
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withAlpha(51),
                       size: 36,
                     ),
                     const SizedBox(height: 8),
                     Text(
                       "No other pending invitations",
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.4),
+                        color: Colors.white.withAlpha(102),
                         fontSize: 13,
                       ),
                     ),
@@ -510,8 +466,8 @@ class _RoomInvitationOverlayState extends State<RoomInvitationOverlay> {
     );
   }
 
-  Widget _buildRightInviteCardTile(RoomInviteItemUI invite) {
-    final timeFormatted = _formatTimeAgo(invite.createdAt);
+  Widget _buildRightInviteCardTile(RoomInvited invite) {
+    final timeFormatted = MethodHelperUtils.formatTimeAgo(invite.createdAt);
     return InkWell(
       onTap: () {
         setState(() {
@@ -522,9 +478,9 @@ class _RoomInvitationOverlayState extends State<RoomInvitationOverlay> {
       child: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.04),
+          color: Colors.white.withAlpha(10),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.white.withOpacity(0.06)),
+          border: Border.all(color: Colors.white.withAlpha(15)),
         ),
         child: Column(
           children: [
@@ -566,7 +522,7 @@ class _RoomInvitationOverlayState extends State<RoomInvitationOverlay> {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                color: Colors.white.withOpacity(0.6),
+                color: Colors.white.withAlpha(153),
                 fontSize: 11,
               ),
             ),
@@ -596,7 +552,7 @@ class _RoomInvitationOverlayState extends State<RoomInvitationOverlay> {
             Container(
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.06),
+                color: Colors.white.withAlpha(15),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
@@ -611,60 +567,65 @@ class _RoomInvitationOverlayState extends State<RoomInvitationOverlay> {
     );
   }
 
-  /// Xử lý khi nhấn nút "Tham gia"
-  void _handleAcceptInvite(RoomInviteItemUI invite) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          "Đang tham gia phòng ${invite.roomId} - ${invite.movieName}",
-        ),
-        backgroundColor: VColors.colorIcon,
-        duration: const Duration(seconds: 2),
-      ),
+  void _handleAcceptInvite(
+    RoomInvited invite,
+    List<RoomInvited> invites,
+  ) async {
+    if (_isProcessing.value) return;
+    _isProcessing.value = true;
+    MethodHelperUtils.showSnackBar(
+      context,
+      "Joining ${invite.roomId} - ${invite.movieName}",
     );
-
-    context.push(
-      "/watch-together",
-      extra: RoomCreation(isHost: false, roomId: invite.roomId),
+    final success = await _roomInvitationManagement.acceptInvitation(
+      invite.roomId,
     );
-
-    _removeInviteAndAutoSelectNext(invite.roomId);
+    if (!mounted) return;
+    _isProcessing.value = false;
+    if (success) {
+      _autoSelectNextAfterRemoval(invite.roomId);
+      context.push(
+        "/watch-together",
+        extra: RoomCreation(isHost: false, roomId: invite.roomId),
+      );
+    } else {
+      MethodHelperUtils.showSnackBar(
+        context,
+        "Join unsuccessfully, please try again",
+      );
+    }
   }
 
-  /// Xử lý khi nhấn nút "Bỏ qua"
-  void _handleDismissInvite(RoomInviteItemUI invite) {
-    _removeInviteAndAutoSelectNext(invite.roomId);
+  void _handleDismissInvite(
+    RoomInvited invite,
+    List<RoomInvited> invites,
+  ) async {
+    if (_isProcessing.value) return;
+    _isProcessing.value = true;
+    final success = await _roomInvitationManagement.skipInvitation(
+      invite.roomId,
+    );
+    if (!mounted) return;
+    _isProcessing.value = false;
+    if (success) {
+      _autoSelectNextAfterRemoval(invite.roomId);
+    } else {
+      MethodHelperUtils.showSnackBar(
+        context,
+        "Skip invitation unsuccessfully, please try again",
+      );
+    }
   }
 
-  /// Loại bỏ 1 invite khỏi danh sách & tự động chọn lời mời mới nhất tiếp theo
-  void _removeInviteAndAutoSelectNext(String roomId) {
+  void _autoSelectNextAfterRemoval(String removedRoomId) {
+    final remaining = _roomInvitationManagement.state.roomInvited;
     setState(() {
-      _invites.removeWhere((e) => e.roomId == roomId);
-      if (_invites.isEmpty) {
+      if (remaining.isEmpty) {
         _isClosed = true;
         _selectedRoomId = null;
-      } else {
-        // Sắp xếp lại theo thời gian và chọn lời mời mới nhất làm chính
-        _invites.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-        _selectedRoomId = _invites.first.roomId;
+      } else if (_selectedRoomId == removedRoomId) {
+        _selectedRoomId = remaining.first.roomId;
       }
     });
-  }
-
-  String _formatTimeAgo(DateTime dateTime) {
-    final diff = DateTime.now().difference(dateTime);
-    final diffInSeconds = diff.inSeconds;
-    final diffInMinutes = diff.inMinutes;
-    final diffInHours = diff.inHours;
-    final diffInDays = diff.inDays;
-    if (diffInSeconds < 60) {
-      return "Just now";
-    } else if (diffInMinutes < 60) {
-      return diffInMinutes > 1 ? "$diffInMinutes minutes ago" : "1 minute ago";
-    } else if (diffInHours < 24) {
-      return diffInHours > 1 ? "$diffInHours hours ago" : "1 hour ago";
-    } else {
-      return diffInDays > 1 ? "$diffInDays days ago" : "1 day ago";
-    }
   }
 }

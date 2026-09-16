@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:movie_app/features/movie/domain/models/CombineDetailAndWatch.dart';
 import 'package:movie_app/features/movie/domain/models/MovieWatching.dart';
 import 'package:movie_app/features/movie/presentation/setting/widgets/ProgressBorder.dart';
-import 'package:movie_app/utils/constants.dart';
 
 import '../../../../../core/colors/VColors.dart';
 

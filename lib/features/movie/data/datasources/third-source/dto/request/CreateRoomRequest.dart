@@ -10,6 +10,7 @@ class CreateRoomRequest {
   num currentTime;
   String hostId;
   String hostName;
+  String moviePoster;
   List<MemberRequest> reserveMembers;
 
   CreateRoomRequest({
@@ -21,6 +22,7 @@ class CreateRoomRequest {
     required this.currentTime,
     required this.hostId,
     required this.hostName,
+    required this.moviePoster,
     required this.reserveMembers,
   });
 
@@ -33,6 +35,7 @@ class CreateRoomRequest {
     "currentTime": currentTime,
     "hostId": hostId,
     "hostName": hostName,
+    "moviePoster": moviePoster,
     "reserveMembers": reserveMembers.map((e) => e.toJson()).toList(),
     "createdAt": Timestamp.now(),
   };

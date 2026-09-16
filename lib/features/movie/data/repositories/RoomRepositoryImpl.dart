@@ -17,7 +17,7 @@ class RoomRepositoryImpl implements RoomRepository {
   @override
   Future<void> createRoom(RoomCreation roomCreate) async {
     final hostInfo = await _roomRemoteDataSource.getHost();
-    if(hostInfo.isEmpty){
+    if (hostInfo.isEmpty) {
       throw Exception("You need to login to use this feature");
     }
     final request = RoomMapper.mapToCreateRoomRequest(
@@ -56,5 +56,15 @@ class RoomRepositoryImpl implements RoomRepository {
     return _roomRemoteDataSource.inviteListen().map(
       RoomMapper.mapToRoomInvited,
     );
+  }
+
+  @override
+  Future<void> acceptInvitation(String roomId) {
+    return _roomRemoteDataSource.acceptInvitation(roomId);
+  }
+
+  @override
+  Future<void> skipInvitation(String roomId) {
+    return _roomRemoteDataSource.skipInvitation(roomId);
   }
 }

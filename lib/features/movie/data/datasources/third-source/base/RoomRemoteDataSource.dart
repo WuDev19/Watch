@@ -16,4 +16,8 @@ abstract class RoomRemoteDataSource {
   Future<void> deleteRoom(String roomId);
 
   Stream<List<RoomResponse>> inviteListen();
+
+  Future<void> skipInvitation(String roomId);
+
+  Future<void> acceptInvitation(String roomId);
 }
