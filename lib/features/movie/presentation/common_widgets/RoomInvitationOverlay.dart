@@ -10,6 +10,8 @@ import 'package:movie_app/features/movie/presentation/shared_management/state/Ro
 import 'package:movie_app/features/movie/presentation/shared_management/state_management/RoomInvitationManagement.dart';
 import 'package:movie_app/utils/MethodHelperUtils.dart';
 
+import '../../../../core/routes/AppRoutes.dart';
+
 //TODO: cập nhật thời gian khi có member join vào
 class RoomInvitationOverlay extends StatefulWidget {
   const RoomInvitationOverlay({super.key});
@@ -39,7 +41,7 @@ class _RoomInvitationOverlayState extends State<RoomInvitationOverlay> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<RoomInvitationManagement, RoomInviteState>(
+    return BlocConsumer<RoomInvitationManagement, RoomInviteState>(
       builder: (context, state) {
         final invites = state.roomInvited;
         _selectedRoomId ??= invites.isNotEmpty ? invites.first.roomId : null;
@@ -112,6 +114,13 @@ class _RoomInvitationOverlayState extends State<RoomInvitationOverlay> {
                 ),
               );
       },
+      listener: (context, state) {
+        setState(() {
+          _isClosed = false;
+        });
+      },
+      listenWhen: (previous, current) =>
+          current.roomInvited.length > previous.roomInvited.length,
     );
   }
 
@@ -280,69 +289,62 @@ class _RoomInvitationOverlayState extends State<RoomInvitationOverlay> {
                   ),
                 ),
                 const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        mainInvite.movieName,
-                        maxLines: 2,
+                Text(
+                  mainInvite.movieName,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                    height: 1.2,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    const CircleAvatar(
+                      radius: 10,
+                      backgroundColor: VColors.colorIcon,
+                      child: Icon(
+                        Icons.person,
+                        color: Colors.white,
+                        size: 12,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        mainInvite.hostName,
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
-                          height: 1.2,
+                        style: TextStyle(
+                          color: Colors.white.withAlpha(217),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
-                      const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          const CircleAvatar(
-                            radius: 10,
-                            backgroundColor: VColors.colorIcon,
-                            child: Icon(
-                              Icons.person,
-                              color: Colors.white,
-                              size: 12,
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          Expanded(
-                            child: Text(
-                              mainInvite.hostName,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: Colors.white.withAlpha(217),
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withAlpha(15),
-                          borderRadius: BorderRadius.circular(6),
-                          border: Border.all(color: Colors.white.withAlpha(26)),
-                        ),
-                        child: Text(
-                          "Room ID: ${mainInvite.roomId}",
-                          style: TextStyle(
-                            color: Colors.white.withAlpha(179),
-                            fontSize: 12,
-                            fontFamily: 'monospace',
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withAlpha(15),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: Colors.white.withAlpha(26)),
+                  ),
+                  child: Text(
+                    "Room ID: ${mainInvite.roomId}",
+                    style: TextStyle(
+                      color: Colors.white.withAlpha(179),
+                      fontSize: 12,
+                      fontFamily: 'monospace',
+                    ),
                   ),
                 ),
               ],
@@ -580,14 +582,17 @@ class _RoomInvitationOverlayState extends State<RoomInvitationOverlay> {
     final success = await _roomInvitationManagement.acceptInvitation(
       invite.roomId,
     );
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
     _isProcessing.value = false;
     if (success) {
       _autoSelectNextAfterRemoval(invite.roomId);
-      context.push(
+      AppRoutes.routes.push(
         "/watch-together",
         extra: RoomCreation(isHost: false, roomId: invite.roomId),
       );
+
     } else {
       MethodHelperUtils.showSnackBar(
         context,

@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:injectable/injectable.dart';
 import 'package:movie_app/features/movie/data/datasources/third-source/base/RoomRemoteDataSource.dart';
 import 'package:movie_app/features/movie/data/datasources/third-source/dto/request/CreateRoomRequest.dart';
-import 'package:movie_app/features/movie/data/datasources/third-source/dto/response/MemberResponse.dart';
 import 'package:movie_app/features/movie/data/datasources/third-source/dto/response/RoomResponse.dart';
 import 'package:movie_app/features/movie/data/datasources/third-source/dto/response/RoomUpdateRequest.dart';
 import 'package:movie_app/features/profile/domain/models/Profile.dart';
@@ -83,13 +82,14 @@ class RoomRemoteDataSourceImpl implements RoomRemoteDataSource {
   }
 
   @override
-  Stream<List<RoomResponse>> inviteListen() {
-    final userId = _firebaseAuth.currentUser!.uid;
-    return _firebaseFirestore
-        .collection(_roomCollection)
-        .where('reserveMembers', arrayContains: userId)
-        .snapshots()
-        .map((event) {
+  Stream<List<RoomResponse>> inviteListen() async* {
+    await for (final user in _firebaseAuth.authStateChanges()) {
+      if (user != null) {
+        yield* _firebaseFirestore
+            .collection(_roomCollection)
+            .where('reserveMemberIds', arrayContains: user.uid)
+            .snapshots()
+            .map((event) {
           final invites = <RoomResponse>[];
           for (final doc in event.docs) {
             final room = RoomResponse.fromJson(doc.data());
@@ -97,8 +97,11 @@ class RoomRemoteDataSourceImpl implements RoomRemoteDataSource {
             invites.add(room);
           }
           return invites;
-        })
-        .handleError((error, stackTrace) {});
+        });
+      } else {
+        yield <RoomResponse>[];
+      }
+    }
   }
 
   @override
@@ -111,12 +114,14 @@ class RoomRemoteDataSourceImpl implements RoomRemoteDataSource {
         .collection(_roomCollection)
         .doc(roomId)
         .get();
-    final reserveMembers =
-        room.data()?["reserveMembers"] as List<MemberResponse>? ?? [];
-    if (reserveMembers.isEmpty) return;
-    reserveMembers.removeWhere((element) => element.id == memberId);
+    final reserveMembersRaw =
+        (room.data()?["reserveMembers"] as List<dynamic>?) ?? [];
+    final updatedReserveMembers = reserveMembersRaw
+        .where((element) => element is Map && element["id"] != memberId)
+        .toList();
     return _firebaseFirestore.collection(_roomCollection).doc(roomId).update({
-      "reserveMembers": reserveMembers,
+      "reserveMemberIds": FieldValue.arrayRemove([memberId]),
+      "reserveMembers": updatedReserveMembers,
     });
   }
 
@@ -130,17 +135,14 @@ class RoomRemoteDataSourceImpl implements RoomRemoteDataSource {
         .collection(_roomCollection)
         .doc(roomId)
         .get();
-    final reserveMembers =
-        room.data()?["reserveMembers"] as List<MemberResponse>? ??
-        []; //lấy danh sách các members được mời nhưng chưa join
-    if (reserveMembers.isEmpty) return;
-    reserveMembers.removeWhere(
-      (element) => element.id == memberId,
-    ); //accept/skip thì xóa đi trong reserveMembers
-    final members =
-        room.data()?["members"] ?? []; //lấy danh sách members hiện tại
+    final reserveMembersRaw =
+        (room.data()?["reserveMembers"] as List<dynamic>?) ?? [];
+    final updatedReserveMembers = reserveMembersRaw
+        .where((element) => element is Map && element["id"] != memberId)
+        .toList();
+    final membersRaw = (room.data()?["members"] as List<dynamic>?) ?? [];
+    final members = membersRaw.toList();
     late final DocumentSnapshot<Map<String, dynamic>> userResponse;
-    //firestore có cơ chế cache, ưu tiên lấy cache trước cho nhanh
     try {
       userResponse = await _firebaseFirestore
           .collection(_userCollection)
@@ -153,15 +155,14 @@ class RoomRemoteDataSourceImpl implements RoomRemoteDataSource {
           .get();
     }
     final user = Profile.fromJson(userResponse.data()!);
-    members.add(
-      MemberResponse(
-        id: memberId,
-        name: user.name ?? "",
-        avatarUrl: user.avt ?? "",
-      ),
-    );
+    members.add({
+      "id": memberId,
+      "name": user.name ?? "",
+      "avatarUrl": user.avt ?? "",
+    });
     return _firebaseFirestore.collection(_roomCollection).doc(roomId).update({
-      "reserveMembers": reserveMembers,
+      "reserveMemberIds": FieldValue.arrayRemove([memberId]),
+      "reserveMembers": updatedReserveMembers,
       "members": members,
     });
   }

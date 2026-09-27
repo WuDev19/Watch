@@ -36,6 +36,7 @@ class CreateRoomRequest {
     "hostId": hostId,
     "hostName": hostName,
     "moviePoster": moviePoster,
+    "reserveMemberIds": reserveMembers.map((e) => e.id).toList(),
     "reserveMembers": reserveMembers.map((e) => e.toJson()).toList(),
     "createdAt": Timestamp.now(),
   };
